@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(DemoProject VERSION 1.0)
+project(Breadboard VERSION 1.0)
 
 add_library(project_compiler_flags INTERFACE)
 target_compile_features(project_compiler_flags INTERFACE cxx_std_20)
@@ -48,45 +48,45 @@ else()
     add_subdirectory(${glfw_dir})
 endif()
 
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT DemoProjectLib)
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Breadboard)
 
-add_library(DemoProjectLib STATIC ${source_files})
-target_include_directories(DemoProjectLib PUBLIC src)
+add_library(BreadboardLib STATIC ${source_files})
+target_include_directories(BreadboardLib PUBLIC src)
 
 if (EMSCRIPTEN)
-    target_compile_definitions(DemoProjectLib PRIVATE DATA_DIR="./data/")
+    target_compile_definitions(BreadboardLib PRIVATE DATA_DIR="./data/")
 else()
-    target_compile_definitions(DemoProjectLib PRIVATE DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data/")
+    target_compile_definitions(BreadboardLib PRIVATE DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data/")
 endif()
 
-add_executable(DemoProject src/main.cpp)
-target_link_libraries(DemoProject PUBLIC DemoProjectLib)
+add_executable(Breadboard src/main.cpp)
+target_link_libraries(Breadboard PUBLIC BreadboardLib)
 
 if (NOT EMSCRIPTEN)
-    target_include_directories(DemoProjectLib PUBLIC 3rdParty/glad/include)
-    target_include_directories(DemoProjectLib PUBLIC ${glfw_include_dir})
-    target_link_libraries(DemoProjectLib PUBLIC glfw ${GLFW_LIBRARIES})
+    target_include_directories(BreadboardLib PUBLIC 3rdParty/glad/include)
+    target_include_directories(BreadboardLib PUBLIC ${glfw_include_dir})
+    target_link_libraries(BreadboardLib PUBLIC glfw ${GLFW_LIBRARIES})
 endif()
 
 add_subdirectory(3rdParty/imgui-1.92.1)
-target_include_directories(DemoProjectLib PUBLIC 3rdParty/imgui-1.92.1)
-target_link_libraries(DemoProjectLib PUBLIC ImGui)
+target_include_directories(BreadboardLib PUBLIC 3rdParty/imgui-1.92.1)
+target_link_libraries(BreadboardLib PUBLIC ImGui)
 
 add_subdirectory(3rdParty/flecs-4.1.0)
-target_link_libraries(DemoProjectLib PUBLIC flecs)
+target_link_libraries(BreadboardLib PUBLIC flecs)
 
-target_compile_definitions(DemoProjectLib PRIVATE
+target_compile_definitions(BreadboardLib PRIVATE
     "$<$<COMPILE_LANG_AND_ID:CXX,Emscripten>:EMSCRIPTEN_BUILD>"
 )
 
-target_link_libraries(DemoProjectLib PUBLIC project_compiler_flags)
+target_link_libraries(BreadboardLib PUBLIC project_compiler_flags)
 
 if (NOT EMSCRIPTEN)
     add_subdirectory(3rdParty/Catch2)
     add_executable(tests
         src/ut/test.cpp)
     target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
-    target_link_libraries(tests PRIVATE DemoProjectLib)
+    target_link_libraries(tests PRIVATE BreadboardLib)
 
     include(Catch)
     catch_discover_tests(tests)
