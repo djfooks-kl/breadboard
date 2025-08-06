@@ -14,6 +14,11 @@ target_compile_options(project_compiler_flags INTERFACE
 )
 
 set(source_files
+    src/Core/Result.h
+    src/Engine/ShaderHelpers.cpp
+    src/Engine/ShaderHelpers.h
+    src/Engine/ShaderProgram.cpp
+    src/Engine/ShaderProgram.h
     src/BaseApp.cpp
     src/BaseApp.h
     src/Demo.cpp
