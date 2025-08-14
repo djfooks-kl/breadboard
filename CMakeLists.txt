@@ -73,6 +73,9 @@ if (NOT EMSCRIPTEN)
     target_link_libraries(BreadboardLib PUBLIC glfw ${GLFW_LIBRARIES})
 endif()
 
+add_subdirectory(3rdParty/glm-1.0.1)
+target_link_libraries(BreadboardLib PRIVATE glm::glm-header-only)
+
 add_subdirectory(3rdParty/imgui-1.92.1)
 target_include_directories(BreadboardLib PUBLIC 3rdParty/imgui-1.92.1)
 target_link_libraries(BreadboardLib PUBLIC ImGui)
