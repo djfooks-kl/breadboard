@@ -1,0 +1,20 @@
+#pragma once
+
+#include <glm/ext/matrix_float4x4.hpp>
+#include <glm/vec2.hpp>
+
+namespace xg
+{
+	struct CameraComponent
+	{
+		glm::vec2 m_Position = { 0.378f, 0.f };
+		float m_Zoom = 2.27f;
+
+		glm::mat4 m_View;
+		glm::mat4 m_Projection;
+		glm::mat4 m_ViewProjection;
+		glm::mat4 m_InvViewProjection;
+
+		glm::vec2 m_WorldMouse = { 0.f, 0.f };
+	};
+}

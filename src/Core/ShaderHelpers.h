@@ -7,7 +7,7 @@
 typedef unsigned int GLuint;
 typedef unsigned int GLenum;
 
-namespace bread::engine
+namespace xc
 {
-	bread::core::Result<GLuint> CompileShader(const GLenum type, const std::string& path);
+	xc::Result<GLuint> CompileShader(const GLenum type, const std::string& path);
 }

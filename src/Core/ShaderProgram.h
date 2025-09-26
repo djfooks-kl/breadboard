@@ -6,11 +6,10 @@
 
 typedef unsigned int GLuint;
 
-namespace bread::engine
+namespace xc
 {
     struct ShaderProgramOptions
     {
-        std::string m_Name;
         std::string m_VertexPath;
         std::string m_FragmentPath;
     };
@@ -20,7 +19,7 @@ namespace bread::engine
     public:
         ShaderProgram(ShaderProgramOptions options);
 
-        bread::core::Result<void> TryLoad();
+        xc::Result<void> TryLoad();
         void TryLoadAndOutputError();
 
         GLuint GetProgramId() const { return m_Program; }

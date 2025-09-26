@@ -8,23 +8,43 @@
 #include <ImGui/backends/imgui_impl_opengl3.h>
 #include <ImGui/imgui.h>
 
-#include "GLFWLib.h"
+#include "Core/GLFWLib.h"
+#include "BreadApp.h"
 
 namespace
 {
-    void key_callback(GLFWwindow* window, int key, int /*scancode*/, int action, int /*mods*/)
+    void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
     {
-        if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-            glfwSetWindowShouldClose(window, GLFW_TRUE);
+        BaseApp* app = static_cast<BaseApp*>(glfwGetWindowUserPointer(window));
+        app->ProcessKeyInput(window, key, scancode, action, mods);
+    }
 
-        if (key == GLFW_KEY_W && action == GLFW_PRESS)
-            std::cout << "yay!\n";
+    void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+    {
+        BaseApp* app = static_cast<BaseApp*>(glfwGetWindowUserPointer(window));
+        app->ProcessCursorInput(window, xpos, ypos);
     }
 
     void error_callback(int /*error*/, const char* description)
     {
-        std::cerr << "Error: " << description << "\n";
+        std::cout << "Error: " << description << "\n";
     }
+}
+
+BaseApp::BaseApp() = default;
+BaseApp::~BaseApp() = default;
+
+void BaseApp::ProcessKeyInput(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
+
+    m_GameApp->ProcessKeyInput(window, key, scancode, action, mods);
+}
+
+void BaseApp::ProcessCursorInput(GLFWwindow* window, double xpos, double ypos)
+{
+    m_GameApp->ProcessCursorInput(window, xpos, ypos);
 }
 
 void BaseApp::Update()
@@ -39,7 +59,7 @@ void BaseApp::Update()
     ImGui_ImplOpenGL3_NewFrame();
     ImGui::NewFrame();
 
-    m_Demo.Update(time, deltaTime);
+    m_GameApp->Update(m_Window, time, deltaTime);
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -58,13 +78,13 @@ bool BaseApp::Run()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-    GLFWwindow* window = glfwCreateWindow(640, 480, "My Title", NULL, NULL);
-    if (!window)
+    m_Window = glfwCreateWindow(1080, 800, "Breadboard", NULL, NULL);
+    if (!m_Window)
     {
         return false;
     }
 
-    glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(m_Window);
 
     if (!Init())
     {
@@ -72,20 +92,26 @@ bool BaseApp::Run()
         return false;
     }
 
-    ImGui::CreateContext();
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init();
-    ImGui::GetStyle().FontScaleDpi = 1.5f;
+    glfwSetWindowUserPointer(m_Window, this);
+    glfwSetKeyCallback(m_Window, key_callback);
+    glfwSetCursorPosCallback(m_Window, cursor_position_callback);
 
-    glfwSetKeyCallback(window, key_callback);
+    ImGui::CreateContext();
+    ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
+    ImGui_ImplOpenGL3_Init();
+
     m_LastFrame = glfwGetTime();
 
-    m_Demo.Init();
+    m_GameApp = std::make_unique<BreadApp>();
+    m_GameApp->Init(m_Window);
 
-    RunInternal(window);
+    RunInternal(m_Window);
 
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-    glfwDestroyWindow(window);
+    glfwDestroyWindow(m_Window);
+    m_Window = nullptr;
     glfwTerminate();
     return true;
 }

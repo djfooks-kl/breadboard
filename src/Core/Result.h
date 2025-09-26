@@ -3,10 +3,13 @@
 #include <string>
 #include <variant>
 
-namespace bread::core
+namespace xc
 {
 	struct ResultError
 	{
+		ResultError() {}
+		explicit ResultError(std::string error) : m_Error(std::move(error)) {}
+
 		std::string m_Error;
 	};
 
@@ -19,17 +22,20 @@ namespace bread::core
 		{
 		}
 
-		Result(core::ResultError error)
+		Result(xc::ResultError error)
 			: m_Value(std::move(error))
 		{}
 
-		operator bool() const { return std::holds_alternative<TResult>(m_Value); }
+		bool IsSuccess() const { return std::holds_alternative<TResult>(m_Value); }
+		bool IsError() const { return !IsSuccess(); }
 
-		const TResult& value() const { return std::get<TResult>(m_Value); }
-		const std::string& error() const { return std::get<core::ResultError>(m_Value).m_Error; }
+		operator bool() const { return IsSuccess(); }
+
+		const TResult& Get() const { return std::get<TResult>(m_Value); }
+		const std::string& GetError() const { return std::get<xc::ResultError>(m_Value).m_Error; }
 
 	private:
-		std::variant<TResult, core::ResultError> m_Value;
+		std::variant<TResult, xc::ResultError> m_Value;
 	};
 
 	template<>
@@ -41,17 +47,20 @@ namespace bread::core
 		{
 		}
 
-		Result(core::ResultError error)
+		Result(xc::ResultError error)
 			: m_Error(std::move(error))
 		{
 		}
 
+		bool IsSuccess() const { return m_Success; }
+		bool IsError() const { return !IsSuccess(); }
+
 		operator bool() const { return m_Success; }
 
-		const std::string& error() const { return m_Error.m_Error; }
+		const std::string& GetError() const { return m_Error.m_Error; }
 
 	private:
 		bool m_Success = false;
-		core::ResultError m_Error;
+		xc::ResultError m_Error;
 	};
 }

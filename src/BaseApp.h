@@ -1,17 +1,23 @@
 #pragma once
 
-#include "Demo.h"
+#include <memory>
+
+class BreadApp;
 
 struct GLFWwindow;
 
 class BaseApp
 {
 public:
-    virtual ~BaseApp() = default;
+    BaseApp();
+    virtual ~BaseApp();
 
     virtual bool Run();
 
     void Update();
+
+    void ProcessKeyInput(GLFWwindow* window, int key, int scancode, int action, int mods);
+    void ProcessCursorInput(GLFWwindow* window, double xpos, double ypos);
 
 private:
     virtual bool Init() = 0;
@@ -19,5 +25,6 @@ private:
 
     double m_LastFrame = 0.0;
 
-    Demo m_Demo;
+    std::unique_ptr<BreadApp> m_GameApp;
+    GLFWwindow* m_Window = nullptr;
 };

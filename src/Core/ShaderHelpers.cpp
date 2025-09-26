@@ -1,18 +1,19 @@
-#include "Engine/ShaderHelpers.h"
+#include "Core/ShaderHelpers.h"
 
 #include <array>
 #include <format>
 #include <fstream>
 #include <sstream>
 
-#include "GLFWLib.h"
+#include "Core/GLFWLib.h"
+#include "Core/Result.h"
 
-bread::core::Result<GLuint> bread::engine::CompileShader(const GLenum type, const std::string& path)
+xc::Result<GLuint> xc::CompileShader(const GLenum type, const std::string& path)
 {
     std::ifstream fileStream(path);
     if (fileStream.fail())
     {
-        return bread::core::ResultError{ std::format("Error could not read file \"{}\"", path) };
+        return xc::ResultError{ std::format("Error could not read file \"{}\"", path) };
     }
     std::stringstream buffer;
     buffer << fileStream.rdbuf();
@@ -33,5 +34,5 @@ bread::core::Result<GLuint> bread::engine::CompileShader(const GLenum type, cons
     std::array<char, 4096> infoBuffer;
     GLsizei length;
     glGetShaderInfoLog(shader, static_cast<GLsizei>(infoBuffer.size()), &length, infoBuffer.data());
-    return bread::core::ResultError{ std::format("Error compiling shader \"{}\": {}", path, infoBuffer.data()) };
+    return xc::ResultError{ std::format("Error compiling shader \"{}\": {}", path, infoBuffer.data()) };
 }

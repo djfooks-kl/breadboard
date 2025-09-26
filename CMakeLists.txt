@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(Breadboard VERSION 1.0)
+project(BreadProject VERSION 1.0)
 
 add_library(project_compiler_flags INTERFACE)
 target_compile_features(project_compiler_flags INTERFACE cxx_std_20)
@@ -13,20 +13,47 @@ target_compile_options(project_compiler_flags INTERFACE
     "$<${msvc_cxx}:$<BUILD_INTERFACE:-W4>>"
 )
 
-set(source_files
+set(core_files
+
+    src/Core/Font.cpp
+    src/Core/Font.h
+    src/Core/GLFWLib.h
     src/Core/Result.h
-    src/Engine/ShaderHelpers.cpp
-    src/Engine/ShaderHelpers.h
-    src/Engine/ShaderProgram.cpp
-    src/Engine/ShaderProgram.h
+    src/Core/ShaderHelpers.cpp
+    src/Core/ShaderHelpers.h
+    src/Core/ShaderProgram.cpp
+    src/Core/ShaderProgram.h
+    src/Core/STBImage.cpp
+)
+
+set(source_files
+
     src/BaseApp.cpp
     src/BaseApp.h
-    src/Demo.cpp
-    src/Demo.h
-    src/DemoSystem.cpp
-    src/DemoSystem.h
-    src/DemoColorAnimationComponent.h
-    src/GLFWLib.h)
+    src/BoxRenderer.cpp
+    src/BoxRenderer.h
+    src/BreadApp.cpp
+    src/BreadApp.h
+    src/CameraComponent.h
+    src/CameraInputComponent.h
+    src/CameraInputSystem.cpp
+    src/CameraInputSystem.h
+    src/CameraSystem.cpp
+    src/CameraSystem.h
+    src/InputComponent.h
+    src/InputSystem.cpp
+    src/InputSystem.h
+    src/MouseTrailComponent.h
+    src/MouseTrailSystem.cpp
+    src/MouseTrailSystem.h
+    src/TextRenderer.cpp
+    src/TextRenderer.h
+    src/WindowSizeComponent.h
+    src/WindowSizeSystem.cpp
+    src/WindowSizeSystem.h)
+
+list(APPEND source_files ${core_files})
+source_group("Core" FILES ${core_files})
 
 if (EMSCRIPTEN)
     message(STATUS "This is an Emscripten build.")
@@ -36,6 +63,7 @@ if (EMSCRIPTEN)
 
     target_link_options(project_compiler_flags INTERFACE
         -sUSE_WEBGL2=1
+        -sMIN_WEBGL_VERSION=2
         -sUSE_GLFW=3
         -sSTACK_SIZE=1mb
         -sEXPORTED_RUNTIME_METHODS=cwrap
@@ -53,48 +81,52 @@ else()
     add_subdirectory(${glfw_dir})
 endif()
 
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Breadboard)
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT BreadProject)
 
-add_library(BreadboardLib STATIC ${source_files})
-target_include_directories(BreadboardLib PUBLIC src)
+add_library(BreadProjectLib STATIC ${source_files})
+target_include_directories(BreadProjectLib PUBLIC src)
 
 if (EMSCRIPTEN)
-    target_compile_definitions(BreadboardLib PRIVATE DATA_DIR="./data/")
+    target_compile_definitions(BreadProjectLib PRIVATE DATA_DIR="./data/")
 else()
-    target_compile_definitions(BreadboardLib PRIVATE DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data/")
+    target_compile_definitions(BreadProjectLib PRIVATE DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data/")
 endif()
 
-add_executable(Breadboard src/main.cpp)
-target_link_libraries(Breadboard PUBLIC BreadboardLib)
+add_executable(BreadProject src/main.cpp)
+target_link_libraries(BreadProject PUBLIC BreadProjectLib)
 
 if (NOT EMSCRIPTEN)
-    target_include_directories(BreadboardLib PUBLIC 3rdParty/glad/include)
-    target_include_directories(BreadboardLib PUBLIC ${glfw_include_dir})
-    target_link_libraries(BreadboardLib PUBLIC glfw ${GLFW_LIBRARIES})
+    target_include_directories(BreadProjectLib PUBLIC 3rdParty/glad/include)
+    target_include_directories(BreadProjectLib PUBLIC ${glfw_include_dir})
+    target_link_libraries(BreadProjectLib PUBLIC glfw ${GLFW_LIBRARIES})
 endif()
 
 add_subdirectory(3rdParty/glm-1.0.1)
-target_link_libraries(BreadboardLib PRIVATE glm::glm-header-only)
+target_link_libraries(BreadProjectLib PUBLIC glm::glm-header-only)
+
+target_include_directories(BreadProjectLib PUBLIC 3rdParty/stb)
+target_include_directories(BreadProjectLib PUBLIC 3rdParty/nlohmann-json)
 
 add_subdirectory(3rdParty/imgui-1.92.1)
-target_include_directories(BreadboardLib PUBLIC 3rdParty/imgui-1.92.1)
-target_link_libraries(BreadboardLib PUBLIC ImGui)
+target_include_directories(BreadProjectLib PUBLIC 3rdParty/imgui-1.92.1)
+target_link_libraries(BreadProjectLib PUBLIC ImGui)
 
-add_subdirectory(3rdParty/flecs-4.1.0)
-target_link_libraries(BreadboardLib PUBLIC flecs)
+add_subdirectory(3rdParty/flecs-4.1.1)
+target_link_libraries(BreadProjectLib PUBLIC flecs)
 
-target_compile_definitions(BreadboardLib PRIVATE
+target_compile_definitions(BreadProjectLib PRIVATE
     "$<$<COMPILE_LANG_AND_ID:CXX,Emscripten>:EMSCRIPTEN_BUILD>"
 )
 
-target_link_libraries(BreadboardLib PUBLIC project_compiler_flags)
+target_link_libraries(BreadProjectLib PUBLIC project_compiler_flags)
 
 if (NOT EMSCRIPTEN)
     add_subdirectory(3rdParty/Catch2)
     add_executable(tests
-        src/ut/test.cpp)
+        src/ut/ResultTest.cpp
+        src/ut/ShadersTest.cpp)
     target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
-    target_link_libraries(tests PRIVATE BreadboardLib)
+    target_link_libraries(tests PRIVATE BreadProjectLib)
 
     include(Catch)
     catch_discover_tests(tests)
