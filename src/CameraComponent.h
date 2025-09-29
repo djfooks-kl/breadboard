@@ -16,5 +16,7 @@ namespace xg
 		glm::mat4 m_InvViewProjection;
 
 		glm::vec2 m_WorldMouse = { 0.f, 0.f };
+
+		float m_Feather = 0.f;
 	};
 }

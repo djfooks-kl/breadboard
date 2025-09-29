@@ -32,6 +32,7 @@ TEST_CASE("Test shaders compile", "[shaders]")
     TestCompile(xc::ShaderProgramOptions{ .m_VertexPath = "boxvertex.glsl", .m_FragmentPath = "boxfragment.glsl" });
     TestCompile(xc::ShaderProgramOptions{ .m_VertexPath = "demovertex.glsl", .m_FragmentPath = "demofragment.glsl" });
     TestCompile(xc::ShaderProgramOptions{ .m_VertexPath = "boxvertex.glsl", .m_FragmentPath = "textfragment.glsl" });
+    TestCompile(xc::ShaderProgramOptions{ .m_VertexPath = "gridvertex.glsl", .m_FragmentPath = "gridfragment.glsl" });
 
     glfwDestroyWindow(window);
     glfwTerminate();

@@ -17,8 +17,8 @@ namespace
     constexpr float s_Speed = 1.f;
     constexpr float s_ZoomSpeed = 3.f;
 
-    constexpr float s_ZoomMin = 0.1f;
-    constexpr float s_ZoomMax = 100.f;
+    constexpr float s_ZoomMin = 1.f;
+    constexpr float s_ZoomMax = 800.f;
 }
 
 void camera_system::Update(flecs::world& world, const double /*time*/, const float deltaTime)
@@ -65,5 +65,9 @@ void camera_system::Update(flecs::world& world, const double /*time*/, const flo
             1.f);
         glm::vec4 worldMouse = camera.m_InvViewProjection * viewMouse;
         camera.m_WorldMouse = worldMouse / worldMouse.w;
+
+        camera.m_Feather = std::max(
+            (orthoWidth) / windowSize.m_Width,
+            (orthoHeight) / windowSize.m_Height) * 2.f;
     });
 }

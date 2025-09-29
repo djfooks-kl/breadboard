@@ -18,6 +18,7 @@
 #include "Core/GLFWLib.h"
 #include "Core/ShaderProgram.h"
 #include "GlobalComponent.h"
+#include "GridRenderer.h"
 #include "InputComponent.h"
 #include "InputSystem.h"
 #include "MouseTrailComponent.h"
@@ -63,6 +64,7 @@ BreadApp::~BreadApp()
     m_DemoProgram.reset();
     m_TextProgram.reset();
     m_BoxProgram.reset();
+    m_GridProgram.reset();
 
     glDeleteVertexArrays(1, &m_DemoVBO);
     glDeleteBuffers(1, &m_PositionsBuffer);
@@ -139,6 +141,8 @@ void BreadApp::Render(double time, float /*deltaTime*/)
     if (!camera)
         return;
 
+    m_GridRenderer->Draw(camera->m_ViewProjection, camera->m_InvViewProjection, camera->m_Feather);
+
     glUseProgram(m_DemoProgram->GetProgramId());
     glBindVertexArray(m_DemoVBO);
     glBindTexture(GL_TEXTURE_2D, m_Texture);
@@ -191,10 +195,12 @@ void BreadApp::Init(GLFWwindow* window)
     m_DemoProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{ .m_VertexPath = "demovertex.glsl", .m_FragmentPath = "demofragment.glsl" });
     m_BoxProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{ .m_VertexPath = "boxvertex.glsl", .m_FragmentPath = "boxfragment.glsl" });
     m_TextProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{ .m_VertexPath = "boxvertex.glsl", .m_FragmentPath = "textfragment.glsl" });
+    m_GridProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{ .m_VertexPath = "gridvertex.glsl", .m_FragmentPath = "gridfragment.glsl" });
 
     m_DemoProgram->TryLoadAndOutputError();
     m_BoxProgram->TryLoadAndOutputError();
     m_TextProgram->TryLoadAndOutputError();
+    m_GridProgram->TryLoadAndOutputError();
 
     m_Font = std::make_unique<xc::Font>();
     m_Font->Load(DATA_DIR "/sourcecodepro-medium.png", DATA_DIR "/sourcecodepro-medium.json");
@@ -203,6 +209,8 @@ void BreadApp::Init(GLFWwindow* window)
     m_TextRenderer->AddString(m_Text, m_FontSize, m_Position.x, m_Position.y, m_Color);
 
     m_BoxRenderer = std::make_unique<BoxRenderer>(*m_BoxProgram);
+
+    m_GridRenderer = std::make_unique<GridRenderer>(*m_GridProgram);
 
     glGenTextures(1, &m_Texture);
     glBindTexture(GL_TEXTURE_2D, m_Texture);
