@@ -13,6 +13,11 @@ namespace xc
     class ShaderProgram;
 }
 
+namespace xg
+{
+    class UI;
+}
+
 typedef unsigned int GLuint;
 
 struct BoxRenderer;
@@ -30,7 +35,6 @@ public:
     void Update(GLFWwindow* window, double time, float deltaTime);
 
     void Render(double time, float deltaTime);
-    void DrawImGui();
 
     void ProcessKeyInput(GLFWwindow* window, int key, int scancode, int action, int mods);
     void ProcessCursorInput(GLFWwindow* window, double xpos, double ypos);
@@ -40,6 +44,7 @@ private:
     std::unique_ptr<TextRenderer> m_TextRenderer;
     std::unique_ptr<BoxRenderer> m_BoxRenderer;
     std::unique_ptr<GridRenderer> m_GridRenderer;
+    std::unique_ptr<xg::UI> m_UI;
     flecs::world m_World;
 
     std::unique_ptr<xc::ShaderProgram> m_TextProgram;

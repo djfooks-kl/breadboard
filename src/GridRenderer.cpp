@@ -7,8 +7,6 @@
 
 namespace
 {
-    int s_PositionNumComponents = 2;
-
     constexpr GLuint s_AttributePosition = 0;
 
     template<typename TDATA>

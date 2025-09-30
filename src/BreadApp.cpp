@@ -4,12 +4,11 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <ImGui/imgui.h>
-#include <ImGui/misc/cpp/imgui_stdlib.h>
 #include <glm/vec2.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "BoxRenderer.h"
+#include "UI.h"
 #include "CameraComponent.h"
 #include "CameraInputComponent.h"
 #include "CameraInputSystem.h"
@@ -83,49 +82,6 @@ void BreadApp::ProcessCursorInput(GLFWwindow* /*window*/, double xpos, double yp
     input_system::UpdateCursorInput(m_World, xpos, ypos);
 }
 
-void BreadApp::DrawImGui()
-{
-    if (ImGui::BeginMainMenuBar())
-    {
-        if (ImGui::BeginMenu("ImGui menu"))
-        {
-            if (ImGui::MenuItem("Settings"))
-            {
-                m_SettingsOpen = true;
-            }
-            ImGui::EndMenu();
-        }
-        ImGui::EndMainMenuBar();
-    }
-
-    // scale window to fit contents
-    ImGui::SetNextWindowSize(ImVec2{ 0.f, 0.f });
-    if (ImGui::Begin("Settings", &m_SettingsOpen))
-    {
-        ImGui::Text("WASD - Move camera, EQ - Zoom in/out");
-        m_World.query<const xg::CameraComponent>()
-            .each([&](
-                const xg::CameraComponent& camera)
-        {
-            ImGui::Text("Zoom %.3f", camera.m_Zoom);
-            ImGui::Text("Pos %.3f %.3f", camera.m_Position.x, camera.m_Position.y);
-        });
-
-        bool textDirty = false;
-        textDirty |= ImGui::SliderFloat("Font Size", &m_FontSize, 0.f, 15.f);
-        textDirty |= ImGui::SliderFloat2("Text Position", &m_Position.x, -10.f * m_FontSize, 10.f * m_FontSize);
-        textDirty |= ImGui::SliderFloat3("Color", &m_Color.x, 0.f, 1.f);
-        textDirty |= ImGui::InputText("Text", &m_Text);
-
-        if (textDirty)
-        {
-            m_TextRenderer->RemoveAllStrings();
-            m_TextRenderer->AddString(m_Text, m_FontSize, m_Position.x, m_Position.y, m_Color);
-        }
-        ImGui::End();
-    }
-}
-
 void BreadApp::Render(double time, float /*deltaTime*/)
 {
     glClear(GL_COLOR_BUFFER_BIT);
@@ -176,7 +132,10 @@ void BreadApp::Update(GLFWwindow* window, const double time, const float deltaTi
     mouse_trail_system::Update(m_World, time, deltaTime);
 
     Render(time, deltaTime);
-    DrawImGui();
+    m_UI->Draw(m_World);
+
+    // update input system last as it clears all the input state ready for next frame
+    input_system::Update(m_World);
 }
 
 void BreadApp::Init(GLFWwindow* window)
@@ -211,6 +170,8 @@ void BreadApp::Init(GLFWwindow* window)
     m_BoxRenderer = std::make_unique<BoxRenderer>(*m_BoxProgram);
 
     m_GridRenderer = std::make_unique<GridRenderer>(*m_GridProgram);
+
+    m_UI = std::make_unique<xg::UI>();
 
     glGenTextures(1, &m_Texture);
     glBindTexture(GL_TEXTURE_2D, m_Texture);

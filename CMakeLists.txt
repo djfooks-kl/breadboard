@@ -50,6 +50,8 @@ set(source_files
     src/MouseTrailSystem.h
     src/TextRenderer.cpp
     src/TextRenderer.h
+    src/UI.cpp
+    src/UI.h
     src/WindowSizeComponent.h
     src/WindowSizeSystem.cpp
     src/WindowSizeSystem.h)
