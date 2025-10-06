@@ -8,6 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "BoxRenderer.h"
+#include "ECSGlobals.h"
 #include "UI.h"
 #include "CameraComponent.h"
 #include "CameraInputComponent.h"
@@ -140,6 +141,7 @@ void BreadApp::Update(GLFWwindow* window, const double time, const float deltaTi
 
 void BreadApp::Init(GLFWwindow* window)
 {
+    xg::ECSGlobalsCreate(m_World);
     {
         flecs::entity globalEntity = m_World.entity();
         globalEntity.add<xg::InputComponent>();

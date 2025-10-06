@@ -5,10 +5,13 @@
 #include <ImGui/misc/cpp/imgui_stdlib.h>
 
 #include "CameraComponent.h"
+#include "Cogs/Cog.h"
+#include "Cogs/CogMap.h"
 #include "Core/GLFWLib.h"
 #include "InputComponent.h"
+#include "UIAddCogComponent.h"
 
-void xg::UI::DrawMenu(flecs::world& world)
+void xg::UI::DrawDebugMenu(flecs::world& world)
 {
     world.query<const xg::InputComponent>().each([&](
         const xg::InputComponent& input)
@@ -17,11 +20,11 @@ void xg::UI::DrawMenu(flecs::world& world)
                 input.m_KeyDown.contains(GLFW_KEY_LEFT_SHIFT) &&
                 input.m_KeyPress.contains(GLFW_KEY_1))
             {
-                m_ShowMenuBar = !m_ShowMenuBar;
+                m_ShowDebugMenuBar = !m_ShowDebugMenuBar;
             }
         });
 
-    if (m_ShowMenuBar && ImGui::BeginMainMenuBar())
+    if (m_ShowDebugMenuBar && ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("Debug"))
         {
@@ -52,8 +55,60 @@ void xg::UI::DrawDebugInfo(flecs::world& world)
     }
 }
 
+void xg::UI::DrawComponentMenu(flecs::world& world)
+{
+    bool anyKeyDown = false;
+    world.query<const xg::InputComponent>().each([&](
+        const xg::InputComponent& input)
+        {
+            anyKeyDown = !input.m_KeyDown.empty();
+        });
+
+    const xg::CogMap& cogMap = world.get<xg::CogMap>();
+
+    xg::CogResourceId addCogId;
+    bool clickWindow =
+        ImGui::IsMouseReleased(ImGuiMouseButton_Left) &&
+        !ImGui::GetIO().WantCaptureMouse;
+
+    if (clickWindow && m_ComponentMenuMouseClose)
+    {
+        m_ComponentMenuMouseClose = false;
+        return;
+    }
+
+    if (!anyKeyDown && (clickWindow || m_ComponentMenuOpen))
+    {
+        m_ComponentMenuOpen = ImGui::BeginPopupContextVoid(nullptr, ImGuiPopupFlags_MouseButtonLeft);
+        if (m_ComponentMenuOpen)
+        {
+            for (const auto& itr : cogMap.GetMap())
+            {
+                if (ImGui::Button(itr.first.GetName()))
+                {
+                    addCogId = itr.first;
+                }
+            }
+
+            ImGui::EndPopup();
+        }
+
+        if (!m_ComponentMenuOpen)
+        {
+            m_ComponentMenuMouseClose = ImGui::IsMouseDown(ImGuiMouseButton_Left);
+        }
+    }
+
+    world.query<xg::UIAddCogComponent>().each([&](
+        xg::UIAddCogComponent& addCog)
+        {
+            addCog.m_Id = addCogId;
+        });
+}
+
 void xg::UI::Draw(flecs::world& world)
 {
-    DrawMenu(world);
+    DrawDebugMenu(world);
     DrawDebugInfo(world);
+    DrawComponentMenu(world);
 }

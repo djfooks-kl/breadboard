@@ -18,6 +18,7 @@ set(core_files
     src/Core/Font.cpp
     src/Core/Font.h
     src/Core/GLFWLib.h
+    src/Core/ResourceId.h
     src/Core/Result.h
     src/Core/ShaderHelpers.cpp
     src/Core/ShaderHelpers.h
@@ -40,6 +41,8 @@ set(source_files
     src/CameraInputSystem.h
     src/CameraSystem.cpp
     src/CameraSystem.h
+    src/ECSGlobals.cpp
+    src/ECSGlobals.h
     src/GridRenderer.cpp
     src/GridRenderer.h
     src/InputComponent.h
@@ -52,12 +55,30 @@ set(source_files
     src/TextRenderer.h
     src/UI.cpp
     src/UI.h
+    src/UIAddCogComponent.h
     src/WindowSizeComponent.h
     src/WindowSizeSystem.cpp
     src/WindowSizeSystem.h)
 
+set(cog_files
+
+    src/Cogs/Battery.cpp
+    src/Cogs/Battery.h
+    src/Cogs/BatteryComponent.h
+    src/Cogs/Cog.cpp
+    src/Cogs/Cog.h
+    src/Cogs/CogMap.cpp
+    src/Cogs/CogMap.h
+    src/Cogs/CogResourceId.h
+    src/Cogs/Register.cpp
+    src/Cogs/Register.h
+)
+
 list(APPEND source_files ${core_files})
 source_group("Core" FILES ${core_files})
+
+list(APPEND source_files ${cog_files})
+source_group("Cogs" FILES ${cog_files})
 
 if (EMSCRIPTEN)
     message(STATUS "This is an Emscripten build.")
@@ -126,12 +147,17 @@ target_link_libraries(BreadProjectLib PUBLIC project_compiler_flags)
 
 if (NOT EMSCRIPTEN)
     add_subdirectory(3rdParty/Catch2)
-    add_executable(tests
+
+    add_executable(Tests
+
+        src/ut/CogCreateTest.cpp
+        src/ut/ResourceIdTest.cpp
         src/ut/ResultTest.cpp
         src/ut/ShadersTest.cpp)
-    target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
-    target_link_libraries(tests PRIVATE BreadProjectLib)
+
+    target_link_libraries(Tests PRIVATE Catch2::Catch2WithMain)
+    target_link_libraries(Tests PRIVATE BreadProjectLib)
 
     include(Catch)
-    catch_discover_tests(tests)
+    catch_discover_tests(Tests)
 endif()
