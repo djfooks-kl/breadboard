@@ -13,16 +13,13 @@
 
 void xg::UI::DrawDebugMenu(flecs::world& world)
 {
-    world.query<const xg::InputComponent>().each([&](
-        const xg::InputComponent& input)
-        {
-            if (input.m_KeyDown.contains(GLFW_KEY_LEFT_CONTROL) &&
-                input.m_KeyDown.contains(GLFW_KEY_LEFT_SHIFT) &&
-                input.m_KeyPress.contains(GLFW_KEY_1))
-            {
-                m_ShowDebugMenuBar = !m_ShowDebugMenuBar;
-            }
-        });
+    const auto& input = world.get<xg::InputComponent>();
+    if (input.m_KeyDown.contains(GLFW_KEY_LEFT_CONTROL) &&
+        input.m_KeyDown.contains(GLFW_KEY_LEFT_SHIFT) &&
+        input.m_KeyPress.contains(GLFW_KEY_1))
+    {
+        m_ShowDebugMenuBar = !m_ShowDebugMenuBar;
+    }
 
     if (m_ShowDebugMenuBar && ImGui::BeginMainMenuBar())
     {
@@ -57,14 +54,10 @@ void xg::UI::DrawDebugInfo(flecs::world& world)
 
 void xg::UI::DrawComponentMenu(flecs::world& world)
 {
-    bool anyKeyDown = false;
-    world.query<const xg::InputComponent>().each([&](
-        const xg::InputComponent& input)
-        {
-            anyKeyDown = !input.m_KeyDown.empty();
-        });
+    const auto& input = world.get<xg::InputComponent>();
+    const auto& cogMap = world.get<xg::CogMap>();
 
-    const xg::CogMap& cogMap = world.get<xg::CogMap>();
+    bool anyKeyDown = !input.m_KeyDown.empty();
 
     xg::CogResourceId addCogId;
     bool clickWindow =
@@ -99,11 +92,7 @@ void xg::UI::DrawComponentMenu(flecs::world& world)
         }
     }
 
-    world.query<xg::UIAddCogComponent>().each([&](
-        xg::UIAddCogComponent& addCog)
-        {
-            addCog.m_Id = addCogId;
-        });
+    world.get_mut<xg::UIAddCogComponent>().m_Id = addCogId;
 }
 
 void xg::UI::Draw(flecs::world& world)

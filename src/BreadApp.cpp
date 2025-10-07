@@ -8,23 +8,19 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "BoxRenderer.h"
-#include "ECSGlobals.h"
-#include "UI.h"
 #include "CameraComponent.h"
-#include "CameraInputComponent.h"
 #include "CameraInputSystem.h"
 #include "CameraSystem.h"
 #include "Core/Font.h"
 #include "Core/GLFWLib.h"
 #include "Core/ShaderProgram.h"
-#include "GlobalComponent.h"
+#include "ECSGlobals.h"
 #include "GridRenderer.h"
-#include "InputComponent.h"
 #include "InputSystem.h"
 #include "MouseTrailComponent.h"
 #include "MouseTrailSystem.h"
 #include "TextRenderer.h"
-#include "WindowSizeComponent.h"
+#include "UI.h"
 #include "WindowSizeSystem.h"
 
 namespace
@@ -87,18 +83,9 @@ void BreadApp::Render(double time, float /*deltaTime*/)
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    const xg::CameraComponent* camera = nullptr;
-    m_World.query<const xg::CameraComponent>()
-        .each([&](
-            const xg::CameraComponent& cameraComponent)
-    {
-        camera = &cameraComponent;
-    });
+    const xg::CameraComponent& camera = m_World.get<xg::CameraComponent>();
 
-    if (!camera)
-        return;
-
-    m_GridRenderer->Draw(camera->m_ViewProjection, camera->m_InvViewProjection, camera->m_Feather);
+    m_GridRenderer->Draw(camera.m_ViewProjection, camera.m_InvViewProjection, camera.m_Feather);
 
     glUseProgram(m_DemoProgram->GetProgramId());
     glBindVertexArray(m_DemoVBO);
@@ -106,11 +93,11 @@ void BreadApp::Render(double time, float /*deltaTime*/)
     SetTextureData(time);
 
     GLint viewProjectionUniform = glGetUniformLocation(m_DemoProgram->GetProgramId(), "viewProjection");
-    glUniformMatrix4fv(viewProjectionUniform, 1, GL_FALSE, glm::value_ptr(camera->m_ViewProjection));
+    glUniformMatrix4fv(viewProjectionUniform, 1, GL_FALSE, glm::value_ptr(camera.m_ViewProjection));
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
-    m_TextRenderer->Draw(camera->m_ViewProjection);
+    m_TextRenderer->Draw(camera.m_ViewProjection);
 
     m_BoxRenderer->RemoveAllBoxes();
     m_World.query<const xg::MouseTrailComponent>()
@@ -122,7 +109,7 @@ void BreadApp::Render(double time, float /*deltaTime*/)
             m_BoxRenderer->AddBox(0.05f, p.m_Position, p.m_Color);
         }
     });
-    m_BoxRenderer->Draw(camera->m_ViewProjection);
+    m_BoxRenderer->Draw(camera.m_ViewProjection);
 }
 
 void BreadApp::Update(GLFWwindow* window, const double time, const float deltaTime)
@@ -142,14 +129,6 @@ void BreadApp::Update(GLFWwindow* window, const double time, const float deltaTi
 void BreadApp::Init(GLFWwindow* window)
 {
     xg::ECSGlobalsCreate(m_World);
-    {
-        flecs::entity globalEntity = m_World.entity();
-        globalEntity.add<xg::InputComponent>();
-        globalEntity.add<xg::WindowSizeComponent>();
-        globalEntity.add<xg::CameraInputComponent>();
-        globalEntity.add<xg::CameraComponent>();
-        globalEntity.add<xg::MouseTrailComponent>();
-    }
 
     glfwSetWindowSizeCallback(window, WindowSizeCallback);
 

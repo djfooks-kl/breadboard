@@ -23,51 +23,44 @@ namespace
 
 void camera_system::Update(flecs::world& world, const double /*time*/, const float deltaTime)
 {
-    auto query = world.query_builder<
-        xg::CameraComponent,
-        const xg::InputComponent,
-        const xg::CameraInputComponent,
-        const xg::WindowSizeComponent>();
-    query.each([&](
-        xg::CameraComponent& camera,
-        const xg::InputComponent& input,
-        const xg::CameraInputComponent& cameraInput,
-        const xg::WindowSizeComponent& windowSize)
-    {
-        camera.m_Zoom *= 1.f + (cameraInput.m_Zoom * s_ZoomSpeed * deltaTime);
-        camera.m_Position += cameraInput.m_Position * s_Speed * deltaTime * camera.m_Zoom;
+    auto& camera = world.get_mut<xg::CameraComponent>();
+    const auto& cameraInput = world.get<xg::CameraInputComponent>();
+    const auto& input = world.get<xg::InputComponent>();
+    const auto& windowSize = world.get<xg::WindowSizeComponent>();
 
-        camera.m_Zoom = std::max(camera.m_Zoom, s_ZoomMin);
-        camera.m_Zoom = std::min(camera.m_Zoom, s_ZoomMax);
+    camera.m_Zoom *= 1.f + (cameraInput.m_Zoom * s_ZoomSpeed * deltaTime);
+    camera.m_Position += cameraInput.m_Position * s_Speed * deltaTime * camera.m_Zoom;
 
-        const float aspect = (float)windowSize.m_Width / (float)windowSize.m_Height;
-        const float orthoHeight = camera.m_Zoom;
-        const float orthoWidth  = orthoHeight * aspect;
+    camera.m_Zoom = std::max(camera.m_Zoom, s_ZoomMin);
+    camera.m_Zoom = std::min(camera.m_Zoom, s_ZoomMax);
 
-        const glm::vec3 cameraPos = glm::vec3(camera.m_Position, 0.5f);
-        const glm::vec3 cameraTarget = glm::vec3(camera.m_Position, 0.0f);
-        const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+    const float aspect = (float)windowSize.m_Width / (float)windowSize.m_Height;
+    const float orthoHeight = camera.m_Zoom;
+    const float orthoWidth  = orthoHeight * aspect;
 
-        camera.m_View = glm::lookAt(cameraPos, cameraTarget, cameraUp);
+    const glm::vec3 cameraPos = glm::vec3(camera.m_Position, 0.5f);
+    const glm::vec3 cameraTarget = glm::vec3(camera.m_Position, 0.0f);
+    const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
-        camera.m_Projection = glm::ortho(
-            -orthoWidth * 0.5f, orthoWidth * 0.5f,
-            -orthoHeight * 0.5f, orthoHeight * 0.5f,
-            -1.0f, 1.0f);
+    camera.m_View = glm::lookAt(cameraPos, cameraTarget, cameraUp);
 
-        camera.m_ViewProjection = camera.m_Projection * camera.m_View;
-        camera.m_InvViewProjection = glm::inverse(camera.m_ViewProjection); // TODO try transpose
+    camera.m_Projection = glm::ortho(
+        -orthoWidth * 0.5f, orthoWidth * 0.5f,
+        -orthoHeight * 0.5f, orthoHeight * 0.5f,
+        -1.0f, 1.0f);
 
-        glm::vec4 viewMouse(
-            (input.m_WindowMouse.x * 2.f) / windowSize.m_Width - 1.f,
-            1.f - (input.m_WindowMouse.y * 2.f) / windowSize.m_Height,
-            0.f,
-            1.f);
-        glm::vec4 worldMouse = camera.m_InvViewProjection * viewMouse;
-        camera.m_WorldMouse = worldMouse / worldMouse.w;
+    camera.m_ViewProjection = camera.m_Projection * camera.m_View;
+    camera.m_InvViewProjection = glm::inverse(camera.m_ViewProjection); // TODO try transpose
 
-        camera.m_Feather = std::max(
-            (orthoWidth) / windowSize.m_Width,
-            (orthoHeight) / windowSize.m_Height) * 2.f;
-    });
+    glm::vec4 viewMouse(
+        (input.m_WindowMouse.x * 2.f) / windowSize.m_Width - 1.f,
+        1.f - (input.m_WindowMouse.y * 2.f) / windowSize.m_Height,
+        0.f,
+        1.f);
+    glm::vec4 worldMouse = camera.m_InvViewProjection * viewMouse;
+    camera.m_WorldMouse = worldMouse / worldMouse.w;
+
+    camera.m_Feather = std::max(
+        (orthoWidth) / windowSize.m_Width,
+        (orthoHeight) / windowSize.m_Height) * 2.f;
 }

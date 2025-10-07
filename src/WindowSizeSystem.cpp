@@ -7,9 +7,6 @@
 
 void window_size_system::Update(flecs::world& world, GLFWwindow* window)
 {
-    world.query_builder<xg::WindowSizeComponent>()
-        .each([&](xg::WindowSizeComponent& windowSize)
-    {
-        glfwGetWindowSize(window, &windowSize.m_Width, &windowSize.m_Height);
-    });
+    xg::WindowSizeComponent& windowSize = world.get_mut<xg::WindowSizeComponent>();
+    glfwGetWindowSize(window, &windowSize.m_Width, &windowSize.m_Height);
 }
