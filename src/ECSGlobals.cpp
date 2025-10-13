@@ -12,6 +12,8 @@
 #include "WindowSizeComponent.h"
 #include "UIAddCogComponent.h"
 
+#include "Command/CommandExecuteComponent.h"
+
 void xg::ECSGlobalsCreate(flecs::world& world)
 {
     world.emplace<xg::CameraComponent>();
@@ -23,4 +25,6 @@ void xg::ECSGlobalsCreate(flecs::world& world)
     world.emplace<xg::WindowSizeComponent>();
 
     xg::cog::RegisterAll(world.get_mut<xg::CogMap>());
+
+    world.component<xg::command::ExecuteComponent>();
 }

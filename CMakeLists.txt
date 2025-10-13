@@ -74,11 +74,27 @@ set(cog_files
     src/Cogs/Register.h
 )
 
+set(command_files
+
+    src/Command/CommandAddCogComponent.h
+    src/Command/CommandDeleteCogComponent.h
+    src/Command/CommandExecuteComponent.h
+    src/Command/CommandListComponent.h
+    src/Command/CommandListItemComponent.h
+    src/Command/CommandListSizeComponent.h
+    src/Command/CommandListSystem.cpp
+    src/Command/CommandListSystem.h
+    src/Command/CommandToQueueComponent.h
+)
+
 list(APPEND source_files ${core_files})
 source_group("Core" FILES ${core_files})
 
 list(APPEND source_files ${cog_files})
 source_group("Cogs" FILES ${cog_files})
+
+list(APPEND source_files ${command_files})
+source_group("Command" FILES ${command_files})
 
 if (EMSCRIPTEN)
     message(STATUS "This is an Emscripten build.")
@@ -151,6 +167,7 @@ if (NOT EMSCRIPTEN)
     add_executable(Tests
 
         src/ut/CogCreateTest.cpp
+        src/ut/CommandListSystemTest.cpp
         src/ut/ResourceIdTest.cpp
         src/ut/ResultTest.cpp
         src/ut/ShadersTest.cpp)
