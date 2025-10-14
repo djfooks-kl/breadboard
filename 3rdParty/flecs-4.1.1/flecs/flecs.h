@@ -27272,6 +27272,7 @@ struct entity_builder : entity_view {
      */
     template<typename T, typename ... Args, typename A = actual_type_t<T>>
     const Self& emplace(Args&&... args) const  {
+        static_assert(!std::is_empty_v<T>, "Must call add for tags");
         flecs::emplace<A>(this->world_, this->id_,
             _::type<T>::id(this->world_), FLECS_FWD(args)...);
         return to_base();
