@@ -4,10 +4,8 @@
 
 namespace xg::command
 {
-	struct ListItemComponent
+	struct UndoComponent
 	{
-		flecs::entity m_Previous;
 		flecs::entity m_Undo;
-		flecs::entity m_Next;
 	};
 }

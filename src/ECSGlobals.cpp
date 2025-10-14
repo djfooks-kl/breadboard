@@ -6,13 +6,15 @@
 #include "CameraInputComponent.h"
 #include "Cogs/CogMap.h"
 #include "Cogs/Register.h"
+#include "Command/CommandExecuteComponent.h"
+#include "Command/CommandListComponent.h"
 #include "GlobalComponent.h"
 #include "InputComponent.h"
 #include "MouseTrailComponent.h"
-#include "WindowSizeComponent.h"
 #include "UIAddCogComponent.h"
-
-#include "Command/CommandExecuteComponent.h"
+#include "UIRedoComponent.h"
+#include "UIUndoComponent.h"
+#include "WindowSizeComponent.h"
 
 void xg::ECSGlobalsCreate(flecs::world& world)
 {
@@ -23,8 +25,10 @@ void xg::ECSGlobalsCreate(flecs::world& world)
     world.emplace<xg::MouseTrailComponent>();
     world.emplace<xg::UIAddCogComponent>();
     world.emplace<xg::WindowSizeComponent>();
+    world.ensure<xg::command::ListComponent>().m_Commands.resize(500);
 
     xg::cog::RegisterAll(world.get_mut<xg::CogMap>());
 
     world.component<xg::command::ExecuteComponent>();
+    world.component<xg::UIUndoComponent>();
 }

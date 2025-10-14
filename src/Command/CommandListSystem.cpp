@@ -5,8 +5,10 @@
 #include "Command/CommandToQueueComponent.h"
 #include "Command/CommandExecuteComponent.h"
 #include "Command/CommandListComponent.h"
-#include "Command/CommandListItemComponent.h"
+#include "Command/CommandUndoComponent.h"
 #include "Command/CommandListSystem.h"
+#include "UIUndoComponent.h"
+#include "UIRedoComponent.h"
 
 void xg::command::list_system::Update(flecs::world& world)
 {
@@ -21,29 +23,56 @@ void xg::command::list_system::Update(flecs::world& world)
 
 	world.defer_begin();
 
-	auto query = world.query_builder<
-		const xg::command::ToQueueComponent>();
-	query.each([&](flecs::entity entity, const xg::command::ToQueueComponent& toQueue)
-	{
-		entity.add<xg::command::ExecuteComponent>();
-
-		auto& listItem = entity.ensure<xg::command::ListItemComponent>();
-		listItem.m_Undo = toQueue.m_Undo;
-
-		flecs::entity oldHead = list.m_Head;
-		if (oldHead.is_valid())
+	world.each([&](flecs::entity entity, const xg::command::ToQueueComponent& toQueue)
 		{
-			auto& oldHeadListItem = oldHead.get_mut<xg::command::ListItemComponent>();
-			oldHeadListItem.m_Next = entity;
+			if (list.m_UndoCount == 0)
+			{
+				list.m_UndoHeadIndex = 0;
+			}
+			else
+			{
+				list.m_UndoHeadIndex = (list.m_UndoHeadIndex + 1) % list.m_Commands.size();
+			}
+			list.m_HeadIndex = list.m_UndoHeadIndex;
 
-			listItem.m_Previous = oldHead;
-		}
+			list.m_UndoCount = std::min(list.m_UndoCount + 1, static_cast<int>(list.m_Commands.size()));
+			list.m_Count = list.m_UndoCount;
 
-		list.m_Head = entity;
-		if (!list.m_Tail.is_valid())
-			list.m_Tail = entity;
-		list.m_UndoHead = entity;
-	});
+			list.m_Commands[list.m_HeadIndex] = entity;
+			entity.add<xg::command::ExecuteComponent>();
+			entity.ensure<xg::command::UndoComponent>().m_Undo = toQueue.m_Undo;
+		});
+
+	world.each([&](const xg::UIUndoComponent)
+		{
+			if (list.m_UndoCount == 0)
+				return;
+
+			flecs::entity undo = list.m_Commands[list.m_UndoHeadIndex].get<const xg::command::UndoComponent>().m_Undo;
+			undo.add<xg::command::ExecuteComponent>();
+
+			--list.m_UndoCount;
+
+			if (list.m_UndoCount > 0)
+			{
+				--list.m_UndoHeadIndex;
+				if (list.m_UndoHeadIndex < 0)
+					list.m_UndoHeadIndex = static_cast<int>(list.m_Commands.size()) - 1;
+			}
+		});
+
+	world.each([&](const xg::UIRedoComponent)
+		{
+			if (list.m_UndoCount == list.m_Count)
+				return;
+
+			if (list.m_UndoCount > 0)
+			{
+				list.m_UndoHeadIndex = (list.m_UndoHeadIndex + 1) % list.m_Commands.size();
+			}
+			++list.m_UndoCount;
+			list.m_Commands[list.m_UndoHeadIndex].add<xg::command::ExecuteComponent>();
+		});
 
 	world.defer_end();
 }

@@ -56,6 +56,8 @@ set(source_files
     src/UI.cpp
     src/UI.h
     src/UIAddCogComponent.h
+    src/UIRedoComponent.h
+    src/UIUndoComponent.h
     src/WindowSizeComponent.h
     src/WindowSizeSystem.cpp
     src/WindowSizeSystem.h)
@@ -80,11 +82,10 @@ set(command_files
     src/Command/CommandDeleteCogComponent.h
     src/Command/CommandExecuteComponent.h
     src/Command/CommandListComponent.h
-    src/Command/CommandListItemComponent.h
-    src/Command/CommandListSizeComponent.h
     src/Command/CommandListSystem.cpp
     src/Command/CommandListSystem.h
     src/Command/CommandToQueueComponent.h
+    src/Command/CommandUndoComponent.h
 )
 
 list(APPEND source_files ${core_files})

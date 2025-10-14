@@ -1,13 +1,16 @@
 #pragma once
 
+#include <vector>
 #include <flecs/flecs.h>
 
 namespace xg::command
 {
 	struct ListComponent
 	{
-		flecs::entity m_Head;
-		flecs::entity m_Tail;
-		flecs::entity m_UndoHead;
+		std::vector<flecs::entity> m_Commands;
+		int m_HeadIndex = 0;
+		int m_Count = 0;
+		int m_UndoHeadIndex = 0;
+		int m_UndoCount = 0;
 	};
 }
