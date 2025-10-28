@@ -6,6 +6,6 @@ namespace xg::command
 {
 	struct DeleteCogComponent
 	{
-		ivec2 m_Position;
+		glm::ivec2 m_Position;
 	};
 }

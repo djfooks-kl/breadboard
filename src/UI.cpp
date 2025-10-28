@@ -92,7 +92,17 @@ void xg::UI::DrawComponentMenu(flecs::world& world)
         }
     }
 
-    world.get_mut<xg::UIAddCogComponent>().m_Id = addCogId;
+    world.defer_begin();
+    world.each([](flecs::entity entity, xg::UIAddCogComponent)
+        {
+            entity.remove<xg::UIAddCogComponent>();
+        });
+    world.defer_end();
+
+    if (addCogId)
+    {
+        world.entity().ensure<xg::UIAddCogComponent>().m_CogId = addCogId;
+    }
 }
 
 void xg::UI::Draw(flecs::world& world)

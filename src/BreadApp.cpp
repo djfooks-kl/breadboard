@@ -22,6 +22,7 @@
 #include "TextRenderer.h"
 #include "UI.h"
 #include "WindowSizeSystem.h"
+#include "Command/CommandCreateSystem.h"
 #include "Command/CommandListSystem.h"
 
 namespace
@@ -119,6 +120,7 @@ void BreadApp::Update(GLFWwindow* window, const double time, const float deltaTi
     camera_input_system::Update(m_World, time, deltaTime);
     camera_system::Update(m_World, time, deltaTime);
     mouse_trail_system::Update(m_World, time, deltaTime);
+    xg::command::create_system::Update(m_World);
     xg::command::list_system::Update(m_World);
 
     Render(time, deltaTime);

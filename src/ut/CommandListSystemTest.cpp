@@ -9,7 +9,7 @@
 #include "UIUndoComponent.h"
 #include "UIRedoComponent.h"
 
-#define SYSTEM_TEST_CASE(description) TEST_CASE("xg::command::ListSystem - " description, "[xg::command::ListSystem]")
+#define SYSTEM_TEST_CASE(description) TEST_CASE("xg::command::list_system - " description, "[xg::command::list_system]")
 
 namespace
 {
@@ -49,7 +49,7 @@ namespace
     };
 }
 
-TEST_CASE("Add a command -> Put the command in the list")
+SYSTEM_TEST_CASE("Add a command -> Put the command in the list")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -71,7 +71,7 @@ TEST_CASE("Add a command -> Put the command in the list")
     CHECK(command.has<xg::command::ExecuteComponent>());
 }
 
-TEST_CASE("Add a 2nd command -> Put both commands in the list")
+SYSTEM_TEST_CASE("Add a 2nd command -> Put both commands in the list")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -102,7 +102,7 @@ TEST_CASE("Add a 2nd command -> Put both commands in the list")
     CHECK(command2.has<xg::command::ExecuteComponent>());
 }
 
-TEST_CASE("Add a 4 commands and overflow -> Wrap around and remove command1")
+SYSTEM_TEST_CASE("Add a 4 commands and overflow -> Wrap around and remove command1")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -132,9 +132,12 @@ TEST_CASE("Add a 4 commands and overflow -> Wrap around and remove command1")
     CHECK(world.get<xg::command::ListComponent>().m_Commands[0] == command4);
     CHECK(world.get<xg::command::ListComponent>().m_Commands[1] == command2);
     CHECK(world.get<xg::command::ListComponent>().m_Commands[2] == command3);
+
+    CHECK(command1.is_alive() == false);
+    CHECK(undo1.is_alive() == false);
 }
 
-TEST_CASE("Add 1 command then undo it -> Run the Undo and remove it from the undo list")
+SYSTEM_TEST_CASE("Add 1 command then undo it -> Run the Undo and remove it from the undo list")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -161,7 +164,7 @@ TEST_CASE("Add 1 command then undo it -> Run the Undo and remove it from the und
     CHECK(undo1.has<xg::command::ExecuteComponent>());
 }
 
-TEST_CASE("Add 2 commands then undo each -> Run the Undo and remove it from the undo list")
+SYSTEM_TEST_CASE("Add 2 commands then undo each -> Run the Undo and remove it from the undo list")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -214,7 +217,7 @@ TEST_CASE("Add 2 commands then undo each -> Run the Undo and remove it from the 
     }
 }
 
-TEST_CASE("No commands and undo added -> Ignore it")
+SYSTEM_TEST_CASE("No commands and undo added -> Ignore it")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -230,7 +233,7 @@ TEST_CASE("No commands and undo added -> Ignore it")
     CHECK(world.get<xg::command::ListComponent>().m_Commands[0] == flecs::entity());
 }
 
-TEST_CASE("1 command and undo added 2 times -> Ignore 2nd add")
+SYSTEM_TEST_CASE("1 command and undo added 2 times -> Ignore 2nd add")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -257,7 +260,7 @@ TEST_CASE("1 command and undo added 2 times -> Ignore 2nd add")
     CHECK(undo.has<xg::command::ExecuteComponent>() == false);
 }
 
-TEST_CASE("Add a 4 commands and overflow then undo -> Undo head index wraps around")
+SYSTEM_TEST_CASE("Add a 4 commands and overflow then undo -> Undo head index wraps around")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -292,17 +295,18 @@ TEST_CASE("Add a 4 commands and overflow then undo -> Undo head index wraps arou
     CHECK(world.get<xg::command::ListComponent>().m_Commands[1] == command2);
     CHECK(world.get<xg::command::ListComponent>().m_Commands[2] == command3);
 
-    CHECK(command1.has<xg::command::ExecuteComponent>() == false);
+    CHECK(command1.is_alive() == false);
     CHECK(command2.has<xg::command::ExecuteComponent>() == false);
     CHECK(command3.has<xg::command::ExecuteComponent>() == false);
     CHECK(command4.has<xg::command::ExecuteComponent>() == false);
-    CHECK(undo1.has<xg::command::ExecuteComponent>() == false);
+
+    CHECK(undo1.is_alive() == false);
     CHECK(undo2.has<xg::command::ExecuteComponent>() == false);
     CHECK(undo3.has<xg::command::ExecuteComponent>() == false);
     CHECK(undo4.has<xg::command::ExecuteComponent>());
 }
 
-TEST_CASE("Add 1 command, undo it and then redo it -> Execute the Redo and add it back to the undo list")
+SYSTEM_TEST_CASE("Add 1 command, undo it and then redo it -> Execute the Redo and add it back to the undo list")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -328,7 +332,7 @@ TEST_CASE("Add 1 command, undo it and then redo it -> Execute the Redo and add i
     CHECK(undo1.has<xg::command::ExecuteComponent>() == false);
 }
 
-TEST_CASE("Add 2 commands, undo them and then redo each -> Execute each Redo and add the commands back to the undo list")
+SYSTEM_TEST_CASE("Add 2 commands, undo them and then redo each -> Execute each Redo and add the commands back to the undo list")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -383,7 +387,7 @@ TEST_CASE("Add 2 commands, undo them and then redo each -> Execute each Redo and
     }
 }
 
-TEST_CASE("No commands and redo added -> Ignore it")
+SYSTEM_TEST_CASE("No commands and redo added -> Ignore it")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -399,7 +403,7 @@ TEST_CASE("No commands and redo added -> Ignore it")
     CHECK(world.get<xg::command::ListComponent>().m_Commands[0] == flecs::entity());
 }
 
-TEST_CASE("1 command, undo and then redo added twice -> Ignore 2nd redo")
+SYSTEM_TEST_CASE("1 command, undo and then redo added twice -> Ignore 2nd redo")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -426,7 +430,7 @@ TEST_CASE("1 command, undo and then redo added twice -> Ignore 2nd redo")
     CHECK(undo1.has<xg::command::ExecuteComponent>() == false);
 }
 
-TEST_CASE("4 commands causes wrap around, undo and redo them all -> redo wraps around correctly")
+SYSTEM_TEST_CASE("4 commands causes wrap around, undo and redo them all -> redo wraps around correctly")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -470,17 +474,18 @@ TEST_CASE("4 commands causes wrap around, undo and redo them all -> redo wraps a
     CHECK(world.get<xg::command::ListComponent>().m_Count == 3);
     CHECK(world.get<xg::command::ListComponent>().m_UndoCount == 3);
 
-    CHECK(command1.has<xg::command::ExecuteComponent>() == false);
+    CHECK(command1.is_alive() == false);
     CHECK(command2.has<xg::command::ExecuteComponent>() == false);
     CHECK(command3.has<xg::command::ExecuteComponent>() == false);
     CHECK(command4.has<xg::command::ExecuteComponent>());
-    CHECK(undo1.has<xg::command::ExecuteComponent>() == false);
+
+    CHECK(undo1.is_alive() == false);
     CHECK(undo2.has<xg::command::ExecuteComponent>() == false);
     CHECK(undo3.has<xg::command::ExecuteComponent>() == false);
     CHECK(undo4.has<xg::command::ExecuteComponent>() == false);
 }
 
-TEST_CASE("Add a command then undo once and queue a new command -> New command replaces the old command")
+SYSTEM_TEST_CASE("Add a command then undo once and queue a new command -> New command replaces the old command")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -504,8 +509,9 @@ TEST_CASE("Add a command then undo once and queue a new command -> New command r
     CHECK(world.get<xg::command::ListComponent>().m_UndoCount == 1);
     CHECK(world.get<xg::command::ListComponent>().m_Commands[0] == command2);
 
-    CHECK(command1.has<xg::command::ExecuteComponent>() == false);
+    CHECK(command1.is_alive() == false);
     CHECK(command2.has<xg::command::ExecuteComponent>());
-    CHECK(undo1.has<xg::command::ExecuteComponent>() == false);
+
+    CHECK(undo1.is_alive() == false);
     CHECK(undo2.has<xg::command::ExecuteComponent>() == false);
 }

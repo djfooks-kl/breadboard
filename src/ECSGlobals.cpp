@@ -23,7 +23,6 @@ void xg::ECSGlobalsCreate(flecs::world& world)
     world.emplace<xg::CogMap>();
     world.emplace<xg::InputComponent>();
     world.emplace<xg::MouseTrailComponent>();
-    world.emplace<xg::UIAddCogComponent>();
     world.emplace<xg::WindowSizeComponent>();
     world.ensure<xg::command::ListComponent>().m_Commands.resize(500);
 

@@ -4,7 +4,7 @@
 
 namespace xg
 {
-    struct UIAddCogComponent
+    struct UIDeleteCogComponent
     {
         xg::CogResourceId m_CogId;
     };

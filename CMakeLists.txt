@@ -79,6 +79,8 @@ set(cog_files
 set(command_files
 
     src/Command/CommandAddCogComponent.h
+    src/Command/CommandCreateSystem.cpp
+    src/Command/CommandCreateSystem.h
     src/Command/CommandDeleteCogComponent.h
     src/Command/CommandExecuteComponent.h
     src/Command/CommandListComponent.h
@@ -126,7 +128,7 @@ endif()
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT BreadProject)
 
 add_library(BreadProjectLib STATIC ${source_files})
-target_include_directories(BreadProjectLib PUBLIC src)
+target_include_directories(BreadProjectLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 if (EMSCRIPTEN)
     target_compile_definitions(BreadProjectLib PRIVATE DATA_DIR="./data/")
@@ -138,7 +140,7 @@ add_executable(BreadProject src/main.cpp)
 target_link_libraries(BreadProject PUBLIC BreadProjectLib)
 
 if (NOT EMSCRIPTEN)
-    target_include_directories(BreadProjectLib PUBLIC 3rdParty/glad/include)
+    target_include_directories(BreadProjectLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/glad/include)
     target_include_directories(BreadProjectLib PUBLIC ${glfw_include_dir})
     target_link_libraries(BreadProjectLib PUBLIC glfw ${GLFW_LIBRARIES})
 endif()
@@ -146,11 +148,11 @@ endif()
 add_subdirectory(3rdParty/glm-1.0.1)
 target_link_libraries(BreadProjectLib PUBLIC glm::glm-header-only)
 
-target_include_directories(BreadProjectLib PUBLIC 3rdParty/stb)
-target_include_directories(BreadProjectLib PUBLIC 3rdParty/nlohmann-json)
+target_include_directories(BreadProjectLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/stb)
+target_include_directories(BreadProjectLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/nlohmann-json)
 
 add_subdirectory(3rdParty/imgui-1.92.1)
-target_include_directories(BreadProjectLib PUBLIC 3rdParty/imgui-1.92.1)
+target_include_directories(BreadProjectLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/imgui-1.92.1)
 target_link_libraries(BreadProjectLib PUBLIC ImGui)
 
 add_subdirectory(3rdParty/flecs-4.1.1)
@@ -168,6 +170,7 @@ if (NOT EMSCRIPTEN)
     add_executable(Tests
 
         src/ut/CogCreateTest.cpp
+        src/ut/CommandCreateSystemTest.cpp
         src/ut/CommandListSystemTest.cpp
         src/ut/ResourceIdTest.cpp
         src/ut/ResultTest.cpp
