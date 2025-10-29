@@ -20,6 +20,8 @@ set(core_files
     src/Core/GLFWLib.h
     src/Core/ResourceId.h
     src/Core/Result.h
+    src/Core/Rotation90.cpp
+    src/Core/Rotation90.h
     src/Core/ShaderHelpers.cpp
     src/Core/ShaderHelpers.h
     src/Core/ShaderProgram.cpp
@@ -174,7 +176,9 @@ if (NOT EMSCRIPTEN)
         src/ut/CommandListSystemTest.cpp
         src/ut/ResourceIdTest.cpp
         src/ut/ResultTest.cpp
-        src/ut/ShadersTest.cpp)
+        src/ut/Rotation90Test.cpp
+        src/ut/ShadersTest.cpp
+    )
 
     target_link_libraries(Tests PRIVATE Catch2::Catch2WithMain)
     target_link_libraries(Tests PRIVATE BreadProjectLib)
