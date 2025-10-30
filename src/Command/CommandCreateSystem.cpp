@@ -20,7 +20,9 @@ void xg::command::create_system::Update(flecs::world& world)
     world.defer_begin();
     world.each([&](flecs::entity entity, const xg::UIAddCogComponent& uiAddCog)
         {
-            entity.ensure<xg::command::AddCogComponent>().m_CogId = uiAddCog.m_CogId;
+            auto& addCog = entity.ensure<xg::command::AddCogComponent>();
+            addCog.m_CogId = uiAddCog.m_CogId;
+            addCog.m_Rotation = uiAddCog.m_Rotation;
 
             const flecs::entity undo = world.entity();
             undo.ensure<xg::command::DeleteCogComponent>().m_Position = glm::ivec2(1, 1);

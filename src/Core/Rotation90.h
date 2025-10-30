@@ -8,12 +8,17 @@ namespace xc
 	class Rotation90
 	{
 	public:
+		Rotation90() = default;
+		Rotation90(int rotationIndex);
+
 		void RotateRight(int rotationIndexOffset);
 
 		int GetRotationIndex() const;
 
-		const glm::imat2x2& GetIRotation() const;
-		const glm::mat2x2& GetFRotation() const;
+		const glm::imat2x2& GetIMatrix() const;
+		const glm::mat2x2& GetFMatrix() const;
+
+		bool operator==(const xc::Rotation90& other) const = default;
 
 	private:
 		int m_Index = 0;
