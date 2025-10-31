@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ImGui/imgui.h>
+
 namespace flecs
 {
     struct world;
@@ -18,10 +20,9 @@ namespace xg
 
         void DrawComponentMenu(flecs::world& world);
 
+        ImVec2 m_PopupPosition;
+
         bool m_ShowDebugMenuBar = false;
         bool m_DebugInfoOpen = false;
-
-        bool m_ComponentMenuOpen = false;
-        bool m_ComponentMenuMouseClose = false;
     };
 }

@@ -57,47 +57,54 @@ void xg::UI::DrawComponentMenu(flecs::world& world)
     const auto& input = world.get<xg::InputComponent>();
     const auto& cogMap = world.get<xg::CogMap>();
 
-    bool anyKeyDown = !input.m_KeyDown.empty();
-
-    xg::CogResourceId addCogId;
-    bool clickWindow =
-        ImGui::IsMouseReleased(ImGuiMouseButton_Left) &&
-        !ImGui::GetIO().WantCaptureMouse;
-
-    if (clickWindow && m_ComponentMenuMouseClose)
-    {
-        m_ComponentMenuMouseClose = false;
-        return;
-    }
-
-    if (!anyKeyDown && (clickWindow || m_ComponentMenuOpen))
-    {
-        m_ComponentMenuOpen = ImGui::BeginPopupContextVoid(nullptr, ImGuiPopupFlags_MouseButtonLeft);
-        if (m_ComponentMenuOpen)
-        {
-            for (const auto& itr : cogMap.GetMap())
-            {
-                if (ImGui::Button(itr.first.GetName()))
-                {
-                    addCogId = itr.first;
-                }
-            }
-
-            ImGui::EndPopup();
-        }
-
-        if (!m_ComponentMenuOpen)
-        {
-            m_ComponentMenuMouseClose = ImGui::IsMouseDown(ImGuiMouseButton_Left);
-        }
-    }
-
     world.defer_begin();
     world.each([](flecs::entity entity, xg::UIAddCogComponent)
         {
             entity.remove<xg::UIAddCogComponent>();
         });
     world.defer_end();
+
+    xg::CogResourceId addCogId;
+
+    ImGuiIO& io = ImGui::GetIO();
+
+    bool openning = false;
+    // Detect left mouse click anywhere in the window background
+    if (!ImGui::IsPopupOpen("LeftClickPopup") &&
+        ImGui::IsMouseClicked(ImGuiMouseButton_Left) &&
+        !ImGui::IsAnyItemHovered())
+    {
+        // Open the popup
+        ImGui::OpenPopup("LeftClickPopup");
+        openning = true;
+        m_PopupPosition = io.MousePos;
+    }
+
+    // Center the popup at the mouse position when it opens
+    if (ImGui::BeginPopup("LeftClickPopup"))
+    {
+        if (!openning && !ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+            ImGui::CloseCurrentPopup();
+
+        // Optionally, move the popup to mouse position on open
+        ImGui::SetWindowPos(m_PopupPosition, ImGuiCond_Always);
+
+        if (!input.m_KeyDown.empty())
+        {
+            ImGui::CloseCurrentPopup();
+        }
+
+        for (const auto& itr : cogMap.GetMap())
+        {
+            if (ImGui::Button(itr.first.GetName()))
+            {
+                ImGui::CloseCurrentPopup();
+                addCogId = itr.first;
+            }
+        }
+
+        ImGui::EndPopup();
+    }
 
     if (addCogId)
     {
