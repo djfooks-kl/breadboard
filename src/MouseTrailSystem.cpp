@@ -1,9 +1,10 @@
 #include "MouseTrailSystem.h"
 
+#include <cmath>
 #include <flecs/flecs.h>
 
-#include "CameraComponent.h"
 #include "MouseTrailComponent.h"
+#include "WorldMouseComponent.h"
 
 namespace
 {
@@ -46,12 +47,12 @@ namespace
 void mouse_trail_system::Update(flecs::world& world, const double time, const float /*deltaTime*/)
 {
     auto& mouseTrail = world.get_mut<xg::MouseTrailComponent>();
-    const auto& camera = world.get<xg::CameraComponent>();
+    const auto& worldMouse = world.get<xg::WorldMouseComponent>();
 
     const double t = fmod(time, s_Period) / s_Period;
     const float hue = static_cast<float>(t) * 360.f;
     xg::TrailPoint p;
-    p.m_Position = camera.m_WorldMouse;
+    p.m_Position = worldMouse.m_Position;
     p.m_Color = ConvertHSVToRgb(hue, s_Saturation, s_Brightness);
     mouseTrail.m_Positions.push_back(p);
     if (mouseTrail.m_Positions.size() > s_TrailSize)

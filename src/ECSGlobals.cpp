@@ -15,6 +15,7 @@
 #include "UIRedoComponent.h"
 #include "UIUndoComponent.h"
 #include "WindowSizeComponent.h"
+#include "WorldMouseComponent.h"
 
 void xg::ECSGlobalsCreate(flecs::world& world)
 {
@@ -24,6 +25,7 @@ void xg::ECSGlobalsCreate(flecs::world& world)
     world.emplace<xg::InputComponent>();
     world.emplace<xg::MouseTrailComponent>();
     world.emplace<xg::WindowSizeComponent>();
+    world.emplace<xg::WorldMouseComponent>();
     world.ensure<xg::command::ListComponent>().m_Commands.resize(500);
 
     xg::cog::RegisterAll(world.get_mut<xg::CogMap>());

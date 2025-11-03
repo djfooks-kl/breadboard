@@ -41,9 +41,7 @@ void xg::UI::DrawDebugInfo(flecs::world& world)
     ImGui::SetNextWindowSize(ImVec2{ 0.f, 0.f });
     if (m_DebugInfoOpen && ImGui::Begin("Debug Info", &m_DebugInfoOpen))
     {
-        world.query<const xg::CameraComponent>()
-            .each([&](
-                const xg::CameraComponent& camera)
+        world.each([&](const xg::CameraComponent& camera)
                 {
                     ImGui::Text("Zoom %.3f", camera.m_Zoom);
                     ImGui::Text("Pos %.3f %.3f", camera.m_Position.x, camera.m_Position.y);
@@ -69,24 +67,20 @@ void xg::UI::DrawComponentMenu(flecs::world& world)
     ImGuiIO& io = ImGui::GetIO();
 
     bool openning = false;
-    // Detect left mouse click anywhere in the window background
     if (!ImGui::IsPopupOpen("LeftClickPopup") &&
         ImGui::IsMouseClicked(ImGuiMouseButton_Left) &&
         !ImGui::IsAnyItemHovered())
     {
-        // Open the popup
         ImGui::OpenPopup("LeftClickPopup");
         openning = true;
         m_PopupPosition = io.MousePos;
     }
 
-    // Center the popup at the mouse position when it opens
     if (ImGui::BeginPopup("LeftClickPopup"))
     {
         if (!openning && !ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
             ImGui::CloseCurrentPopup();
 
-        // Optionally, move the popup to mouse position on open
         ImGui::SetWindowPos(m_PopupPosition, ImGuiCond_Always);
 
         if (!input.m_KeyDown.empty())

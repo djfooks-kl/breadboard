@@ -62,7 +62,9 @@ set(source_files
     src/UIUndoComponent.h
     src/WindowSizeComponent.h
     src/WindowSizeSystem.cpp
-    src/WindowSizeSystem.h)
+    src/WindowSizeSystem.h
+    src/WorldMouseComponent.h
+)
 
 set(cog_files
 
