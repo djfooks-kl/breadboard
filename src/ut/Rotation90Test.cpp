@@ -43,6 +43,16 @@ TEST_CASE("Simple Rotation90 tests", "[xc::Rotation90]")
     }
 
     {
+        xc::Rotation90 direction(-1);
+        CHECK(direction.GetRotationIndex() == 3);
+    }
+
+    {
+        xc::Rotation90 direction(5);
+        CHECK(direction.GetRotationIndex() == 1);
+    }
+
+    {
         xc::Rotation90 direction;
         direction.RotateRight(1);
         direction.RotateRight(1);
@@ -72,5 +82,31 @@ TEST_CASE("Simple Rotation90 tests", "[xc::Rotation90]")
         xc::Rotation90 direction;
         direction.RotateRight(-5);
         CHECK(direction.GetRotationIndex() == 3);
+    }
+
+    {
+        xc::Rotation90 direction1(1);
+        xc::Rotation90 direction2(2);
+        CHECK((direction1 + direction2).GetRotationIndex() == 3);
+    }
+
+    {
+        xc::Rotation90 direction1(2);
+        xc::Rotation90 direction2(3);
+        CHECK((direction1 + direction2).GetRotationIndex() == 1);
+    }
+
+    {
+        xc::Rotation90 direction1(1);
+        xc::Rotation90 direction2(2);
+        direction2 += direction1;
+        CHECK(direction2.GetRotationIndex() == 3);
+    }
+
+    {
+        xc::Rotation90 direction1(2);
+        xc::Rotation90 direction2(3);
+        direction2 += direction1;
+        CHECK(direction2.GetRotationIndex() == 1);
     }
 }

@@ -58,7 +58,13 @@ set(source_files
     src/UI.cpp
     src/UI.h
     src/UIAddCogComponent.h
+    src/UIDraggingDropComponent.h
+    src/UIDragPreviewComponent.h
+    src/UIDragPreviewSystem.cpp
+    src/UIDragPreviewSystem.h
+    src/UIPreviewAddingCogComponent.h
     src/UIRedoComponent.h
+    src/UIRotateComponent.h
     src/UIUndoComponent.h
     src/WindowSizeComponent.h
     src/WindowSizeSystem.cpp
@@ -180,6 +186,7 @@ if (NOT EMSCRIPTEN)
         src/ut/ResultTest.cpp
         src/ut/Rotation90Test.cpp
         src/ut/ShadersTest.cpp
+        src/ut/UIDragPreviewSystemTest.cpp
     )
 
     target_link_libraries(Tests PRIVATE Catch2::Catch2WithMain)
