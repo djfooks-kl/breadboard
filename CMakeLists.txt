@@ -58,6 +58,8 @@ set(source_files
     src/UI.cpp
     src/UI.h
     src/UIAddCogComponent.h
+    src/UIDragDropSystem.cpp
+    src/UIDragDropSystem.h
     src/UIDraggingDropComponent.h
     src/UIDragPreviewComponent.h
     src/UIDragPreviewSystem.cpp
@@ -77,6 +79,8 @@ set(cog_files
     src/Cogs/Battery.cpp
     src/Cogs/Battery.h
     src/Cogs/BatteryComponent.h
+    src/Cogs/BatterySystem.cpp
+    src/Cogs/BatterySystem.h
     src/Cogs/Cog.cpp
     src/Cogs/Cog.h
     src/Cogs/CogMap.cpp
@@ -84,6 +88,8 @@ set(cog_files
     src/Cogs/CogResourceId.h
     src/Cogs/Register.cpp
     src/Cogs/Register.h
+    src/Cogs/Switch.cpp
+    src/Cogs/Switch.h
 )
 
 set(command_files
@@ -179,13 +185,13 @@ if (NOT EMSCRIPTEN)
 
     add_executable(Tests
 
-        src/ut/CogCreateTest.cpp
         src/ut/CommandCreateSystemTest.cpp
         src/ut/CommandListSystemTest.cpp
         src/ut/ResourceIdTest.cpp
         src/ut/ResultTest.cpp
         src/ut/Rotation90Test.cpp
         src/ut/ShadersTest.cpp
+        src/ut/UIDragDropSystemTest.cpp
         src/ut/UIDragPreviewSystemTest.cpp
     )
 

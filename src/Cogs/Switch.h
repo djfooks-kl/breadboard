@@ -10,7 +10,7 @@ namespace flecs
 
 namespace xg::cog
 {
-    struct Battery : public xg::Cog
+    struct Switch : public xg::Cog
     {
         static xg::CogResourceId GetResourceId();
     };

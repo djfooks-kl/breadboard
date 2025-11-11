@@ -11,8 +11,8 @@ namespace xg
     struct UIDragPreviewComponent
     {
         xg::CogResourceId m_CogId;
-        xc::Rotation90 m_Rotation;
         glm::ivec2 m_Position;
+        xc::Rotation90 m_Rotation;
         glm::vec2 m_PreviewPosition;
     };
 }

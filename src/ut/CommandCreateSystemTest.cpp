@@ -51,17 +51,20 @@ TEST_CASE("Add a cog -> Queue for execution and add a delete cog undo command")
     auto& uiAddCog = command.ensure<xg::UIAddCogComponent>();
     uiAddCog.m_CogId = s_TestCog1;
     uiAddCog.m_Rotation = xc::Rotation90(1);
+    uiAddCog.m_Position = glm::ivec2(2, 3);
     env.Update();
 
     REQUIRE(command.has<xg::command::AddCogComponent>());
     CHECK(command.get<const xg::command::AddCogComponent>().m_CogId == s_TestCog1);
     CHECK(command.get<const xg::command::AddCogComponent>().m_Rotation == xc::Rotation90(1));
+    CHECK(command.get<const xg::command::AddCogComponent>().m_Position == glm::ivec2(2, 3));
 
     REQUIRE(command.has<xg::command::ToQueueComponent>());
     flecs::entity undo = command.get<const xg::command::ToQueueComponent>().m_Undo;
     REQUIRE(undo != flecs::entity());
     REQUIRE(undo.has<xg::command::DeleteCogComponent>());
-    CHECK(undo.get<const xg::command::DeleteCogComponent>().m_Position == glm::ivec2(1, 1));
+    CHECK(undo.get<const xg::command::DeleteCogComponent>().m_CogId == s_TestCog1);
+    CHECK(undo.get<const xg::command::DeleteCogComponent>().m_Position == glm::ivec2(2, 3));
 }
 
 TEST_CASE("Delete a cog -> Queue for execution and add an add cog undo command")
@@ -70,11 +73,14 @@ TEST_CASE("Delete a cog -> Queue for execution and add an add cog undo command")
     flecs::world world = env.m_World;
 
     flecs::entity command = world.entity();
-    command.ensure<xg::UIDeleteCogComponent>().m_CogId = s_TestCog1;
+    auto& deleteCog = command.ensure<xg::UIDeleteCogComponent>();
+    deleteCog.m_CogId = s_TestCog1;
+    deleteCog.m_Position = glm::ivec2(4, 5);
     env.Update();
 
     REQUIRE(command.has<xg::command::DeleteCogComponent>());
-    CHECK(command.get<const xg::command::DeleteCogComponent>().m_Position == glm::ivec2(1, 1));
+    CHECK(command.get<const xg::command::DeleteCogComponent>().m_CogId == s_TestCog1);
+    CHECK(command.get<const xg::command::DeleteCogComponent>().m_Position == glm::ivec2(4, 5));
 
     REQUIRE(command.has<xg::command::ToQueueComponent>());
     flecs::entity undo = command.get<const xg::command::ToQueueComponent>().m_Undo;

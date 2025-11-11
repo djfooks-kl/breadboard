@@ -9,21 +9,25 @@
 
 #include "BoxRenderer.h"
 #include "CameraComponent.h"
-#include "CameraInputSystem.h"
-#include "CameraSystem.h"
 #include "Core/Font.h"
 #include "Core/GLFWLib.h"
 #include "Core/ShaderProgram.h"
 #include "ECSGlobals.h"
 #include "GridRenderer.h"
-#include "InputSystem.h"
 #include "MouseTrailComponent.h"
-#include "MouseTrailSystem.h"
 #include "TextRenderer.h"
 #include "UI.h"
-#include "WindowSizeSystem.h"
+
+#include "CameraInputSystem.h"
+#include "CameraSystem.h"
+#include "Cogs/BatterySystem.h"
 #include "Command/CommandCreateSystem.h"
 #include "Command/CommandListSystem.h"
+#include "InputSystem.h"
+#include "MouseTrailSystem.h"
+#include "UIDragDropSystem.h"
+#include "UIDragPreviewSystem.h"
+#include "WindowSizeSystem.h"
 
 namespace
 {
@@ -120,8 +124,11 @@ void BreadApp::Update(GLFWwindow* window, const double time, const float deltaTi
     camera_input_system::Update(m_World, time, deltaTime);
     camera_system::Update(m_World, time, deltaTime);
     mouse_trail_system::Update(m_World, time, deltaTime);
+    xg::ui_drag_preview_system::Update(m_World);
+    xg::ui_drag_drop_system::Update(m_World);
     xg::command::create_system::Update(m_World);
     xg::command::list_system::Update(m_World);
+    xg::cog::battery_system::Update(m_World);
 
     Render(time, deltaTime);
     m_UI->Draw(m_World);

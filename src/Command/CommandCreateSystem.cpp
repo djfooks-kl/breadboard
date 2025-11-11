@@ -22,17 +22,22 @@ void xg::command::create_system::Update(flecs::world& world)
         {
             auto& addCog = entity.ensure<xg::command::AddCogComponent>();
             addCog.m_CogId = uiAddCog.m_CogId;
+            addCog.m_Position = uiAddCog.m_Position;
             addCog.m_Rotation = uiAddCog.m_Rotation;
 
             const flecs::entity undo = world.entity();
-            undo.ensure<xg::command::DeleteCogComponent>().m_Position = glm::ivec2(1, 1);
+            auto& deleteCog = undo.ensure<xg::command::DeleteCogComponent>();
+            deleteCog.m_CogId = uiAddCog.m_CogId;
+            deleteCog.m_Position = uiAddCog.m_Position;
 
             entity.ensure<xg::command::ToQueueComponent>().m_Undo = undo;
         });
 
     world.each([&](flecs::entity entity, const xg::UIDeleteCogComponent& uiDeleteCog)
         {
-            entity.ensure<xg::command::DeleteCogComponent>().m_Position = glm::ivec2(1, 1);
+            auto& deleteCog = entity.ensure<xg::command::DeleteCogComponent>();
+            deleteCog.m_CogId = uiDeleteCog.m_CogId;
+            deleteCog.m_Position = uiDeleteCog.m_Position;
 
             const flecs::entity undo = world.entity();
             undo.ensure<xg::command::AddCogComponent>().m_CogId = uiDeleteCog.m_CogId;

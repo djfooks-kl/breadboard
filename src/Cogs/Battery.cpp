@@ -13,9 +13,3 @@ xg::CogResourceId xg::cog::Battery::GetResourceId()
 {
     return s_ResourceId;
 }
-
-void xg::cog::Battery::Create(flecs::world& world) const
-{
-    flecs::entity batteryEntity = world.entity();
-    batteryEntity.add<xg::cog::BatteryComponent>();
-}

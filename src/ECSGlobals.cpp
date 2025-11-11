@@ -11,7 +11,6 @@
 #include "GlobalComponent.h"
 #include "InputComponent.h"
 #include "MouseTrailComponent.h"
-#include "UIAddCogComponent.h"
 #include "UIRedoComponent.h"
 #include "UIUndoComponent.h"
 #include "WindowSizeComponent.h"

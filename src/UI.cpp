@@ -10,6 +10,8 @@
 #include "Core/GLFWLib.h"
 #include "InputComponent.h"
 #include "UIAddCogComponent.h"
+#include "UIRedoComponent.h"
+#include "UIUndoComponent.h"
 
 void xg::UI::DrawDebugMenu(flecs::world& world)
 {
@@ -106,8 +108,37 @@ void xg::UI::DrawComponentMenu(flecs::world& world)
     }
 }
 
+void xg::UI::DrawUndo(flecs::world& world)
+{
+    world.defer_begin();
+    world.each([](flecs::entity entity, xg::UIUndoComponent)
+        {
+            entity.remove<xg::UIUndoComponent>();
+        });
+
+    world.each([](flecs::entity entity, xg::UIRedoComponent)
+        {
+            entity.remove<xg::UIRedoComponent>();
+        });
+    world.defer_end();
+
+    const auto& input = world.get<xg::InputComponent>();
+    if (input.m_KeyDown.contains(GLFW_KEY_LEFT_CONTROL) &&
+        input.m_KeyPress.contains(GLFW_KEY_Z))
+    {
+        world.entity().add<xg::UIUndoComponent>();
+    }
+
+    if (input.m_KeyDown.contains(GLFW_KEY_LEFT_CONTROL) &&
+        input.m_KeyPress.contains(GLFW_KEY_Y))
+    {
+        world.entity().add<xg::UIRedoComponent>();
+    }
+}
+
 void xg::UI::Draw(flecs::world& world)
 {
+    DrawUndo(world);
     DrawDebugMenu(world);
     DrawDebugInfo(world);
     DrawComponentMenu(world);
