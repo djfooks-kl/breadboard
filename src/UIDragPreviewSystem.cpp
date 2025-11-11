@@ -7,7 +7,7 @@
 #include "UIRotateComponent.h"
 #include "WorldMouseComponent.h"
 
-void xg::ui_drag_preview_system::Update(flecs::world& world)
+void xg::UIDragPreviewSystem::Update(flecs::world& world)
 {
     world.defer_begin();
     world.each([&](flecs::entity entity, const xg::UIPreviewAddingCogComponent& previewAddingCog)

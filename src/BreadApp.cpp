@@ -8,25 +8,16 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "BoxRenderer.h"
+#include "BreadEntityWorld.h"
 #include "CameraComponent.h"
 #include "Core/Font.h"
 #include "Core/GLFWLib.h"
 #include "Core/ShaderProgram.h"
-#include "ECSGlobals.h"
 #include "GridRenderer.h"
+#include "InputSystem.h"
 #include "MouseTrailComponent.h"
 #include "TextRenderer.h"
 #include "UI.h"
-
-#include "CameraInputSystem.h"
-#include "CameraSystem.h"
-#include "Cogs/BatterySystem.h"
-#include "Command/CommandCreateSystem.h"
-#include "Command/CommandListSystem.h"
-#include "InputSystem.h"
-#include "MouseTrailSystem.h"
-#include "UIDragDropSystem.h"
-#include "UIDragPreviewSystem.h"
 #include "WindowSizeSystem.h"
 
 namespace
@@ -77,12 +68,12 @@ BreadApp::~BreadApp()
 
 void BreadApp::ProcessKeyInput(GLFWwindow* /*window*/, int key, int scancode, int action, int mods)
 {
-    input_system::UpdateKeyInput(m_World, key, scancode, action, mods);
+    xg::InputSystem::UpdateKeyInput(m_World, key, scancode, action, mods);
 }
 
 void BreadApp::ProcessCursorInput(GLFWwindow* /*window*/, double xpos, double ypos)
 {
-    input_system::UpdateCursorInput(m_World, xpos, ypos);
+    xg::InputSystem::UpdateCursorInput(m_World, xpos, ypos);
 }
 
 void BreadApp::Render(double time, float /*deltaTime*/)
@@ -120,26 +111,20 @@ void BreadApp::Render(double time, float /*deltaTime*/)
 
 void BreadApp::Update(GLFWwindow* window, const double time, const float deltaTime)
 {
-    window_size_system::Update(m_World, window);
-    camera_input_system::Update(m_World, time, deltaTime);
-    camera_system::Update(m_World, time, deltaTime);
-    mouse_trail_system::Update(m_World, time, deltaTime);
-    xg::ui_drag_preview_system::Update(m_World);
-    xg::ui_drag_drop_system::Update(m_World);
-    xg::command::create_system::Update(m_World);
-    xg::command::list_system::Update(m_World);
-    xg::cog::battery_system::Update(m_World);
+    xg::WindowSizeSystem::Update(m_World, window);
+
+    xg::UpdateWorld(m_World, time, deltaTime);
 
     Render(time, deltaTime);
     m_UI->Draw(m_World);
 
     // update input system last as it clears all the input state ready for next frame
-    input_system::Update(m_World);
+    xg::InputSystem::Update(m_World);
 }
 
 void BreadApp::Init(GLFWwindow* window)
 {
-    xg::ECSGlobalsCreate(m_World);
+    xg::SetupWorld(m_World);
 
     glfwSetWindowSizeCallback(window, WindowSizeCallback);
 

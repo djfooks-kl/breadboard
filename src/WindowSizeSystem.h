@@ -7,7 +7,7 @@ namespace flecs
     struct world;
 }
 
-namespace window_size_system
+namespace xg::WindowSizeSystem
 {
     void Update(flecs::world& world, GLFWwindow* window);
 }

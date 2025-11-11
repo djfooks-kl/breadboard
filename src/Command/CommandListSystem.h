@@ -5,7 +5,7 @@ namespace flecs
     struct world;
 }
 
-namespace xg::command::list_system
+namespace xg::command::ListSystem
 {
     void Update(flecs::world& world);
 }

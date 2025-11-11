@@ -37,14 +37,14 @@ set(source_files
     src/BoxRenderer.h
     src/BreadApp.cpp
     src/BreadApp.h
+    src/BreadEntityWorld.cpp
+    src/BreadEntityWorld.h
     src/CameraComponent.h
     src/CameraInputComponent.h
     src/CameraInputSystem.cpp
     src/CameraInputSystem.h
     src/CameraSystem.cpp
     src/CameraSystem.h
-    src/ECSGlobals.cpp
-    src/ECSGlobals.h
     src/GridRenderer.cpp
     src/GridRenderer.h
     src/InputComponent.h

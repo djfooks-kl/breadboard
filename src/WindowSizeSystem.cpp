@@ -5,7 +5,7 @@
 #include "Core/GLFWLib.h"
 #include "WindowSizeComponent.h"
 
-void window_size_system::Update(flecs::world& world, GLFWwindow* window)
+void xg::WindowSizeSystem::Update(flecs::world& world, GLFWwindow* window)
 {
     xg::WindowSizeComponent& windowSize = world.get_mut<xg::WindowSizeComponent>();
     glfwGetWindowSize(window, &windowSize.m_Width, &windowSize.m_Height);

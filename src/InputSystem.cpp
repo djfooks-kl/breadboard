@@ -5,7 +5,7 @@
 #include "Core/GLFWLib.h"
 #include "InputComponent.h"
 
-void input_system::UpdateKeyInput(flecs::world& world, int key, int /*scancode*/, int action, int /*mods*/)
+void xg::InputSystem::UpdateKeyInput(flecs::world& world, int key, int /*scancode*/, int action, int /*mods*/)
 {
     auto& input = world.get_mut<xg::InputComponent>();
     if (action == GLFW_PRESS)
@@ -20,13 +20,13 @@ void input_system::UpdateKeyInput(flecs::world& world, int key, int /*scancode*/
     }
 }
 
-void input_system::UpdateCursorInput(flecs::world& world, double xpos, double ypos)
+void xg::InputSystem::UpdateCursorInput(flecs::world& world, double xpos, double ypos)
 {
     auto& input = world.get_mut<xg::InputComponent>();
     input.m_WindowMouse = { xpos, ypos };
 }
 
-void input_system::Update(flecs::world& world)
+void xg::InputSystem::Update(flecs::world& world)
 {
     auto& input = world.get_mut<xg::InputComponent>();
     input.m_KeyPress.clear();

@@ -1,4 +1,4 @@
-#include "ECSGlobals.h"
+#include "BreadEntityWorld.h"
 
 #include <flecs/flecs.h>
 
@@ -16,7 +16,17 @@
 #include "WindowSizeComponent.h"
 #include "WorldMouseComponent.h"
 
-void xg::ECSGlobalsCreate(flecs::world& world)
+#include "CameraInputSystem.h"
+#include "CameraSystem.h"
+#include "Cogs/BatterySystem.h"
+#include "Command/CommandCreateSystem.h"
+#include "Command/CommandListSystem.h"
+#include "InputSystem.h"
+#include "MouseTrailSystem.h"
+#include "UIDragDropSystem.h"
+#include "UIDragPreviewSystem.h"
+
+void xg::SetupWorld(flecs::world& world)
 {
     world.emplace<xg::CameraComponent>();
     world.emplace<xg::CameraInputComponent>();
@@ -31,4 +41,16 @@ void xg::ECSGlobalsCreate(flecs::world& world)
 
     world.component<xg::command::ExecuteComponent>();
     world.component<xg::UIUndoComponent>();
+}
+
+void xg::UpdateWorld(flecs::world& world, const double time, const float deltaTime)
+{
+    xg::CameraInputSystem::Update(world, time, deltaTime);
+    xg::CameraSystem::Update(world, time, deltaTime);
+    xg::MouseTrailSystem::Update(world, time, deltaTime);
+    xg::UIDragPreviewSystem::Update(world);
+    xg::UIDragDropSystem::Update(world);
+    xg::command::CreateSystem::Update(world);
+    xg::command::ListSystem::Update(world);
+    xg::cog::BatterySystem::Update(world);
 }

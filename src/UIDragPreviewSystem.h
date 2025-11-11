@@ -5,7 +5,7 @@ namespace flecs
     struct world;
 }
 
-namespace xg::ui_drag_preview_system
+namespace xg::UIDragPreviewSystem
 {
     void Update(flecs::world& world);
 }

@@ -22,7 +22,7 @@ namespace
     constexpr float s_ZoomMax = 800.f;
 }
 
-void camera_system::Update(flecs::world& world, const double /*time*/, const float deltaTime)
+void xg::CameraSystem::Update(flecs::world& world, const double /*time*/, const float deltaTime)
 {
     auto& camera = world.get_mut<xg::CameraComponent>();
     auto& worldMouse = world.get_mut<xg::WorldMouseComponent>();

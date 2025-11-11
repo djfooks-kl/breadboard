@@ -5,7 +5,7 @@ namespace flecs
     struct world;
 }
 
-namespace xg::cog::battery_system
+namespace xg::cog::BatterySystem
 {
     void Update(flecs::world& world);
 }

@@ -6,7 +6,7 @@
 #include "Command/CommandAddCogComponent.h"
 #include "Command/CommandDeleteCogComponent.h"
 
-void xg::cog::battery_system::Update(flecs::world& world)
+void xg::cog::BatterySystem::Update(flecs::world& world)
 {
     world.defer_begin();
     world.each([&](

@@ -8,7 +8,7 @@
 #include "UIAddCogComponent.h"
 #include "UIDeleteCogComponent.h"
 
-void xg::command::create_system::Update(flecs::world& world)
+void xg::command::CreateSystem::Update(flecs::world& world)
 {
     world.defer_begin();
     world.each([](flecs::entity entity, xg::command::ToQueueComponent)

@@ -6,7 +6,7 @@
 #include "UIDraggingDropComponent.h"
 #include "UIAddCogComponent.h"
 
-void xg::ui_drag_drop_system::Update(flecs::world& world)
+void xg::UIDragDropSystem::Update(flecs::world& world)
 {
     world.defer_begin();
     world.each([&](

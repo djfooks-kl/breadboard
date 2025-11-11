@@ -44,7 +44,7 @@ namespace
     }
 }
 
-void mouse_trail_system::Update(flecs::world& world, const double time, const float /*deltaTime*/)
+void xg::MouseTrailSystem::Update(flecs::world& world, const double time, const float /*deltaTime*/)
 {
     auto& mouseTrail = world.get_mut<xg::MouseTrailComponent>();
     const auto& worldMouse = world.get<xg::WorldMouseComponent>();

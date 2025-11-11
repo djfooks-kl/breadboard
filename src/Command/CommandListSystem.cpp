@@ -9,7 +9,7 @@
 #include "UIUndoComponent.h"
 #include "UIRedoComponent.h"
 
-void xg::command::list_system::Update(flecs::world& world)
+void xg::command::ListSystem::Update(flecs::world& world)
 {
     auto& list = world.get_mut<xg::command::ListComponent>();
 

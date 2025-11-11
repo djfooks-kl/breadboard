@@ -7,7 +7,7 @@
 #include "Core/GLFWLib.h"
 #include "InputComponent.h"
 
-void camera_input_system::Update(flecs::world& world, double /*time*/, float /*deltaTime*/)
+void xg::CameraInputSystem::Update(flecs::world& world, double /*time*/, float /*deltaTime*/)
 {
     auto& cameraInput = world.get_mut<xg::CameraInputComponent>();
     const auto& input = world.get<xg::InputComponent>();

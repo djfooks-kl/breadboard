@@ -5,7 +5,7 @@ namespace flecs
     struct world;
 }
 
-namespace camera_input_system
+namespace xg::CameraInputSystem
 {
     void Update(flecs::world& world, double time, float deltaTime);
 }

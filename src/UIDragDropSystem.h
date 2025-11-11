@@ -5,7 +5,7 @@ namespace flecs
     struct world;
 }
 
-namespace xg::ui_drag_drop_system
+namespace xg::UIDragDropSystem
 {
     void Update(flecs::world& world);
 }
