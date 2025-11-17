@@ -45,6 +45,8 @@ set(source_files
     src/CameraInputSystem.h
     src/CameraSystem.cpp
     src/CameraSystem.h
+    src/CogBoxRenderer.cpp
+    src/CogBoxRenderer.h
     src/GridRenderer.cpp
     src/GridRenderer.h
     src/InputComponent.h

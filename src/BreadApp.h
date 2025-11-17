@@ -16,14 +16,16 @@ namespace xc
 namespace xg
 {
     class UI;
+
+    struct CogBoxRenderer;
+    struct GridRenderer;
+    struct TextRenderer;
 }
 
 typedef unsigned int GLuint;
 
 struct BoxRenderer;
 struct GLFWwindow;
-struct GridRenderer;
-struct TextRenderer;
 
 class BreadApp
 {
@@ -41,15 +43,17 @@ public:
 
 private:
     std::unique_ptr<xc::Font> m_Font;
-    std::unique_ptr<TextRenderer> m_TextRenderer;
+    std::unique_ptr<xg::TextRenderer> m_TextRenderer;
     std::unique_ptr<BoxRenderer> m_BoxRenderer;
-    std::unique_ptr<GridRenderer> m_GridRenderer;
+    std::unique_ptr<xg::GridRenderer> m_GridRenderer;
+    std::unique_ptr<xg::CogBoxRenderer> m_CogBoxRenderer;
     std::unique_ptr<xg::UI> m_UI;
     flecs::world m_World;
 
     std::unique_ptr<xc::ShaderProgram> m_TextProgram;
     std::unique_ptr<xc::ShaderProgram> m_BoxProgram;
     std::unique_ptr<xc::ShaderProgram> m_GridProgram;
+    std::unique_ptr<xc::ShaderProgram> m_CogBoxProgram;
 
     std::unique_ptr<xc::ShaderProgram> m_DemoProgram;
     GLuint m_PositionsBuffer;

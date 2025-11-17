@@ -10,6 +10,7 @@
 #include "BoxRenderer.h"
 #include "BreadEntityWorld.h"
 #include "CameraComponent.h"
+#include "CogBoxRenderer.h"
 #include "Core/Font.h"
 #include "Core/GLFWLib.h"
 #include "Core/ShaderProgram.h"
@@ -84,6 +85,8 @@ void BreadApp::Render(double time, float /*deltaTime*/)
 
     m_GridRenderer->Draw(camera.m_ViewProjection, camera.m_InvViewProjection, camera.m_Feather);
 
+    m_CogBoxRenderer->Draw(camera.m_ViewProjection, camera.m_Feather);
+
     glUseProgram(m_DemoProgram->GetProgramId());
     glBindVertexArray(m_DemoVBO);
     glBindTexture(GL_TEXTURE_2D, m_Texture);
@@ -128,25 +131,49 @@ void BreadApp::Init(GLFWwindow* window)
 
     glfwSetWindowSizeCallback(window, WindowSizeCallback);
 
-    m_DemoProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{ .m_VertexPath = "demovertex.glsl", .m_FragmentPath = "demofragment.glsl" });
-    m_BoxProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{ .m_VertexPath = "boxvertex.glsl", .m_FragmentPath = "boxfragment.glsl" });
-    m_TextProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{ .m_VertexPath = "boxvertex.glsl", .m_FragmentPath = "textfragment.glsl" });
-    m_GridProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{ .m_VertexPath = "gridvertex.glsl", .m_FragmentPath = "gridfragment.glsl" });
+    m_DemoProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
+        .m_VertexPath = "shaders/DemoVertex.glsl",
+        .m_FragmentPath = "shaders/Demofragment.glsl" });
+
+    m_BoxProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
+        .m_VertexPath = "shaders/Boxvertex.glsl",
+        .m_FragmentPath = "shaders/Boxfragment.glsl" });
+
+    m_TextProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
+        .m_VertexPath = "shaders/Boxvertex.glsl",
+        .m_FragmentPath = "shaders/Textfragment.glsl" });
+
+    m_GridProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
+        .m_VertexPath = "shaders/GridVertex.glsl",
+        .m_FragmentPath = "shaders/GridFragment.glsl" });
+
+    m_CogBoxProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
+        .m_VertexPath = "shaders/CogBoxVertex.glsl",
+        .m_FragmentPath = "shaders/CogBoxFragment.glsl" });
 
     m_DemoProgram->TryLoadAndOutputError();
     m_BoxProgram->TryLoadAndOutputError();
     m_TextProgram->TryLoadAndOutputError();
     m_GridProgram->TryLoadAndOutputError();
+    m_CogBoxProgram->TryLoadAndOutputError();
 
     m_Font = std::make_unique<xc::Font>();
     m_Font->Load(DATA_DIR "/sourcecodepro-medium.png", DATA_DIR "/sourcecodepro-medium.json");
 
-    m_TextRenderer = std::make_unique<TextRenderer>(*m_Font, *m_TextProgram);
+    m_TextRenderer = std::make_unique<xg::TextRenderer>(*m_Font, *m_TextProgram);
     m_TextRenderer->AddString(m_Text, m_FontSize, m_Position.x, m_Position.y, m_Color);
 
     m_BoxRenderer = std::make_unique<BoxRenderer>(*m_BoxProgram);
 
-    m_GridRenderer = std::make_unique<GridRenderer>(*m_GridProgram);
+    m_GridRenderer = std::make_unique<xg::GridRenderer>(*m_GridProgram);
+
+    m_CogBoxRenderer = std::make_unique<xg::CogBoxRenderer>(*m_CogBoxProgram);
+    m_CogBoxRenderer->AddBox(glm::vec2(2, 0), glm::vec2(2, 1));
+    m_CogBoxRenderer->AddBox(glm::vec2(5, 0), glm::vec2(6, 0));
+    m_CogBoxRenderer->SetColor(glm::vec3(0.f, 0.f, 0.f));
+    m_CogBoxRenderer->SetFillColor(glm::vec3(1.f, 1.f, 1.f));
+    m_CogBoxRenderer->m_Border = 0.4f;
+    m_CogBoxRenderer->m_Expand = 0.f;
 
     m_UI = std::make_unique<xg::UI>();
 

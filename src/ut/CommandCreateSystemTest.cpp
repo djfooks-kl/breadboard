@@ -22,7 +22,7 @@ namespace
 
         void Update()
         {
-            xg::command::create_system::Update(m_World);
+            xg::command::CreateSystem::Update(m_World);
 
             m_World.defer_begin();
             m_World.each([](flecs::entity entity, xg::UIAddCogComponent)

@@ -25,7 +25,7 @@ namespace
 
         void Update()
         {
-            xg::command::list_system::Update(m_World);
+            xg::command::ListSystem::Update(m_World);
 
             m_World.defer_begin();
             m_World.each([](flecs::entity entity, xg::command::ToQueueComponent)

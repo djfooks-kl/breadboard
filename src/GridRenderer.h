@@ -11,27 +11,30 @@ namespace xc
     class ShaderProgram;
 }
 
-struct GridRenderer
+namespace xg
 {
-    GridRenderer(const xc::ShaderProgram& program);
-    ~GridRenderer();
+    struct GridRenderer
+    {
+        GridRenderer(const xc::ShaderProgram& program);
+        ~GridRenderer();
 
-    void Draw(
-        const glm::mat4& viewProjection,
-        const glm::mat4& invViewProjection,
-        const float feather);
+        void Draw(
+            const glm::mat4& viewProjection,
+            const glm::mat4& invViewProjection,
+            const float feather);
 
-private:
-    const xc::ShaderProgram& m_Program;
+    private:
+        const xc::ShaderProgram& m_Program;
 
-    std::vector<float> m_Positions;
-    std::vector<unsigned int> m_Indices;
+        std::vector<float> m_Positions;
+        std::vector<unsigned int> m_Indices;
 
-    GLuint m_PositionsBuffer = 0;
-    GLuint m_IndicesBuffer = 0;
-    GLuint m_VBO = 0;
+        GLuint m_PositionsBuffer = 0;
+        GLuint m_IndicesBuffer = 0;
+        GLuint m_VBO = 0;
 
-    GLint m_ViewProjectionUniform = -1;
-    GLint m_BoxUniform = -1;
-    GLint m_FeatherUniform = -1;
-};
+        GLint m_ViewProjectionUniform = -1;
+        GLint m_BoxUniform = -1;
+        GLint m_FeatherUniform = -1;
+    };
+}

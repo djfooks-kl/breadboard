@@ -24,7 +24,7 @@ namespace
 
         void Update()
         {
-            xg::ui_drag_preview_system::Update(m_World);
+            xg::UIDragPreviewSystem::Update(m_World);
 
             m_World.get_mut<xg::UIRotateComponent>().m_RotationDirection = 0;
         }
@@ -82,26 +82,19 @@ SYSTEM_TEST_CASE("Hovering ends -> show a preview at the mouse position instead"
     CHECK(uiPreview.get<xg::UIDragPreviewComponent>().m_Position == glm::ivec2(3, 4));
     CHECK(uiPreview.get<xg::UIDragPreviewComponent>().m_PreviewPosition == glm::vec2(3.f, 4.f));
 
-    {
-        auto& uiPreviewAddingCog = uiPreview.get_mut<xg::UIPreviewAddingCogComponent>();
-        world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(5.1f, 6.1f);
-    }
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(5.1f, 6.1f);
     env.Update();
 
     REQUIRE(uiPreview.has<xg::UIDragPreviewComponent>());
     CHECK(uiPreview.get<xg::UIDragPreviewComponent>().m_Position == glm::ivec2(5, 6));
     CHECK(uiPreview.get<xg::UIDragPreviewComponent>().m_PreviewPosition == glm::vec2(5.1f, 6.1f));
 
-    {
-        auto& uiPreviewAddingCog = uiPreview.get_mut<xg::UIPreviewAddingCogComponent>();
-        world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(7.9f, 8.9f);
-    }
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(7.9f, 8.9f);
     env.Update();
 
     REQUIRE(uiPreview.has<xg::UIDragPreviewComponent>());
     CHECK(uiPreview.get<xg::UIDragPreviewComponent>().m_Position == glm::ivec2(8, 9));
     CHECK(uiPreview.get<xg::UIDragPreviewComponent>().m_PreviewPosition == glm::vec2(7.9f, 8.9f));
-
 }
 
 SYSTEM_TEST_CASE("Rotation changes while previewing -> Update the rotation")

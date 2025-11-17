@@ -27,13 +27,13 @@ namespace
     }
 }
 
-TextRenderer::TextRenderer(const xc::Font& font, const xc::ShaderProgram& program)
+xg::TextRenderer::TextRenderer(const xc::Font& font, const xc::ShaderProgram& program)
     : m_Font(font)
     , m_Program(program)
 {
 }
 
-TextRenderer::~TextRenderer()
+xg::TextRenderer::~TextRenderer()
 {
     glDeleteVertexArrays(1, &m_VBO);
     glDeleteBuffers(1, &m_PositionsBuffer);
@@ -41,7 +41,7 @@ TextRenderer::~TextRenderer()
     glDeleteBuffers(1, &m_IndicesBuffer);
 }
 
-void TextRenderer::AddString(const std::string& text, float size, float x, float y, const glm::vec3& color)
+void xg::TextRenderer::AddString(const std::string& text, float size, float x, float y, const glm::vec3& color)
 {
     for (const char c : text)
     {
@@ -50,7 +50,7 @@ void TextRenderer::AddString(const std::string& text, float size, float x, float
     }
 }
 
-void TextRenderer::RemoveAllStrings()
+void xg::TextRenderer::RemoveAllStrings()
 {
     m_Positions.clear();
     m_TextureUV.clear();
@@ -59,7 +59,7 @@ void TextRenderer::RemoveAllStrings()
     m_BuffersDirty = true;
 }
 
-float TextRenderer::AddCharacter(
+float xg::TextRenderer::AddCharacter(
     char c,
     float size,
     float x,
@@ -155,7 +155,7 @@ float TextRenderer::AddCharacter(
     return shape.m_XAdvance * scale;
 }
 
-void TextRenderer::Draw(const glm::mat4& viewProjection)
+void xg::TextRenderer::Draw(const glm::mat4& viewProjection)
 {
     if (m_Positions.empty())
     {

@@ -29,10 +29,25 @@ TEST_CASE("Test shaders compile", "[shaders]")
     glfwMakeContextCurrent(window);
     REQUIRE(gladLoadGLES2(glfwGetProcAddress));
 
-    TestCompile(xc::ShaderProgramOptions{ .m_VertexPath = "boxvertex.glsl", .m_FragmentPath = "boxfragment.glsl" });
-    TestCompile(xc::ShaderProgramOptions{ .m_VertexPath = "demovertex.glsl", .m_FragmentPath = "demofragment.glsl" });
-    TestCompile(xc::ShaderProgramOptions{ .m_VertexPath = "boxvertex.glsl", .m_FragmentPath = "textfragment.glsl" });
-    TestCompile(xc::ShaderProgramOptions{ .m_VertexPath = "gridvertex.glsl", .m_FragmentPath = "gridfragment.glsl" });
+    TestCompile(xc::ShaderProgramOptions{
+        .m_VertexPath = "shaders/DemoVertex.glsl",
+        .m_FragmentPath = "shaders/Demofragment.glsl" });
+
+    TestCompile(xc::ShaderProgramOptions{
+        .m_VertexPath = "shaders/Boxvertex.glsl",
+        .m_FragmentPath = "shaders/Boxfragment.glsl" });
+
+    TestCompile(xc::ShaderProgramOptions{
+        .m_VertexPath = "shaders/Boxvertex.glsl",
+        .m_FragmentPath = "shaders/Textfragment.glsl" });
+
+    TestCompile(xc::ShaderProgramOptions{
+        .m_VertexPath = "shaders/GridVertex.glsl",
+        .m_FragmentPath = "shaders/GridFragment.glsl" });
+
+    TestCompile(xc::ShaderProgramOptions{
+        .m_VertexPath = "shaders/CogBoxVertex.glsl",
+        .m_FragmentPath = "shaders/CogBoxFragment.glsl" });
 
     glfwDestroyWindow(window);
     glfwTerminate();

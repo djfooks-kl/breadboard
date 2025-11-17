@@ -22,7 +22,7 @@ namespace
     }
 }
 
-GridRenderer::GridRenderer(const xc::ShaderProgram& program)
+xg::GridRenderer::GridRenderer(const xc::ShaderProgram& program)
     : m_Program(program)
 {
     m_ViewProjectionUniform = glGetUniformLocation(m_Program.GetProgramId(), "viewProjection");
@@ -69,13 +69,13 @@ GridRenderer::GridRenderer(const xc::ShaderProgram& program)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndicesBuffer);
 }
 
-GridRenderer::~GridRenderer()
+xg::GridRenderer::~GridRenderer()
 {
     glDeleteVertexArrays(1, &m_VBO);
     glDeleteBuffers(1, &m_PositionsBuffer);
 }
 
-void GridRenderer::Draw(
+void xg::GridRenderer::Draw(
     const glm::mat4& viewProjection,
     const glm::mat4& invViewProjection,
     const float feather)

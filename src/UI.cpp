@@ -92,7 +92,7 @@ void xg::UI::DrawComponentMenu(flecs::world& world)
 
         for (const auto& itr : cogMap.GetMap())
         {
-            if (ImGui::Button(itr.first.GetName()))
+            if (ImGui::Button(itr.first.GetName(), ImVec2(100.f, 0.f)))
             {
                 ImGui::CloseCurrentPopup();
                 addCogId = itr.first;
@@ -113,12 +113,12 @@ void xg::UI::DrawUndo(flecs::world& world)
     world.defer_begin();
     world.each([](flecs::entity entity, xg::UIUndoComponent)
         {
-            entity.remove<xg::UIUndoComponent>();
+            entity.destruct();
         });
 
     world.each([](flecs::entity entity, xg::UIRedoComponent)
         {
-            entity.remove<xg::UIRedoComponent>();
+            entity.destruct();
         });
     world.defer_end();
 

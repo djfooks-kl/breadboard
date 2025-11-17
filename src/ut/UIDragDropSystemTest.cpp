@@ -21,7 +21,7 @@ namespace
 
         void Update()
         {
-            xg::ui_drag_drop_system::Update(m_World);
+            xg::UIDragDropSystem::Update(m_World);
         }
 
         flecs::world m_World;
