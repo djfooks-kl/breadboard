@@ -62,8 +62,6 @@ private:
     GLuint m_DemoVBO;
     GLuint m_Texture;
 
-    bool m_SettingsOpen = false;
-
     float m_FontSize = 0.2f;
     glm::vec2 m_Position = glm::vec2(-0.9f, -0.9f);
     glm::vec3 m_Color = glm::vec3(1.f, 1.f, 1.f);

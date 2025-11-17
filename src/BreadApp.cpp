@@ -133,15 +133,15 @@ void BreadApp::Init(GLFWwindow* window)
 
     m_DemoProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
         .m_VertexPath = "shaders/DemoVertex.glsl",
-        .m_FragmentPath = "shaders/Demofragment.glsl" });
+        .m_FragmentPath = "shaders/DemoFragment.glsl" });
 
     m_BoxProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
-        .m_VertexPath = "shaders/Boxvertex.glsl",
-        .m_FragmentPath = "shaders/Boxfragment.glsl" });
+        .m_VertexPath = "shaders/BoxVertex.glsl",
+        .m_FragmentPath = "shaders/BoxFragment.glsl" });
 
     m_TextProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
-        .m_VertexPath = "shaders/Boxvertex.glsl",
-        .m_FragmentPath = "shaders/Textfragment.glsl" });
+        .m_VertexPath = "shaders/BoxVertex.glsl",
+        .m_FragmentPath = "shaders/TextFragment.glsl" });
 
     m_GridProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
         .m_VertexPath = "shaders/GridVertex.glsl",
