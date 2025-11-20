@@ -10,8 +10,12 @@ namespace flecs
 
 namespace xg::cog
 {
-    struct Switch : public xg::Cog
+    xg::CogResourceId GetSwitchResourceId();
+
+    struct Switch final : public xg::Cog
     {
-        static xg::CogResourceId GetResourceId();
+        virtual xg::CogResourceId GetResourceId() const;
+
+        virtual glm::ivec2 GetSize() const;
     };
 }

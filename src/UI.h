@@ -1,5 +1,6 @@
 #pragma once
 
+#include <glm/ext/vector_float2.hpp>
 #include <ImGui/imgui.h>
 
 namespace flecs
@@ -22,6 +23,7 @@ namespace xg
         void DrawComponentMenu(flecs::world& world);
 
         ImVec2 m_PopupPosition;
+        glm::vec2 m_PopupPreviewWorldPosition;
 
         bool m_ShowDebugMenuBar = false;
         bool m_DebugInfoOpen = false;

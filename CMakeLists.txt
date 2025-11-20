@@ -40,6 +40,8 @@ set(source_files
     src/BreadEntityWorld.cpp
     src/BreadEntityWorld.h
     src/CameraComponent.h
+    src/CameraHelpers.cpp
+    src/CameraHelpers.h
     src/CameraInputComponent.h
     src/CameraInputSystem.cpp
     src/CameraInputSystem.h
@@ -90,6 +92,8 @@ set(cog_files
     src/Cogs/CogResourceId.h
     src/Cogs/Register.cpp
     src/Cogs/Register.h
+    src/Cogs/Relay.cpp
+    src/Cogs/Relay.h
     src/Cogs/Switch.cpp
     src/Cogs/Switch.h
 )
@@ -151,6 +155,7 @@ target_include_directories(BreadProjectLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/sr
 if (EMSCRIPTEN)
     target_compile_definitions(BreadProjectLib PRIVATE DATA_DIR="./data/")
 else()
+    # TODO don't hardcode this path!
     target_compile_definitions(BreadProjectLib PRIVATE DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data/")
 endif()
 

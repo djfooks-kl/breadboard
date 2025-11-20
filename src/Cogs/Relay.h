@@ -10,9 +10,9 @@ namespace flecs
 
 namespace xg::cog
 {
-    xg::CogResourceId GetBatteryResourceId();
+    xg::CogResourceId GetRelayResourceId();
 
-    struct Battery final : public xg::Cog
+    struct Relay final : public xg::Cog
     {
         virtual xg::CogResourceId GetResourceId() const;
 

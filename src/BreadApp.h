@@ -47,6 +47,7 @@ private:
     std::unique_ptr<BoxRenderer> m_BoxRenderer;
     std::unique_ptr<xg::GridRenderer> m_GridRenderer;
     std::unique_ptr<xg::CogBoxRenderer> m_CogBoxRenderer;
+    std::unique_ptr<xg::CogBoxRenderer> m_CogBoxPreviewRenderer;
     std::unique_ptr<xg::UI> m_UI;
     flecs::world m_World;
 

@@ -21,7 +21,8 @@ namespace xg
         template<typename T>
         void Register()
         {
-            m_Map[T::GetResourceId()] = std::make_unique<T>();
+            std::unique_ptr<T> cog = std::make_unique<T>();
+            m_Map[cog->GetResourceId()] = std::move(cog);
         }
 
     private:

@@ -7,6 +7,7 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
+#include "CameraHelpers.h"
 #include "CameraComponent.h"
 #include "CameraInputComponent.h"
 #include "InputComponent.h"
@@ -54,13 +55,12 @@ void xg::CameraSystem::Update(flecs::world& world, const double /*time*/, const 
     camera.m_ViewProjection = camera.m_Projection * camera.m_View;
     camera.m_InvViewProjection = glm::inverse(camera.m_ViewProjection); // TODO try transpose
 
-    const glm::vec4 viewMouse(
-        (input.m_WindowMouse.x * 2.f) / windowSize.m_Width - 1.f,
-        1.f - (input.m_WindowMouse.y * 2.f) / windowSize.m_Height,
-        0.f,
-        1.f);
-    const glm::vec4 worldMousePos = camera.m_InvViewProjection * viewMouse;
-    worldMouse.m_Position = worldMousePos / worldMousePos.w;
+    worldMouse.m_Position = WindowToWorldPosition(
+        camera.m_InvViewProjection,
+        input.m_WindowMouse.x,
+        input.m_WindowMouse.y,
+        windowSize.m_Width,
+        windowSize.m_Height);
 
     camera.m_Feather = std::max(
         (orthoWidth) / windowSize.m_Width,
