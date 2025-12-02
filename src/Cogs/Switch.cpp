@@ -13,7 +13,6 @@ xg::CogResourceId xg::cog::GetSwitchResourceId()
     return s_ResourceId;
 }
 
-
 xg::CogResourceId xg::cog::Switch::GetResourceId() const
 {
     return s_ResourceId;

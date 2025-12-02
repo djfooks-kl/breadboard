@@ -13,7 +13,6 @@ xg::CogResourceId xg::cog::GetBatteryResourceId()
     return s_ResourceId;
 }
 
-
 xg::CogResourceId xg::cog::Battery::GetResourceId() const
 {
     return s_ResourceId;

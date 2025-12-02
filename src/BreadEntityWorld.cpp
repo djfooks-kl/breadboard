@@ -25,6 +25,7 @@
 #include "MouseTrailSystem.h"
 #include "UIDragDropSystem.h"
 #include "UIDragPreviewSystem.h"
+#include "UIPreviewAddingCogComponent.h"
 #include "UIRotateComponent.h"
 
 void xg::SetupWorld(flecs::world& world)
@@ -34,6 +35,7 @@ void xg::SetupWorld(flecs::world& world)
     world.emplace<xg::CogMap>();
     world.emplace<xg::InputComponent>();
     world.emplace<xg::MouseTrailComponent>();
+    world.emplace<xg::UIPreviewAddingCogComponent>();
     world.emplace<xg::UIRotateComponent>();
     world.emplace<xg::WindowSizeComponent>();
     world.emplace<xg::WorldMouseComponent>();

@@ -8,8 +8,8 @@ namespace xg
 {
     struct UIPreviewAddingCogComponent
     {
-        xg::CogResourceId m_CogId;
+        xg::CogResourceId m_AddCogId;
+        xg::CogResourceId m_HoverCogId;
         glm::vec2 m_PreviewPosition;
-        bool m_Hovering = false;
     };
 }

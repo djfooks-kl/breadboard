@@ -56,10 +56,10 @@ void xg::UI::DrawDebugInfo(flecs::world& world)
 
 void xg::UI::DrawComponentMenu(flecs::world& world)
 {
-    const auto& camera = world.get<xg::CameraComponent>();
     const auto& cogMap = world.get<xg::CogMap>();
     const auto& input = world.get<xg::InputComponent>();
     const auto& worldMouse = world.get<xg::WorldMouseComponent>();
+    auto& previewAddingCog = world.get_mut<xg::UIPreviewAddingCogComponent>();
 
     xg::CogResourceId addCogId;
     xg::CogResourceId hoverCogId;
@@ -76,7 +76,7 @@ void xg::UI::DrawComponentMenu(flecs::world& world)
         m_PopupPosition = io.MousePos;
 
         constexpr glm::vec2 popupPreviewOffset(-0.5f, 0.2f);
-        m_PopupPreviewWorldPosition = worldMouse.m_Position + popupPreviewOffset;
+        previewAddingCog.m_PreviewPosition = worldMouse.m_Position + popupPreviewOffset;
     }
 
     if (ImGui::BeginPopup("LeftClickPopup"))
@@ -98,7 +98,7 @@ void xg::UI::DrawComponentMenu(flecs::world& world)
                 ImGui::CloseCurrentPopup();
                 addCogId = itr.first;
             }
-            if (ImGui::IsItemHovered())
+            else if (ImGui::IsItemHovered())
             {
                 hoverCogId = itr.first;
             }
@@ -107,38 +107,8 @@ void xg::UI::DrawComponentMenu(flecs::world& world)
         ImGui::EndPopup();
     }
 
-    world.defer_begin();
-    world.each([](flecs::entity entity, xg::UIPreviewAddingCogComponent& addingCog)
-        {
-            if (!addingCog.m_Hovering)
-            {
-                entity.remove<xg::UIPreviewAddingCogComponent>();
-            }
-        });
-    world.defer_end();
-
-    if (addCogId)
-    {
-        auto& addingCog = world.entity().ensure<xg::UIPreviewAddingCogComponent>();
-        addingCog.m_CogId = addCogId;
-        addingCog.m_Hovering = false;
-    }
-    else if (hoverCogId)
-    {
-        auto& addingCog = world.entity().ensure<xg::UIPreviewAddingCogComponent>();
-        addingCog.m_CogId = hoverCogId;
-        addingCog.m_PreviewPosition = glm::vec2(m_PopupPreviewWorldPosition.x, m_PopupPreviewWorldPosition.y);
-        addingCog.m_Hovering = true;
-    }
-    else
-    {
-        world.defer_begin();
-        world.each([](flecs::entity entity, xg::UIPreviewAddingCogComponent&)
-            {
-                entity.remove<xg::UIPreviewAddingCogComponent>();
-            });
-        world.defer_end();
-    }
+    previewAddingCog.m_AddCogId = addCogId;
+    previewAddingCog.m_HoverCogId = hoverCogId;
 }
 
 void xg::UI::DrawUndo(flecs::world& world)

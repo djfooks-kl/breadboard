@@ -13,7 +13,6 @@ xg::CogResourceId xg::cog::GetRelayResourceId()
     return s_ResourceId;
 }
 
-
 xg::CogResourceId xg::cog::Relay::GetResourceId() const
 {
     return s_ResourceId;

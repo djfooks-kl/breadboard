@@ -18,8 +18,9 @@ namespace
     {
         TestEnv()
         {
-            m_World.emplace<xg::UIRotateComponent>();
+            m_World.ensure<xg::UIRotateComponent>();
             m_World.ensure<xg::WorldMouseComponent>();
+            m_World.ensure<xg::UIPreviewAddingCogComponent>();
         }
 
         void Update()
@@ -38,63 +39,156 @@ SYSTEM_TEST_CASE("While hovering -> show a preview at the given position")
     TestEnv env;
     flecs::world world = env.m_World;
 
-    flecs::entity uiPreview = world.entity();
     {
-        auto& uiPreviewAddingCog = uiPreview.ensure<xg::UIPreviewAddingCogComponent>();
-        uiPreviewAddingCog.m_CogId = s_TestCog1;
+        auto& uiPreviewAddingCog = world.get_mut<xg::UIPreviewAddingCogComponent>();
+        uiPreviewAddingCog.m_HoverCogId = s_TestCog1;
         uiPreviewAddingCog.m_PreviewPosition = glm::vec2(1.f, 2.f);
-        uiPreviewAddingCog.m_Hovering = true;
     }
 
     env.Update();
 
-    REQUIRE(uiPreview.has<xg::UIDragPreviewComponent>());
-    CHECK(uiPreview.get<xg::UIDragPreviewComponent>().m_CogId == s_TestCog1);
-    CHECK(uiPreview.get<xg::UIDragPreviewComponent>().m_Rotation == xc::Rotation90(0));
-    CHECK(uiPreview.get<xg::UIDragPreviewComponent>().m_Position == glm::ivec2(0, 0));
-    CHECK(uiPreview.get<xg::UIDragPreviewComponent>().m_PreviewPosition == glm::vec2(1.f, 2.f));
+    flecs::entity createdEntity;
+    REQUIRE(world.count<xg::UIDragPreviewComponent>() == 1);
+    world.each([&](flecs::entity entity, const xg::UIDragPreviewComponent& dragPreview)
+        {
+            createdEntity = entity;
+            CHECK(dragPreview.m_CogId == s_TestCog1);
+            CHECK(dragPreview.m_Rotation == xc::Rotation90(0));
+            CHECK(dragPreview.m_Position == glm::ivec2(0, 0));
+            CHECK(dragPreview.m_PreviewPosition == glm::vec2(1.f, 2.f));
+        });
+
+    env.Update();
+
+    {
+        auto& uiPreviewAddingCog = world.get_mut<xg::UIPreviewAddingCogComponent>();
+        uiPreviewAddingCog.m_PreviewPosition = glm::vec2(2.f, 3.f);
+    }
+
+    env.Update();
+
+    REQUIRE(world.count<xg::UIDragPreviewComponent>() == 1);
+    world.each([&](flecs::entity entity, const xg::UIDragPreviewComponent& dragPreview)
+        {
+            CHECK(createdEntity == entity);
+            CHECK(dragPreview.m_CogId == s_TestCog1);
+            CHECK(dragPreview.m_Rotation == xc::Rotation90(0));
+            CHECK(dragPreview.m_Position == glm::ivec2(0, 0));
+            CHECK(dragPreview.m_PreviewPosition == glm::vec2(2.f, 3.f));
+        });
 }
 
-SYSTEM_TEST_CASE("Hovering ends -> show a preview at the mouse position instead")
+SYSTEM_TEST_CASE("Stop hovering -> remove the drag preview")
 {
     TestEnv env;
     flecs::world world = env.m_World;
 
-    flecs::entity uiPreview = world.entity();
     {
-        auto& uiPreviewAddingCog = uiPreview.ensure<xg::UIPreviewAddingCogComponent>();
-        uiPreviewAddingCog.m_CogId = s_TestCog1;
+        auto& uiPreviewAddingCog = world.get_mut<xg::UIPreviewAddingCogComponent>();
+        uiPreviewAddingCog.m_HoverCogId = s_TestCog1;
+    }
+
+    env.Update();
+
+    {
+        auto& uiPreviewAddingCog = world.get_mut<xg::UIPreviewAddingCogComponent>();
+        uiPreviewAddingCog.m_HoverCogId = xg::CogResourceId();
+    }
+
+    env.Update();
+
+    CHECK(world.count<xg::UIDragPreviewComponent>() == 0);
+}
+
+SYSTEM_TEST_CASE("Hovering ends and cog is being added -> show a preview at the mouse position instead")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    {
+        auto& uiPreviewAddingCog = world.get_mut<xg::UIPreviewAddingCogComponent>();
+        uiPreviewAddingCog.m_HoverCogId = s_TestCog1;
         uiPreviewAddingCog.m_PreviewPosition = glm::vec2(1.f, 2.f);
-        uiPreviewAddingCog.m_Hovering = true;
     }
+
     env.Update();
+
     {
-        auto& uiPreviewAddingCog = uiPreview.get_mut<xg::UIPreviewAddingCogComponent>();
-        uiPreviewAddingCog.m_Hovering = false;
-
-        world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(3.f, 4.f);
+        auto& uiPreviewAddingCog = world.get_mut<xg::UIPreviewAddingCogComponent>();
+        uiPreviewAddingCog.m_HoverCogId = xg::CogResourceId();
+        uiPreviewAddingCog.m_AddCogId = s_TestCog1;
     }
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(3.f, 4.f);
+
     env.Update();
 
-    REQUIRE(uiPreview.has<xg::UIDragPreviewComponent>());
-    CHECK(uiPreview.get<xg::UIDragPreviewComponent>().m_CogId == s_TestCog1);
-    CHECK(uiPreview.get<xg::UIDragPreviewComponent>().m_Rotation == xc::Rotation90(0));
-    CHECK(uiPreview.get<xg::UIDragPreviewComponent>().m_Position == glm::ivec2(3, 4));
-    CHECK(uiPreview.get<xg::UIDragPreviewComponent>().m_PreviewPosition == glm::vec2(3.f, 4.f));
+    flecs::entity createdEntity;
+    REQUIRE(world.count<xg::UIDragPreviewComponent>() == 1);
+    world.each([&](flecs::entity entity, const xg::UIDragPreviewComponent& dragPreview)
+        {
+            createdEntity = entity;
+            CHECK(dragPreview.m_CogId == s_TestCog1);
+            CHECK(dragPreview.m_Rotation == xc::Rotation90(0));
+            CHECK(dragPreview.m_Position == glm::ivec2(3, 4));
+            CHECK(dragPreview.m_PreviewPosition == glm::vec2(3.f, 4.f));
+        });
 
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(5.1f, 6.1f);
     env.Update();
 
-    REQUIRE(uiPreview.has<xg::UIDragPreviewComponent>());
-    CHECK(uiPreview.get<xg::UIDragPreviewComponent>().m_Position == glm::ivec2(5, 6));
-    CHECK(uiPreview.get<xg::UIDragPreviewComponent>().m_PreviewPosition == glm::vec2(5.1f, 6.1f));
+    CHECK(world.count<xg::UIDragPreviewComponent>() == 1);
+    REQUIRE(createdEntity.has<xg::UIDragPreviewComponent>());
+    CHECK(createdEntity.get<xg::UIDragPreviewComponent>().m_Position == glm::ivec2(5, 6));
+    CHECK(createdEntity.get<xg::UIDragPreviewComponent>().m_PreviewPosition == glm::vec2(5.1f, 6.1f));
 
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(7.9f, 8.9f);
     env.Update();
 
-    REQUIRE(uiPreview.has<xg::UIDragPreviewComponent>());
-    CHECK(uiPreview.get<xg::UIDragPreviewComponent>().m_Position == glm::ivec2(8, 9));
-    CHECK(uiPreview.get<xg::UIDragPreviewComponent>().m_PreviewPosition == glm::vec2(7.9f, 8.9f));
+    CHECK(world.count<xg::UIDragPreviewComponent>() == 1);
+    REQUIRE(createdEntity.has<xg::UIDragPreviewComponent>());
+    CHECK(createdEntity.get<xg::UIDragPreviewComponent>().m_Position == glm::ivec2(8, 9));
+    CHECK(createdEntity.get<xg::UIDragPreviewComponent>().m_PreviewPosition == glm::vec2(7.9f, 8.9f));
+}
+
+SYSTEM_TEST_CASE("Cog is being added (without hovering first) -> show a preview at the mouse position")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    {
+        auto& uiPreviewAddingCog = world.get_mut<xg::UIPreviewAddingCogComponent>();
+        uiPreviewAddingCog.m_AddCogId = s_TestCog1;
+    }
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(3.f, 4.f);
+
+    env.Update();
+
+    flecs::entity createdEntity;
+    REQUIRE(world.count<xg::UIDragPreviewComponent>() == 1);
+    world.each([&](flecs::entity entity, const xg::UIDragPreviewComponent& dragPreview)
+        {
+            createdEntity = entity;
+            CHECK(dragPreview.m_CogId == s_TestCog1);
+            CHECK(dragPreview.m_Rotation == xc::Rotation90(0));
+            CHECK(dragPreview.m_Position == glm::ivec2(3, 4));
+            CHECK(dragPreview.m_PreviewPosition == glm::vec2(3.f, 4.f));
+        });
+
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(5.1f, 6.1f);
+    env.Update();
+
+    CHECK(world.count<xg::UIDragPreviewComponent>() == 1);
+    REQUIRE(createdEntity.has<xg::UIDragPreviewComponent>());
+    CHECK(createdEntity.get<xg::UIDragPreviewComponent>().m_Position == glm::ivec2(5, 6));
+    CHECK(createdEntity.get<xg::UIDragPreviewComponent>().m_PreviewPosition == glm::vec2(5.1f, 6.1f));
+
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(7.9f, 8.9f);
+    env.Update();
+
+    CHECK(world.count<xg::UIDragPreviewComponent>() == 1);
+    REQUIRE(createdEntity.has<xg::UIDragPreviewComponent>());
+    CHECK(createdEntity.get<xg::UIDragPreviewComponent>().m_Position == glm::ivec2(8, 9));
+    CHECK(createdEntity.get<xg::UIDragPreviewComponent>().m_PreviewPosition == glm::vec2(7.9f, 8.9f));
 }
 
 SYSTEM_TEST_CASE("Rotation changes while previewing -> Update the rotation")
@@ -102,15 +196,24 @@ SYSTEM_TEST_CASE("Rotation changes while previewing -> Update the rotation")
     TestEnv env;
     flecs::world world = env.m_World;
 
-    flecs::entity uiPreview = world.entity();
     {
-        auto& uiPreviewAddingCog = uiPreview.ensure<xg::UIPreviewAddingCogComponent>();
-        uiPreviewAddingCog.m_Hovering = false;
-
-        world.get_mut<xg::UIRotateComponent>().m_RotationDirection = 1;
+        auto& uiPreviewAddingCog = world.get_mut<xg::UIPreviewAddingCogComponent>();
+        uiPreviewAddingCog.m_AddCogId = s_TestCog1;
     }
+
     env.Update();
 
-    REQUIRE(uiPreview.has<xg::UIDragPreviewComponent>());
-    CHECK(uiPreview.get<xg::UIDragPreviewComponent>().m_Rotation == xc::Rotation90(1));
+    flecs::entity createdEntity;
+    REQUIRE(world.count<xg::UIDragPreviewComponent>() == 1);
+    world.each([&](flecs::entity entity, const xg::UIDragPreviewComponent&)
+        {
+            createdEntity = entity;
+        });
+
+    world.get_mut<xg::UIRotateComponent>().m_RotationDirection = 1;
+    env.Update();
+
+    CHECK(world.count<xg::UIDragPreviewComponent>() == 1);
+    REQUIRE(createdEntity.has<xg::UIDragPreviewComponent>());
+    CHECK(createdEntity.get<xg::UIDragPreviewComponent>().m_Rotation == xc::Rotation90(1));
 }

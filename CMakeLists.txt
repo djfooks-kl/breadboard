@@ -190,7 +190,7 @@ target_link_libraries(BreadProjectLib PUBLIC project_compiler_flags)
 if (NOT EMSCRIPTEN)
     add_subdirectory(3rdParty/Catch2)
 
-    add_executable(Tests
+    add_executable(BreadTests
 
         src/ut/CommandCreateSystemTest.cpp
         src/ut/CommandListSystemTest.cpp
@@ -202,9 +202,9 @@ if (NOT EMSCRIPTEN)
         src/ut/UIDragPreviewSystemTest.cpp
     )
 
-    target_link_libraries(Tests PRIVATE Catch2::Catch2WithMain)
-    target_link_libraries(Tests PRIVATE BreadProjectLib)
+    target_link_libraries(BreadTests PRIVATE Catch2::Catch2WithMain)
+    target_link_libraries(BreadTests PRIVATE BreadProjectLib)
 
     include(Catch)
-    catch_discover_tests(Tests)
+    catch_discover_tests(BreadTests)
 endif()

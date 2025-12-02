@@ -35,9 +35,14 @@ namespace xc
             return m_Name == other.m_Name;
         }
 
+        bool IsEmpty() const
+        {
+            return !m_Name;
+        }
+
         operator bool() const
         {
-            return m_Name != 0;
+            return m_Name;
         }
 
         const char* GetName() const
