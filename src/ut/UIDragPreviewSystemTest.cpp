@@ -216,4 +216,18 @@ SYSTEM_TEST_CASE("Rotation changes while previewing -> Update the rotation")
     CHECK(world.count<xg::UIDragPreviewComponent>() == 1);
     REQUIRE(createdEntity.has<xg::UIDragPreviewComponent>());
     CHECK(createdEntity.get<xg::UIDragPreviewComponent>().m_Rotation == xc::Rotation90(1));
+
+    world.get_mut<xg::UIRotateComponent>().m_RotationDirection = 0;
+    env.Update();
+
+    CHECK(world.count<xg::UIDragPreviewComponent>() == 1);
+    REQUIRE(createdEntity.has<xg::UIDragPreviewComponent>());
+    CHECK(createdEntity.get<xg::UIDragPreviewComponent>().m_Rotation == xc::Rotation90(1));
+
+    world.get_mut<xg::UIRotateComponent>().m_RotationDirection = -1;
+    env.Update();
+
+    CHECK(world.count<xg::UIDragPreviewComponent>() == 1);
+    REQUIRE(createdEntity.has<xg::UIDragPreviewComponent>());
+    CHECK(createdEntity.get<xg::UIDragPreviewComponent>().m_Rotation == xc::Rotation90(0));
 }

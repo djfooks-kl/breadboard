@@ -20,6 +20,7 @@
 #include "MouseTrailComponent.h"
 #include "TextRenderer.h"
 #include "UI.h"
+#include "UIDragPreviewComponent.h"
 #include "UIPreviewAddingCogComponent.h"
 #include "WindowSizeSystem.h"
 
@@ -85,30 +86,30 @@ void BreadApp::Render(double time, float /*deltaTime*/)
 
     const auto& camera = m_World.get<xg::CameraComponent>();
     const auto& cogMap = m_World.get<xg::CogMap>();
-    const auto& uiPreviewAddingCog = m_World.get<xg::UIPreviewAddingCogComponent>();
 
     m_GridRenderer->Draw(camera.m_ViewProjection, camera.m_InvViewProjection, camera.m_Feather);
 
     m_CogBoxRenderer->Draw(camera.m_ViewProjection, camera.m_Feather);
 
-    if (uiPreviewAddingCog.m_HoverCogId)
-    {
-        const xg::Cog* cog = cogMap.Get(uiPreviewAddingCog.m_HoverCogId);
-        const glm::ivec2 cogExtents = cog->GetSize() - glm::ivec2(1, 1);
+    m_CogBoxPreviewRenderer->RemoveAllBoxes();
+    m_World.each([&](const xg::UIDragPreviewComponent& dragPreview)
+        {
+            const xg::Cog* cog = cogMap.Get(dragPreview.m_CogId);
+            glm::ivec2 cogExtents = cog->GetSize() - glm::ivec2(1, 1);
+            cogExtents = dragPreview.m_Rotation.GetIMatrix() * cogExtents;
 
-        m_CogBoxPreviewRenderer->RemoveAllBoxes();
-        m_CogBoxPreviewRenderer->AddBox(glm::vec2(0, 0), cogExtents);
+            m_CogBoxPreviewRenderer->AddBox(glm::vec2(0, 0), cogExtents);
 
-        const glm::vec2 previewCogPosition = uiPreviewAddingCog.m_PreviewPosition - glm::vec2(cogExtents);
+            const glm::vec2 previewCogPosition = dragPreview.m_PreviewPosition - glm::vec2(cogExtents);
 
-        const glm::vec2 relativeCameraPos = camera.m_Position - previewCogPosition;
-        const glm::vec3 cameraPos = glm::vec3(relativeCameraPos, 0.5f);
-        const glm::vec3 cameraTarget = glm::vec3(relativeCameraPos, 0.0f);
-        const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+            const glm::vec2 relativeCameraPos = camera.m_Position - previewCogPosition;
+            const glm::vec3 cameraPos = glm::vec3(relativeCameraPos, 0.5f);
+            const glm::vec3 cameraTarget = glm::vec3(relativeCameraPos, 0.0f);
+            const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
-        glm::mat4 previewCameraView = glm::lookAt(cameraPos, cameraTarget, cameraUp);
-        m_CogBoxPreviewRenderer->Draw(camera.m_Projection * previewCameraView, camera.m_Feather);
-    }
+            glm::mat4 previewCameraView = glm::lookAt(cameraPos, cameraTarget, cameraUp);
+            m_CogBoxPreviewRenderer->Draw(camera.m_Projection * previewCameraView, camera.m_Feather);
+        });
 
     glUseProgram(m_DemoProgram->GetProgramId());
     glBindVertexArray(m_DemoVBO);

@@ -60,7 +60,7 @@ void xg::UIDragPreviewSystem::Update(flecs::world& world)
                 found = true;
                 UpdatePreviewAdding(previewAddingCog, worldMouse, dragPreview);
 
-                dragPreview.m_Rotation = world.get<xg::UIRotateComponent>().m_RotationDirection;
+                dragPreview.m_Rotation += world.get<xg::UIRotateComponent>().m_RotationDirection;
             });
 
         if (!found)

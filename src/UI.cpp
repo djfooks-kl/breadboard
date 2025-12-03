@@ -12,8 +12,19 @@
 #include "InputComponent.h"
 #include "UIPreviewAddingCogComponent.h"
 #include "UIRedoComponent.h"
+#include "UIRotateComponent.h"
 #include "UIUndoComponent.h"
 #include "WorldMouseComponent.h"
+
+namespace
+{
+    void UpdateRotate(flecs::world& world)
+    {
+        const auto& input = world.get<xg::InputComponent>();
+        auto& rotate = world.get_mut<xg::UIRotateComponent>();
+        rotate.m_RotationDirection = input.m_KeyPress.contains(GLFW_KEY_R) ? 1 : 0;
+    }
+}
 
 void xg::UI::DrawDebugMenu(flecs::world& world)
 {
@@ -60,6 +71,15 @@ void xg::UI::DrawComponentMenu(flecs::world& world)
     const auto& input = world.get<xg::InputComponent>();
     const auto& worldMouse = world.get<xg::WorldMouseComponent>();
     auto& previewAddingCog = world.get_mut<xg::UIPreviewAddingCogComponent>();
+
+    if (previewAddingCog.m_AddCogId)
+    {
+        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || input.m_KeyDown.contains(GLFW_KEY_DELETE))
+        {
+            previewAddingCog.m_AddCogId = xg::CogResourceId();
+        }
+        return;
+    }
 
     xg::CogResourceId addCogId;
     xg::CogResourceId hoverCogId;
@@ -145,4 +165,5 @@ void xg::UI::Draw(flecs::world& world)
     DrawDebugMenu(world);
     DrawDebugInfo(world);
     DrawComponentMenu(world);
+    UpdateRotate(world);
 }
