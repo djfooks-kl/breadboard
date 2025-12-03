@@ -17,6 +17,7 @@ namespace
     {
         TestEnv()
         {
+            m_World.ensure<xg::UIDraggingDropComponent>();
         }
 
         void Update()
@@ -28,7 +29,7 @@ namespace
     };
 }
 
-SYSTEM_TEST_CASE("While hovering -> show a preview at the given position")
+SYSTEM_TEST_CASE("When dropping add a new entity requesting the cog at the given position")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -40,11 +41,68 @@ SYSTEM_TEST_CASE("While hovering -> show a preview at the given position")
         dragPreview.m_Position = glm::ivec2(1, 2);
         dragPreview.m_Rotation = xc::Rotation90(3);
     }
-    entity.add<xg::UIDraggingDropComponent>();
+    world.get_mut<xg::UIDraggingDropComponent>().m_Drop = true;
 
     env.Update();
 
-    REQUIRE(entity.has<xg::UIAddCogComponent>());
-    CHECK(entity.get<xg::UIAddCogComponent>().m_CogId == s_TestCog1);
-    CHECK(entity.get<xg::UIAddCogComponent>().m_Position == glm::ivec2(1, 2));
+    REQUIRE(world.count<xg::UIAddCogComponent>() == 1);
+
+    world.each([&](flecs::entity newEntity, const xg::UIAddCogComponent& addCog)
+        {
+            CHECK(newEntity != entity);
+
+            CHECK(addCog.m_CogId == s_TestCog1);
+            CHECK(addCog.m_Position == glm::ivec2(1, 2));
+        });
+}
+
+SYSTEM_TEST_CASE("After dropping remove the UIAddCogComponent")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity entity = world.entity();
+    {
+        auto& dragPreview = entity.ensure<xg::UIDragPreviewComponent>();
+        dragPreview.m_CogId = s_TestCog1;
+        dragPreview.m_Position = glm::ivec2(1, 2);
+        dragPreview.m_Rotation = xc::Rotation90(3);
+    }
+    world.get_mut<xg::UIDraggingDropComponent>().m_Drop = true;
+
+    env.Update();
+
+    REQUIRE(world.count<xg::UIAddCogComponent>() == 1);
+
+    world.each([&](flecs::entity newEntity, const xg::UIAddCogComponent& addCog)
+        {
+            CHECK(newEntity != entity);
+
+            CHECK(addCog.m_CogId == s_TestCog1);
+            CHECK(addCog.m_Position == glm::ivec2(1, 2));
+        });
+
+    world.get_mut<xg::UIDraggingDropComponent>().m_Drop = false;
+    env.Update();
+
+    CHECK(world.count<xg::UIAddCogComponent>() == 0);
+}
+
+SYSTEM_TEST_CASE("When not dropping do nothing")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity entity = world.entity();
+    {
+        auto& dragPreview = entity.ensure<xg::UIDragPreviewComponent>();
+        dragPreview.m_CogId = s_TestCog1;
+        dragPreview.m_Position = glm::ivec2(1, 2);
+        dragPreview.m_Rotation = xc::Rotation90(3);
+    }
+    world.get_mut<xg::UIDraggingDropComponent>().m_Drop = false;
+
+    env.Update();
+
+    CHECK(world.count<xg::UIAddCogComponent>() == 0);
 }

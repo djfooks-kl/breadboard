@@ -4,29 +4,29 @@
 
 #include "CameraComponent.h"
 #include "CameraInputComponent.h"
-#include "Cogs/CogMap.h"
-#include "Cogs/Register.h"
-#include "Command/CommandExecuteComponent.h"
-#include "Command/CommandListComponent.h"
-#include "GlobalComponent.h"
-#include "InputComponent.h"
-#include "MouseTrailComponent.h"
-#include "UIRedoComponent.h"
-#include "UIUndoComponent.h"
-#include "WindowSizeComponent.h"
-#include "WorldMouseComponent.h"
-
 #include "CameraInputSystem.h"
 #include "CameraSystem.h"
 #include "Cogs/BatterySystem.h"
+#include "Cogs/CogMap.h"
+#include "Cogs/Register.h"
 #include "Command/CommandCreateSystem.h"
+#include "Command/CommandExecuteComponent.h"
+#include "Command/CommandListComponent.h"
 #include "Command/CommandListSystem.h"
+#include "GlobalComponent.h"
+#include "InputComponent.h"
 #include "InputSystem.h"
+#include "MouseTrailComponent.h"
 #include "MouseTrailSystem.h"
 #include "UIDragDropSystem.h"
+#include "UIDraggingDropComponent.h"
 #include "UIDragPreviewSystem.h"
 #include "UIPreviewAddingCogComponent.h"
+#include "UIRedoComponent.h"
 #include "UIRotateComponent.h"
+#include "UIUndoComponent.h"
+#include "WindowSizeComponent.h"
+#include "WorldMouseComponent.h"
 
 void xg::SetupWorld(flecs::world& world)
 {
@@ -35,6 +35,7 @@ void xg::SetupWorld(flecs::world& world)
     world.emplace<xg::CogMap>();
     world.emplace<xg::InputComponent>();
     world.emplace<xg::MouseTrailComponent>();
+    world.emplace<xg::UIDraggingDropComponent>();
     world.emplace<xg::UIPreviewAddingCogComponent>();
     world.emplace<xg::UIRotateComponent>();
     world.emplace<xg::WindowSizeComponent>();
@@ -53,8 +54,8 @@ void xg::UpdateWorld(flecs::world& world, const double time, const float deltaTi
     xg::CameraInputSystem::Update(world, time, deltaTime);
     xg::CameraSystem::Update(world, time, deltaTime);
     xg::MouseTrailSystem::Update(world, time, deltaTime);
-    xg::UIDragPreviewSystem::Update(world);
     xg::UIDragDropSystem::Update(world);
+    xg::UIDragPreviewSystem::Update(world);
     xg::command::CreateSystem::Update(world);
     xg::command::ListSystem::Update(world);
     xg::cog::BatterySystem::Update(world);

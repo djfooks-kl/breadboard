@@ -13,6 +13,7 @@
 #include "UIPreviewAddingCogComponent.h"
 #include "UIRedoComponent.h"
 #include "UIRotateComponent.h"
+#include "UIDraggingDropComponent.h"
 #include "UIUndoComponent.h"
 #include "WorldMouseComponent.h"
 
@@ -71,15 +72,18 @@ void xg::UI::DrawComponentMenu(flecs::world& world)
     const auto& input = world.get<xg::InputComponent>();
     const auto& worldMouse = world.get<xg::WorldMouseComponent>();
     auto& previewAddingCog = world.get_mut<xg::UIPreviewAddingCogComponent>();
+    auto& dragDrop = world.get_mut<xg::UIDraggingDropComponent>();
 
     if (previewAddingCog.m_AddCogId)
     {
-        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || input.m_KeyDown.contains(GLFW_KEY_DELETE))
+        dragDrop.m_Drop = ImGui::IsMouseClicked(ImGuiMouseButton_Left);
+        if (dragDrop.m_Drop || input.m_KeyDown.contains(GLFW_KEY_DELETE))
         {
             previewAddingCog.m_AddCogId = xg::CogResourceId();
         }
         return;
     }
+    dragDrop.m_Drop = false;
 
     xg::CogResourceId addCogId;
     xg::CogResourceId hoverCogId;
