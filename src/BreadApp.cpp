@@ -62,6 +62,7 @@ BreadApp::~BreadApp()
     m_TextProgram.reset();
     m_BoxProgram.reset();
     m_GridProgram.reset();
+    m_CogBoxProgram.reset();
 
     glDeleteVertexArrays(1, &m_DemoVBO);
     glDeleteBuffers(1, &m_PositionsBuffer);
@@ -90,6 +91,30 @@ void BreadApp::Render(double time, float /*deltaTime*/)
     m_GridRenderer->Draw(camera.m_ViewProjection, camera.m_InvViewProjection, camera.m_Feather);
 
     m_CogBoxRenderer->Draw(camera.m_ViewProjection, camera.m_Feather);
+
+    const auto& previewAddingCog = m_World.get<xg::UIPreviewAddingCogComponent>();
+    m_CogBoxPreviewDropRenderer->RemoveAllBoxes();
+    m_World.each([&](const xg::UIDragPreviewComponent& dragPreview)
+        {
+            if (previewAddingCog.m_HoverCogId)
+                return;
+
+            const xg::Cog* cog = cogMap.Get(dragPreview.m_CogId);
+            glm::ivec2 cogExtents = cog->GetSize() - glm::ivec2(1, 1);
+            cogExtents = dragPreview.m_Rotation.GetIMatrix() * cogExtents;
+
+            m_CogBoxPreviewDropRenderer->AddBox(glm::vec2(0, 0), cogExtents);
+
+            const glm::vec2 previewCogPosition = glm::vec2(dragPreview.m_Position) - glm::vec2(cogExtents);
+
+            const glm::vec2 relativeCameraPos = camera.m_Position - previewCogPosition;
+            const glm::vec3 cameraPos = glm::vec3(relativeCameraPos, 0.5f);
+            const glm::vec3 cameraTarget = glm::vec3(relativeCameraPos, 0.0f);
+            const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+            glm::mat4 previewCameraView = glm::lookAt(cameraPos, cameraTarget, cameraUp);
+            m_CogBoxPreviewDropRenderer->Draw(camera.m_Projection * previewCameraView, camera.m_Feather);
+        });
 
     m_CogBoxPreviewRenderer->RemoveAllBoxes();
     m_World.each([&](const xg::UIDragPreviewComponent& dragPreview)
@@ -201,10 +226,16 @@ void BreadApp::Init(GLFWwindow* window)
     m_CogBoxRenderer->m_Expand = 0.f;
 
     m_CogBoxPreviewRenderer = std::make_unique<xg::CogBoxRenderer>(*m_CogBoxProgram);
-    m_CogBoxPreviewRenderer->SetColor(glm::vec3(1.f, 0.f, 0.f));
+    m_CogBoxPreviewRenderer->SetColor(glm::vec3(0.f, 0.f, 0.f));
     m_CogBoxPreviewRenderer->SetFillColor(glm::vec3(1.f, 1.f, 1.f));
     m_CogBoxPreviewRenderer->m_Border = 0.4f;
     m_CogBoxPreviewRenderer->m_Expand = 0.f;
+
+    m_CogBoxPreviewDropRenderer = std::make_unique<xg::CogBoxRenderer>(*m_CogBoxProgram);
+    m_CogBoxPreviewDropRenderer->SetColor(glm::vec3(0.5f, 0.5f, 0.5f));
+    m_CogBoxPreviewDropRenderer->SetFillColor(glm::vec3(1.f, 1.f, 1.f));
+    m_CogBoxPreviewDropRenderer->m_Border = 0.4f;
+    m_CogBoxPreviewDropRenderer->m_Expand = 0.f;
 
     m_UI = std::make_unique<xg::UI>();
 
