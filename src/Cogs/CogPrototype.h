@@ -11,9 +11,9 @@ namespace flecs
 
 namespace xg
 {
-    struct Cog
+    struct CogPrototype
     {
-        virtual ~Cog();
+        virtual ~CogPrototype();
 
         virtual xg::CogResourceId GetResourceId() const = 0;
 

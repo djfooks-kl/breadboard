@@ -99,7 +99,7 @@ void BreadApp::Render(double time, float /*deltaTime*/)
             if (previewAddingCog.m_HoverCogId)
                 return;
 
-            const xg::Cog* cog = cogMap.Get(dragPreview.m_CogId);
+            const xg::CogPrototype* cog = cogMap.Get(dragPreview.m_CogId);
             glm::ivec2 cogExtents = cog->GetSize() - glm::ivec2(1, 1);
             cogExtents = dragPreview.m_Rotation.GetIMatrix() * cogExtents;
 
@@ -119,7 +119,7 @@ void BreadApp::Render(double time, float /*deltaTime*/)
     m_CogBoxPreviewRenderer->RemoveAllBoxes();
     m_World.each([&](const xg::UIDragPreviewComponent& dragPreview)
         {
-            const xg::Cog* cog = cogMap.Get(dragPreview.m_CogId);
+            const xg::CogPrototype* cog = cogMap.Get(dragPreview.m_CogId);
             glm::ivec2 cogExtents = cog->GetSize() - glm::ivec2(1, 1);
             cogExtents = dragPreview.m_Rotation.GetIMatrix() * cogExtents;
 

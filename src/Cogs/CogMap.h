@@ -3,7 +3,7 @@
 #include <memory>
 #include <unordered_map>
 
-#include "Cogs/Cog.h"
+#include "Cogs/CogPrototype.h"
 #include "Cogs/CogResourceId.h"
 
 namespace xg
@@ -14,9 +14,9 @@ namespace xg
         CogMap(const CogMap&) = delete;
         CogMap& operator=(const CogMap&) = delete;
 
-        const xg::Cog* Get(xg::CogResourceId cogId) const;
+        const xg::CogPrototype* Get(xg::CogResourceId cogId) const;
 
-        const std::unordered_map<xg::CogResourceId, std::unique_ptr<xg::Cog>>& GetMap() const { return m_Map; }
+        const std::unordered_map<xg::CogResourceId, std::unique_ptr<xg::CogPrototype>>& GetMap() const { return m_Map; }
 
         template<typename T>
         void Register()
@@ -26,6 +26,6 @@ namespace xg
         }
 
     private:
-        std::unordered_map<xg::CogResourceId, std::unique_ptr<xg::Cog>> m_Map;
+        std::unordered_map<xg::CogResourceId, std::unique_ptr<xg::CogPrototype>> m_Map;
     };
 }

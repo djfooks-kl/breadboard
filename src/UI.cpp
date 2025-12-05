@@ -6,8 +6,8 @@
 
 #include "CameraComponent.h"
 #include "CameraHelpers.h"
-#include "Cogs/Cog.h"
 #include "Cogs/CogMap.h"
+#include "Cogs/CogPrototype.h"
 #include "Core/GLFWLib.h"
 #include "InputComponent.h"
 #include "UIPreviewAddingCogComponent.h"

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CogResourceId.h"
-#include "Cogs/Cog.h"
+#include "Cogs/CogPrototype.h"
 
 namespace flecs
 {
@@ -12,7 +12,7 @@ namespace xg::cog
 {
     xg::CogResourceId GetBatteryResourceId();
 
-    struct Battery final : public xg::Cog
+    struct Battery final : public xg::CogPrototype
     {
         virtual xg::CogResourceId GetResourceId() const;
 
