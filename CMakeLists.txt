@@ -49,6 +49,10 @@ set(source_files
     src/CameraSystem.h
     src/CogBoxRenderer.cpp
     src/CogBoxRenderer.h
+    src/CogComponent.h
+    src/CogCreatedComponent.h
+    src/CogSystem.cpp
+    src/CogSystem.h
     src/GridRenderer.cpp
     src/GridRenderer.h
     src/InputComponent.h
@@ -57,6 +61,9 @@ set(source_files
     src/MouseTrailComponent.h
     src/MouseTrailSystem.cpp
     src/MouseTrailSystem.h
+    src/OnStageComponent.h
+    src/OnStageSystem.cpp
+    src/OnStageSystem.h
     src/TextRenderer.cpp
     src/TextRenderer.h
     src/UI.cpp
@@ -85,10 +92,10 @@ set(cog_files
     src/Cogs/BatteryComponent.h
     src/Cogs/BatterySystem.cpp
     src/Cogs/BatterySystem.h
-    src/Cogs/CogPrototype.cpp
-    src/Cogs/CogPrototype.h
     src/Cogs/CogMap.cpp
     src/Cogs/CogMap.h
+    src/Cogs/CogPrototype.cpp
+    src/Cogs/CogPrototype.h
     src/Cogs/CogResourceId.h
     src/Cogs/Register.cpp
     src/Cogs/Register.h
@@ -104,6 +111,8 @@ set(command_files
     src/Command/CommandCreateSystem.cpp
     src/Command/CommandCreateSystem.h
     src/Command/CommandDeleteCogComponent.h
+    src/Command/CommandRemovedFromHistoryComponent.h
+    src/Command/CommandEntityComponent.h
     src/Command/CommandExecuteComponent.h
     src/Command/CommandListComponent.h
     src/Command/CommandListSystem.cpp
@@ -192,8 +201,10 @@ if (NOT EMSCRIPTEN)
 
     add_executable(BreadTests
 
+        src/ut/CogSystemTest.cpp
         src/ut/CommandCreateSystemTest.cpp
         src/ut/CommandListSystemTest.cpp
+        src/ut/OnStageSystemTest.cpp
         src/ut/ResourceIdTest.cpp
         src/ut/ResultTest.cpp
         src/ut/Rotation90Test.cpp

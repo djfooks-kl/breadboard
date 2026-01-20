@@ -6,10 +6,13 @@
 #include "CameraInputComponent.h"
 #include "CameraInputSystem.h"
 #include "CameraSystem.h"
+#include "CogCreatedComponent.h"
 #include "Cogs/BatterySystem.h"
 #include "Cogs/CogMap.h"
 #include "Cogs/Register.h"
+#include "CogSystem.h"
 #include "Command/CommandCreateSystem.h"
+#include "Command/CommandRemovedFromHistoryComponent.h"
 #include "Command/CommandExecuteComponent.h"
 #include "Command/CommandListComponent.h"
 #include "Command/CommandListSystem.h"
@@ -18,6 +21,7 @@
 #include "InputSystem.h"
 #include "MouseTrailComponent.h"
 #include "MouseTrailSystem.h"
+#include "OnStageSystem.h"
 #include "UIDragDropSystem.h"
 #include "UIDraggingDropComponent.h"
 #include "UIDragPreviewSystem.h"
@@ -45,6 +49,8 @@ void xg::SetupWorld(flecs::world& world)
 
     xg::cog::RegisterAll(world.get_mut<xg::CogMap>());
 
+    world.component<xg::CogCreatedComponent>();
+    world.component<xg::command::RemovedFromHistoryComponent>();
     world.component<xg::command::ExecuteComponent>();
     world.component<xg::UIUndoComponent>();
 }
@@ -58,5 +64,7 @@ void xg::UpdateWorld(flecs::world& world, const double time, const float deltaTi
     xg::UIDragPreviewSystem::Update(world);
     xg::command::CreateSystem::Update(world);
     xg::command::ListSystem::Update(world);
+    xg::CogSystem::Update(world);
     xg::cog::BatterySystem::Update(world);
+    xg::OnStageSystem::Update(world);
 }

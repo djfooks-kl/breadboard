@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <flecs/flecs.h>
 
+#include "Command/CommandRemovedFromHistoryComponent.h"
 #include "Command/CommandExecuteComponent.h"
 #include "Command/CommandListComponent.h"
 #include "Command/CommandUndoComponent.h"
@@ -18,6 +19,7 @@ namespace
         TestEnv()
         {
             m_World.ensure<xg::command::ListComponent>().m_Commands.resize(3);
+            m_World.component<xg::command::RemovedFromHistoryComponent>();
             m_World.component<xg::command::ExecuteComponent>();
             m_World.component<xg::UIUndoComponent>();
             m_World.component<xg::UIRedoComponent>();
@@ -102,7 +104,7 @@ SYSTEM_TEST_CASE("Add a 2nd command -> Put both commands in the list")
     CHECK(command2.has<xg::command::ExecuteComponent>());
 }
 
-SYSTEM_TEST_CASE("Add a 4 commands and overflow -> Wrap around and remove command1")
+SYSTEM_TEST_CASE("Add a 4 commands and overflow -> Wrap around and mark command1 for destruct then next frame destruct it")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -133,6 +135,12 @@ SYSTEM_TEST_CASE("Add a 4 commands and overflow -> Wrap around and remove comman
     CHECK(world.get<xg::command::ListComponent>().m_Commands[1] == command2);
     CHECK(world.get<xg::command::ListComponent>().m_Commands[2] == command3);
 
+    CHECK(command1.has<xg::command::RemovedFromHistoryComponent>());
+    CHECK(command2.has<xg::command::RemovedFromHistoryComponent>() == false);
+    CHECK(command3.has<xg::command::RemovedFromHistoryComponent>() == false);
+    CHECK(command4.has<xg::command::RemovedFromHistoryComponent>() == false);
+
+    env.Update();
     CHECK(command1.is_alive() == false);
     CHECK(undo1.is_alive() == false);
 }
@@ -260,7 +268,7 @@ SYSTEM_TEST_CASE("1 command and undo added 2 times -> Ignore 2nd add")
     CHECK(undo.has<xg::command::ExecuteComponent>() == false);
 }
 
-SYSTEM_TEST_CASE("Add a 4 commands and overflow then undo -> Undo head index wraps around")
+SYSTEM_TEST_CASE("Add 4 commands and overflow then undo -> Undo head index wraps around")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -509,9 +517,14 @@ SYSTEM_TEST_CASE("Add a command then undo once and queue a new command -> New co
     CHECK(world.get<xg::command::ListComponent>().m_UndoCount == 1);
     CHECK(world.get<xg::command::ListComponent>().m_Commands[0] == command2);
 
-    CHECK(command1.is_alive() == false);
+    CHECK(command1.has<xg::command::RemovedFromHistoryComponent>());
+    CHECK(command2.has<xg::command::RemovedFromHistoryComponent>() == false);
+
+    CHECK(command1.has<xg::command::ExecuteComponent>() == false);
     CHECK(command2.has<xg::command::ExecuteComponent>());
 
     CHECK(undo1.is_alive() == false);
-    CHECK(undo2.has<xg::command::ExecuteComponent>() == false);
+
+    env.Update();
+    CHECK(command1.is_alive() == false);
 }
