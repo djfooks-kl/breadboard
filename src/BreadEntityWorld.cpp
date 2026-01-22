@@ -12,15 +12,17 @@
 #include "Cogs/Register.h"
 #include "CogSystem.h"
 #include "Command/CommandCreateSystem.h"
-#include "Command/CommandRemovedFromHistoryComponent.h"
 #include "Command/CommandExecuteComponent.h"
 #include "Command/CommandListComponent.h"
 #include "Command/CommandListSystem.h"
+#include "Command/CommandRemovedFromHistoryComponent.h"
 #include "GlobalComponent.h"
 #include "InputComponent.h"
 #include "InputSystem.h"
 #include "MouseTrailComponent.h"
 #include "MouseTrailSystem.h"
+#include "OnStageAddedComponent.h"
+#include "OnStageRemovedComponent.h"
 #include "OnStageSystem.h"
 #include "UIDragDropSystem.h"
 #include "UIDraggingDropComponent.h"
@@ -39,6 +41,8 @@ void xg::SetupWorld(flecs::world& world)
     world.emplace<xg::CogMap>();
     world.emplace<xg::InputComponent>();
     world.emplace<xg::MouseTrailComponent>();
+    world.emplace<xg::OnStageAddedComponent>();
+    world.emplace<xg::OnStageRemovedComponent>();
     world.emplace<xg::UIDraggingDropComponent>();
     world.emplace<xg::UIPreviewAddingCogComponent>();
     world.emplace<xg::UIRotateComponent>();

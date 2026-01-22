@@ -39,6 +39,8 @@ set(source_files
     src/BreadApp.h
     src/BreadEntityWorld.cpp
     src/BreadEntityWorld.h
+    src/BreadRenderer.cpp
+    src/BreadRenderer.h
     src/CameraComponent.h
     src/CameraHelpers.cpp
     src/CameraHelpers.h
@@ -61,7 +63,9 @@ set(source_files
     src/MouseTrailComponent.h
     src/MouseTrailSystem.cpp
     src/MouseTrailSystem.h
+    src/OnStageAddedComponent.h
     src/OnStageComponent.h
+    src/OnStageRemovedComponent.h
     src/OnStageSystem.cpp
     src/OnStageSystem.h
     src/TextRenderer.cpp

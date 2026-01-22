@@ -5,7 +5,9 @@
 #include "Command/CommandDeleteCogComponent.h"
 #include "Command/CommandEntityComponent.h"
 #include "Command/CommandExecuteComponent.h"
+#include "OnStageAddedComponent.h"
 #include "OnStageComponent.h"
+#include "OnStageRemovedComponent.h"
 #include "OnStageSystem.h"
 
 #define SYSTEM_TEST_CASE(description) TEST_CASE("xg::OnStageSystem - " description, "[xg::OnStageSystem]")
@@ -14,6 +16,12 @@ namespace
 {
     struct TestEnv
     {
+        TestEnv()
+        {
+            m_World.emplace<xg::OnStageAddedComponent>();
+            m_World.emplace<xg::OnStageRemovedComponent>();
+        }
+
         void Update()
         {
             xg::OnStageSystem::Update(m_World);
@@ -31,7 +39,7 @@ namespace
     };
 }
 
-SYSTEM_TEST_CASE("Executing an add command -> Add the OnStageComponent")
+SYSTEM_TEST_CASE("Executing an add command -> Add the OnStageComponent and add the entity to OnStageAddedComponent")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -48,9 +56,11 @@ SYSTEM_TEST_CASE("Executing an add command -> Add the OnStageComponent")
     env.Update();
 
     CHECK(addedEntity.has<xg::OnStageComponent>());
+    REQUIRE(world.get<xg::OnStageAddedComponent>().m_Entities.size() == 1);
+    CHECK(world.get<xg::OnStageAddedComponent>().m_Entities[0] == addedEntity);
 }
 
-SYSTEM_TEST_CASE("Executing a delete command -> Remove the OnStageComponent")
+SYSTEM_TEST_CASE("Executing a delete command -> Remove the OnStageComponent and add the entity to OnStageRemovedComponent")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -71,4 +81,30 @@ SYSTEM_TEST_CASE("Executing a delete command -> Remove the OnStageComponent")
     env.Update();
 
     CHECK(addedEntity.has<xg::OnStageComponent>() == false);
+    REQUIRE(world.get<xg::OnStageRemovedComponent>().m_Entities.size() == 1);
+    CHECK(world.get<xg::OnStageRemovedComponent>().m_Entities[0] == addedEntity);
+}
+
+SYSTEM_TEST_CASE("No entities added/removed on the frame -> Clear the OnStageAddedComponent")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity addedEntity = world.entity();
+    flecs::entity commandAdd = world.entity();
+    commandAdd.ensure<xg::command::AddCogComponent>();
+    commandAdd.ensure<xg::command::EntityComponent>().m_Entity = addedEntity;
+    commandAdd.add<xg::command::ExecuteComponent>();
+    env.Update();
+
+    env.Update();
+    CHECK(world.get<xg::OnStageAddedComponent>().m_Entities.empty());
+
+    flecs::entity commandDelete = world.entity();
+    commandDelete.ensure<xg::command::DeleteCogComponent>().m_Cog = addedEntity;
+    commandDelete.add<xg::command::ExecuteComponent>();
+    env.Update();
+
+    env.Update();
+    CHECK(world.get<xg::OnStageRemovedComponent>().m_Entities.empty());
 }
