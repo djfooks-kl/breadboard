@@ -4,11 +4,15 @@
 
 #include "CameraComponent.h"
 #include "CogBoxRenderer.h"
+#include "CogComponent.h"
 #include "Cogs/CogMap.h"
 #include "Core/Font.h"
 #include "Core/GLFWLib.h"
 #include "Core/ShaderProgram.h"
 #include "GridRenderer.h"
+#include "OnStageAddedComponent.h"
+#include "OnStageComponent.h"
+#include "OnStageRemovedComponent.h"
 #include "TextRenderer.h"
 #include "UIDragPreviewComponent.h"
 #include "UIPreviewAddingCogComponent.h"
@@ -54,9 +58,6 @@ void xg::BreadRenderer::Load()
     m_GridRenderer = std::make_unique<xg::GridRenderer>(*m_GridProgram);
 
     m_CogBoxRenderer = std::make_unique<xg::CogBoxRenderer>(*m_CogBoxProgram);
-    m_CogBoxRenderer->AddBox(glm::vec2(2, 0), glm::vec2(2, 1));
-    m_CogBoxRenderer->AddBox(glm::vec2(5, 0), glm::vec2(6, 0));
-
     m_CogBoxRenderer->SetColor(glm::vec3(0.f, 0.f, 0.f));
     m_CogBoxRenderer->SetFillColor(glm::vec3(1.f, 1.f, 1.f));
     m_CogBoxRenderer->m_Border = 0.4f;
@@ -73,11 +74,30 @@ void xg::BreadRenderer::Load()
     m_CogBoxPreviewDropRenderer->SetFillColor(glm::vec3(1.f, 1.f, 1.f));
     m_CogBoxPreviewDropRenderer->m_Border = 0.4f;
     m_CogBoxPreviewDropRenderer->m_Expand = 0.f;
-
 }
 
 void xg::BreadRenderer::Update(const flecs::world& world)
 {
+    const bool anyOnStageChanges =
+        !world.get<const xg::OnStageAddedComponent>().m_Entities.empty() ||
+        !world.get<const xg::OnStageRemovedComponent>().m_Entities.empty();
+
+    if (anyOnStageChanges)
+    {
+        m_CogBoxRenderer->RemoveAllBoxes();
+
+        const auto& cogMap = world.get<xg::CogMap>();
+        world.each([&](
+            const xg::OnStageComponent,
+            const xg::CogComponent& cogComponent)
+        {
+            const xg::CogPrototype* cog = cogMap.Get(cogComponent.m_CogId);
+            glm::ivec2 cogExtents = cog->GetSize() - glm::ivec2(1, 1);
+            cogExtents = cogComponent.m_Rotation.GetIMatrix() * cogExtents;
+
+            m_CogBoxRenderer->AddBox(cogComponent.m_Position, cogComponent.m_Position + cogExtents);
+        });
+    }
 }
 
 void xg::BreadRenderer::Draw(const flecs::world& world)
@@ -102,14 +122,14 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
 
             m_CogBoxPreviewDropRenderer->AddBox(glm::vec2(0, 0), cogExtents);
 
-            const glm::vec2 previewCogPosition = glm::vec2(dragPreview.m_Position) - glm::vec2(cogExtents);
+            const glm::vec2 previewCogPosition = glm::vec2(dragPreview.m_Position);
 
             const glm::vec2 relativeCameraPos = camera.m_Position - previewCogPosition;
             const glm::vec3 cameraPos = glm::vec3(relativeCameraPos, 0.5f);
             const glm::vec3 cameraTarget = glm::vec3(relativeCameraPos, 0.0f);
             const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
-            glm::mat4 previewCameraView = glm::lookAt(cameraPos, cameraTarget, cameraUp);
+            const glm::mat4 previewCameraView = glm::lookAt(cameraPos, cameraTarget, cameraUp);
             m_CogBoxPreviewDropRenderer->Draw(camera.m_Projection * previewCameraView, camera.m_Feather);
         });
 
@@ -122,14 +142,20 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
 
             m_CogBoxPreviewRenderer->AddBox(glm::vec2(0, 0), cogExtents);
 
-            const glm::vec2 previewCogPosition = dragPreview.m_PreviewPosition - glm::vec2(cogExtents);
+            glm::vec2 offset(0.f, 0.f);
+            if (world.get<xg::UIPreviewAddingCogComponent>().m_HoverCogId)
+            {
+                offset = -glm::vec2(cogExtents);
+            }
+
+            const glm::vec2 previewCogPosition = dragPreview.m_PreviewPosition + offset;
 
             const glm::vec2 relativeCameraPos = camera.m_Position - previewCogPosition;
             const glm::vec3 cameraPos = glm::vec3(relativeCameraPos, 0.5f);
             const glm::vec3 cameraTarget = glm::vec3(relativeCameraPos, 0.0f);
             const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
-            glm::mat4 previewCameraView = glm::lookAt(cameraPos, cameraTarget, cameraUp);
+            const glm::mat4 previewCameraView = glm::lookAt(cameraPos, cameraTarget, cameraUp);
             m_CogBoxPreviewRenderer->Draw(camera.m_Projection * previewCameraView, camera.m_Feather);
         });
 
