@@ -10,6 +10,7 @@
 #include "Core/GLFWLib.h"
 #include "Core/ShaderProgram.h"
 #include "GridRenderer.h"
+#include "GridSizeComponent.h"
 #include "OnStageAddedComponent.h"
 #include "OnStageComponent.h"
 #include "OnStageRemovedComponent.h"
@@ -104,8 +105,9 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
 {
     const auto& camera = world.get<xg::CameraComponent>();
     const auto& cogMap = world.get<xg::CogMap>();
+    const glm::ivec2& gridSize = world.get<xg::GridSizeComponent>().m_Size;
 
-    m_GridRenderer->Draw(camera.m_ViewProjection, camera.m_InvViewProjection, camera.m_Feather);
+    m_GridRenderer->Draw(camera.m_ViewProjection, camera.m_InvViewProjection, gridSize, camera.m_Feather);
 
     m_CogBoxRenderer->Draw(camera.m_ViewProjection, camera.m_Feather);
 

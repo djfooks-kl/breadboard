@@ -18,19 +18,16 @@
         <mxCell id="1WvJV1WkiWVSSwesuIEi-4" value="xg::UIDragPreviewSystem" style="html=1;whiteSpace=wrap;" parent="1" vertex="1">
           <mxGeometry x="210" y="390" width="190" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="O36crZav40J7Ty_28Cz5-3" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=0;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;strokeWidth=2;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=classic;" parent="1" source="1WvJV1WkiWVSSwesuIEi-6" target="O36crZav40J7Ty_28Cz5-2" edge="1">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="O36crZav40J7Ty_28Cz5-3" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=0;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;strokeWidth=2;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=classic;" parent="1" source="1WvJV1WkiWVSSwesuIEi-6" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1250" y="485" as="targetPoint" />
+          </mxGeometry>
         </mxCell>
         <mxCell id="1WvJV1WkiWVSSwesuIEi-6" value="xg::UIDraggingDropComponent" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
-          <mxGeometry x="440" y="450" width="240" height="50" as="geometry" />
+          <mxGeometry x="961" y="460" width="240" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="O36crZav40J7Ty_28Cz5-4" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=0;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;strokeWidth=2;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=classic;" parent="1" source="1WvJV1WkiWVSSwesuIEi-8" target="O36crZav40J7Ty_28Cz5-2" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="730" y="415" />
-              <mxPoint x="730" y="475" />
-            </Array>
-          </mxGeometry>
+        <mxCell id="PxnihdF6Kd3Q3Aop9VX1-7" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=0;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;strokeWidth=2;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=classic;" parent="1" source="1WvJV1WkiWVSSwesuIEi-8" target="PxnihdF6Kd3Q3Aop9VX1-1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="1WvJV1WkiWVSSwesuIEi-8" value="xg::UIDragPreviewComponent" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" parent="1" vertex="1">
           <mxGeometry x="440" y="390" width="240" height="50" as="geometry" />
@@ -45,18 +42,41 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="O36crZav40J7Ty_28Cz5-2" value="xg::UIDragDropSystem" style="html=1;whiteSpace=wrap;" parent="1" vertex="1">
-          <mxGeometry x="780" y="450" width="190" height="50" as="geometry" />
+          <mxGeometry x="1250" y="460" width="190" height="50" as="geometry" />
         </mxCell>
         <mxCell id="O36crZav40J7Ty_28Cz5-5" value="xg::UIPreviewAddingCogComponent" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
           <mxGeometry x="-99" y="390" width="260" height="50" as="geometry" />
         </mxCell>
         <mxCell id="O36crZav40J7Ty_28Cz5-8" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=0;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;strokeWidth=2;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=classic;" parent="1" source="O36crZav40J7Ty_28Cz5-6" edge="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="1300" y="475" as="targetPoint" />
+            <mxPoint x="1770" y="485" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="O36crZav40J7Ty_28Cz5-6" value="xg::UIAddCogComponent" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
-          <mxGeometry x="1010" y="450" width="240" height="50" as="geometry" />
+          <mxGeometry x="1480" y="460" width="240" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="PxnihdF6Kd3Q3Aop9VX1-5" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=0;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;strokeWidth=2;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=classic;" parent="1" source="PxnihdF6Kd3Q3Aop9VX1-1" target="PxnihdF6Kd3Q3Aop9VX1-2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="PxnihdF6Kd3Q3Aop9VX1-1" value="xg::UIDragValidationSystem" style="html=1;whiteSpace=wrap;" parent="1" vertex="1">
+          <mxGeometry x="730" y="390" width="190" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="PxnihdF6Kd3Q3Aop9VX1-6" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=0;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;strokeWidth=2;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=classic;" parent="1" source="PxnihdF6Kd3Q3Aop9VX1-2" target="O36crZav40J7Ty_28Cz5-2" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1220" y="415" />
+              <mxPoint x="1220" y="485" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="PxnihdF6Kd3Q3Aop9VX1-2" value="xg::UIDragValidComponent" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" parent="1" vertex="1">
+          <mxGeometry x="960" y="390" width="240" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="Hca-3MQYqP9aMFvIIeJu-2" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=0;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;strokeWidth=2;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=classic;" parent="1" source="Hca-3MQYqP9aMFvIIeJu-1" target="PxnihdF6Kd3Q3Aop9VX1-1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Hca-3MQYqP9aMFvIIeJu-1" value="xg::GridAttachmentsComponent" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="440" y="315" width="240" height="50" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

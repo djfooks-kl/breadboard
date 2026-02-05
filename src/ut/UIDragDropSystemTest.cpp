@@ -5,6 +5,7 @@
 #include "UIDragDropSystem.h"
 #include "UIDraggingDropComponent.h"
 #include "UIDragPreviewComponent.h"
+#include "UIDragValidComponent.h"
 
 #define SYSTEM_TEST_CASE(description) TEST_CASE("xg::ui_drag_drop_system - " description, "[xg::ui_drag_drop_system]")
 
@@ -18,6 +19,7 @@ namespace
         TestEnv()
         {
             m_World.ensure<xg::UIDraggingDropComponent>();
+            m_World.ensure<xg::UIDragValidComponent>().m_Valid = true;
         }
 
         void Update()
@@ -101,6 +103,26 @@ SYSTEM_TEST_CASE("When not dropping do nothing")
         dragPreview.m_Rotation = xc::Rotation90(3);
     }
     world.get_mut<xg::UIDraggingDropComponent>().m_Drop = false;
+
+    env.Update();
+
+    CHECK(world.count<xg::UIAddCogComponent>() == 0);
+}
+
+SYSTEM_TEST_CASE("When dropping but it is invalid do nothing")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity entity = world.entity();
+    {
+        auto& dragPreview = entity.ensure<xg::UIDragPreviewComponent>();
+        dragPreview.m_CogId = s_TestCog1;
+        dragPreview.m_Position = glm::ivec2(1, 2);
+        dragPreview.m_Rotation = xc::Rotation90(3);
+    }
+    world.get_mut<xg::UIDraggingDropComponent>().m_Drop = true;
+    world.get_mut<xg::UIDragValidComponent>().m_Valid = false;
 
     env.Update();
 

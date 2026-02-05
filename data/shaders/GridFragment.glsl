@@ -5,6 +5,7 @@ in vec2 worldPos;
 out vec4 FragColor;
 
 uniform float feather;
+uniform vec2 size;
 
 const float gridLineWidth = 0.01;
 
@@ -42,7 +43,7 @@ void main()
 
     FragColor = vec4(v, v, v, 1.0);
 
-    vec2 corner = vec2(1000.0, 1000.0) - worldPos;
+    vec2 corner = size - worldPos;
     float edge = min(min(worldPos.x, worldPos.y), min(corner.x, corner.y));
     if (edge < -1.5 - feather * 2.0)
     {

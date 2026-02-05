@@ -22,8 +22,6 @@ void xg::OnStageSystem::Update(flecs::world& world)
         const xg::command::ExecuteComponent&)
         {
             commandEntity.m_Entity.add<xg::OnStageComponent>();
-            printf("OnStageAdded\n");
-
             world.get_mut<xg::OnStageAddedComponent>().m_Entities.push_back(commandEntity.m_Entity);
         });
 
@@ -35,7 +33,6 @@ void xg::OnStageSystem::Update(flecs::world& world)
         const xg::command::ExecuteComponent&)
         {
             deleteCog.m_Cog.remove<xg::OnStageComponent>();
-            printf("OnStageRemoved\n");
             world.get_mut<xg::OnStageRemovedComponent>().m_Entities.push_back(deleteCog.m_Cog);
         });
 

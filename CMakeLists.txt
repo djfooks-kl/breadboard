@@ -55,8 +55,13 @@ set(source_files
     src/CogCreatedComponent.h
     src/CogSystem.cpp
     src/CogSystem.h
+    src/GridAttachmentsComponent.h
+    src/GridAttachmentsMap.h
+    src/GridAttachmentSystem.cpp
+    src/GridAttachmentSystem.h
     src/GridRenderer.cpp
     src/GridRenderer.h
+    src/GridSizeComponent.h
     src/InputComponent.h
     src/InputSystem.cpp
     src/InputSystem.h
@@ -79,6 +84,9 @@ set(source_files
     src/UIDragPreviewComponent.h
     src/UIDragPreviewSystem.cpp
     src/UIDragPreviewSystem.h
+    src/UIDragValidationSystem.cpp
+    src/UIDragValidationSystem.h
+    src/UIDragValidComponent.h
     src/UIPreviewAddingCogComponent.h
     src/UIRedoComponent.h
     src/UIRotateComponent.h
@@ -96,6 +104,7 @@ set(cog_files
     src/Cogs/BatteryComponent.h
     src/Cogs/BatterySystem.cpp
     src/Cogs/BatterySystem.h
+    src/Cogs/CogHelpers.h
     src/Cogs/CogMap.cpp
     src/Cogs/CogMap.h
     src/Cogs/CogPrototype.cpp
@@ -208,6 +217,7 @@ if (NOT EMSCRIPTEN)
         src/ut/CogSystemTest.cpp
         src/ut/CommandCreateSystemTest.cpp
         src/ut/CommandListSystemTest.cpp
+        src/ut/GridAttachmentSystemTest.cpp
         src/ut/OnStageSystemTest.cpp
         src/ut/ResourceIdTest.cpp
         src/ut/ResultTest.cpp
@@ -215,6 +225,7 @@ if (NOT EMSCRIPTEN)
         src/ut/ShadersTest.cpp
         src/ut/UIDragDropSystemTest.cpp
         src/ut/UIDragPreviewSystemTest.cpp
+        src/ut/UIDragValidationSystemTest.cpp
     )
 
     target_link_libraries(BreadTests PRIVATE Catch2::Catch2WithMain)

@@ -21,6 +21,7 @@ namespace xg
         void Draw(
             const glm::mat4& viewProjection,
             const glm::mat4& invViewProjection,
+            const glm::ivec2& size,
             const float feather);
 
     private:
@@ -36,5 +37,6 @@ namespace xg
         GLint m_ViewProjectionUniform = -1;
         GLint m_BoxUniform = -1;
         GLint m_FeatherUniform = -1;
+        GLint m_SizeUniform = -1;
     };
 }

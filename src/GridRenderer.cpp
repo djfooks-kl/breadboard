@@ -28,6 +28,7 @@ xg::GridRenderer::GridRenderer(const xc::ShaderProgram& program)
     m_ViewProjectionUniform = glGetUniformLocation(m_Program.GetProgramId(), "viewProjection");
     m_BoxUniform = glGetUniformLocation(m_Program.GetProgramId(), "box");
     m_FeatherUniform = glGetUniformLocation(m_Program.GetProgramId(), "feather");
+    m_SizeUniform = glGetUniformLocation(m_Program.GetProgramId(), "size");
 
     const float x0 = 0.f;
     const float y0 = 0.f;
@@ -78,6 +79,7 @@ xg::GridRenderer::~GridRenderer()
 void xg::GridRenderer::Draw(
     const glm::mat4& viewProjection,
     const glm::mat4& invViewProjection,
+    const glm::ivec2& size,
     const float feather)
 {
     glm::vec4 viewTopLeft(-1.f, -1.f, 0.f, 1.f);
@@ -96,6 +98,8 @@ void xg::GridRenderer::Draw(
     glUniformMatrix4fv(m_ViewProjectionUniform, 1, GL_FALSE, glm::value_ptr(viewProjection));
     glUniform4fv(m_BoxUniform, 1, glm::value_ptr(minMaxWorld));
     glUniform1f(m_FeatherUniform, feather);
+    glm::vec2 fsize = size;
+    glUniform2fv(m_SizeUniform, 1, glm::value_ptr(fsize));
 
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_Indices.size()), GL_UNSIGNED_INT, nullptr);
 }

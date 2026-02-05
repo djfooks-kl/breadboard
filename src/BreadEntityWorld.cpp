@@ -17,6 +17,9 @@
 #include "Command/CommandListSystem.h"
 #include "Command/CommandRemovedFromHistoryComponent.h"
 #include "GlobalComponent.h"
+#include "GridAttachmentsComponent.h"
+#include "GridAttachmentSystem.h"
+#include "GridSizeComponent.h"
 #include "InputComponent.h"
 #include "InputSystem.h"
 #include "MouseTrailComponent.h"
@@ -27,6 +30,8 @@
 #include "UIDragDropSystem.h"
 #include "UIDraggingDropComponent.h"
 #include "UIDragPreviewSystem.h"
+#include "UIDragValidationSystem.h"
+#include "UIDragValidComponent.h"
 #include "UIPreviewAddingCogComponent.h"
 #include "UIRedoComponent.h"
 #include "UIRotateComponent.h"
@@ -39,16 +44,19 @@ void xg::SetupWorld(flecs::world& world)
     world.emplace<xg::CameraComponent>();
     world.emplace<xg::CameraInputComponent>();
     world.emplace<xg::CogMap>();
+    world.emplace<xg::GridAttachmentsComponent>();
     world.emplace<xg::InputComponent>();
     world.emplace<xg::MouseTrailComponent>();
     world.emplace<xg::OnStageAddedComponent>();
     world.emplace<xg::OnStageRemovedComponent>();
     world.emplace<xg::UIDraggingDropComponent>();
+    world.emplace<xg::UIDragValidComponent>();
     world.emplace<xg::UIPreviewAddingCogComponent>();
     world.emplace<xg::UIRotateComponent>();
     world.emplace<xg::WindowSizeComponent>();
     world.emplace<xg::WorldMouseComponent>();
 
+    world.ensure<xg::GridSizeComponent>().m_Size = glm::ivec2(100, 100);
     world.ensure<xg::command::ListComponent>().m_Commands.resize(500);
 
     xg::cog::RegisterAll(world.get_mut<xg::CogMap>());
@@ -66,9 +74,11 @@ void xg::UpdateWorld(flecs::world& world, const double time, const float deltaTi
     xg::MouseTrailSystem::Update(world, time, deltaTime);
     xg::UIDragDropSystem::Update(world);
     xg::UIDragPreviewSystem::Update(world);
+    xg::UIDragValidationSystem::Update(world);
     xg::command::CreateSystem::Update(world);
     xg::command::ListSystem::Update(world);
     xg::CogSystem::Update(world);
     xg::cog::BatterySystem::Update(world);
     xg::OnStageSystem::Update(world);
+    xg::GridAttachmentSystem::Update(world);
 }
