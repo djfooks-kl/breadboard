@@ -18,7 +18,6 @@ namespace xg
 
 typedef unsigned int GLuint;
 
-struct BoxRenderer;
 struct GLFWwindow;
 
 class BreadApp
@@ -37,12 +36,10 @@ public:
 
 private:
     std::unique_ptr<xg::BreadRenderer> m_BreadRenderer;
-    std::unique_ptr<BoxRenderer> m_BoxRenderer;
     std::unique_ptr<xg::UI> m_UI;
     flecs::world m_World;
 
     std::unique_ptr<xc::ShaderProgram> m_DemoProgram;
-    std::unique_ptr<xc::ShaderProgram> m_BoxProgram;
     GLuint m_PositionsBuffer;
     GLuint m_TextureUBuffer;
     GLuint m_IndicesBuffer;

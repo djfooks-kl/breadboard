@@ -52,7 +52,6 @@ BreadApp::BreadApp()
 BreadApp::~BreadApp()
 {
     m_DemoProgram.reset();
-    m_BoxProgram.reset();
 
     glDeleteVertexArrays(1, &m_DemoVBO);
     glDeleteBuffers(1, &m_PositionsBuffer);
@@ -88,18 +87,6 @@ void BreadApp::Render(double time, float /*deltaTime*/)
     glUniformMatrix4fv(viewProjectionUniform, 1, GL_FALSE, glm::value_ptr(camera.m_ViewProjection));
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-
-    m_BoxRenderer->RemoveAllBoxes();
-    m_World.query<const xg::MouseTrailComponent>()
-        .each([&](
-            const xg::MouseTrailComponent& mouseTrail)
-    {
-        for (const xg::TrailPoint& p : mouseTrail.m_Positions)
-        {
-            m_BoxRenderer->AddBox(0.05f, p.m_Position, p.m_Color);
-        }
-    });
-    m_BoxRenderer->Draw(camera.m_ViewProjection);
 }
 
 void BreadApp::Update(GLFWwindow* window, const double time, const float deltaTime)
@@ -130,14 +117,7 @@ void BreadApp::Init(GLFWwindow* window)
         .m_VertexPath = "shaders/DemoVertex.glsl",
         .m_FragmentPath = "shaders/DemoFragment.glsl" });
 
-    m_BoxProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
-        .m_VertexPath = "shaders/BoxVertex.glsl",
-        .m_FragmentPath = "shaders/BoxFragment.glsl" });
-
     m_DemoProgram->TryLoadAndOutputError();
-    m_BoxProgram->TryLoadAndOutputError();
-
-    m_BoxRenderer = std::make_unique<BoxRenderer>(*m_BoxProgram);
 
     m_UI = std::make_unique<xg::UI>();
 

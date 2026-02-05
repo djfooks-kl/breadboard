@@ -16,6 +16,7 @@
 #include "OnStageRemovedComponent.h"
 #include "TextRenderer.h"
 #include "UIDragPreviewComponent.h"
+#include "UIDragValidComponent.h"
 #include "UIPreviewAddingCogComponent.h"
 
 xg::BreadRenderer::BreadRenderer()
@@ -112,29 +113,34 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
     m_CogBoxRenderer->Draw(camera.m_ViewProjection, camera.m_Feather);
 
     const auto& previewAddingCog = world.get<xg::UIPreviewAddingCogComponent>();
+    const bool dragValid = world.get<xg::UIDragValidComponent>().m_Valid;
     m_CogBoxPreviewDropRenderer->RemoveAllBoxes();
-    world.each([&](const xg::UIDragPreviewComponent& dragPreview)
-        {
-            if (previewAddingCog.m_HoverCogId)
-                return;
+    if (dragValid)
+    {
+        world.each([&](const xg::UIDragPreviewComponent& dragPreview)
+            {
+                if (previewAddingCog.m_HoverCogId)
+                    return;
 
-            const xg::CogPrototype* cog = cogMap.Get(dragPreview.m_CogId);
-            glm::ivec2 cogExtents = cog->GetSize() - glm::ivec2(1, 1);
-            cogExtents = dragPreview.m_Rotation.GetIMatrix() * cogExtents;
+                const xg::CogPrototype* cog = cogMap.Get(dragPreview.m_CogId);
+                glm::ivec2 cogExtents = cog->GetSize() - glm::ivec2(1, 1);
+                cogExtents = dragPreview.m_Rotation.GetIMatrix() * cogExtents;
 
-            m_CogBoxPreviewDropRenderer->AddBox(glm::vec2(0, 0), cogExtents);
+                m_CogBoxPreviewDropRenderer->AddBox(glm::vec2(0, 0), cogExtents);
 
-            const glm::vec2 previewCogPosition = glm::vec2(dragPreview.m_Position);
+                const glm::vec2 previewCogPosition = glm::vec2(dragPreview.m_Position);
 
-            const glm::vec2 relativeCameraPos = camera.m_Position - previewCogPosition;
-            const glm::vec3 cameraPos = glm::vec3(relativeCameraPos, 0.5f);
-            const glm::vec3 cameraTarget = glm::vec3(relativeCameraPos, 0.0f);
-            const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+                const glm::vec2 relativeCameraPos = camera.m_Position - previewCogPosition;
+                const glm::vec3 cameraPos = glm::vec3(relativeCameraPos, 0.5f);
+                const glm::vec3 cameraTarget = glm::vec3(relativeCameraPos, 0.0f);
+                const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
-            const glm::mat4 previewCameraView = glm::lookAt(cameraPos, cameraTarget, cameraUp);
-            m_CogBoxPreviewDropRenderer->Draw(camera.m_Projection * previewCameraView, camera.m_Feather);
-        });
+                const glm::mat4 previewCameraView = glm::lookAt(cameraPos, cameraTarget, cameraUp);
+                m_CogBoxPreviewDropRenderer->Draw(camera.m_Projection * previewCameraView, camera.m_Feather);
+            });
+    }
 
+    m_CogBoxPreviewRenderer->SetColor(glm::vec3(dragValid ? 0.f : 1.f, 0.f, 0.f));
     m_CogBoxPreviewRenderer->RemoveAllBoxes();
     world.each([&](const xg::UIDragPreviewComponent& dragPreview)
         {
