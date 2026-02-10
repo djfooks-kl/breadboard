@@ -37,6 +37,7 @@
 #include "UIRotateComponent.h"
 #include "UIUndoComponent.h"
 #include "WindowSizeComponent.h"
+#include "WireTextureSizeComponent.h"
 #include "WorldMouseComponent.h"
 
 void xg::SetupWorld(flecs::world& world)
@@ -57,6 +58,7 @@ void xg::SetupWorld(flecs::world& world)
     world.emplace<xg::WorldMouseComponent>();
 
     world.ensure<xg::GridSizeComponent>().m_Size = glm::ivec2(100, 100);
+    world.ensure<xg::WireTextureSizeComponent>().m_Size = glm::ivec2(128, 4);
     world.ensure<xg::command::ListComponent>().m_Commands.resize(500);
 
     xg::cog::RegisterAll(world.get_mut<xg::CogMap>());

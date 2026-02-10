@@ -1,10 +1,12 @@
 #include "BreadRenderer.h"
 
 #include <glm/gtc/type_ptr.hpp>
+#include <array>
 
 #include "CameraComponent.h"
 #include "CogBoxRenderer.h"
 #include "CogComponent.h"
+#include "CogNodeRenderer.h"
 #include "Cogs/CogMap.h"
 #include "Core/Font.h"
 #include "Core/GLFWLib.h"
@@ -18,6 +20,7 @@
 #include "UIDragPreviewComponent.h"
 #include "UIDragValidComponent.h"
 #include "UIPreviewAddingCogComponent.h"
+#include "WireTextureSizeComponent.h"
 
 xg::BreadRenderer::BreadRenderer()
 {
@@ -31,6 +34,8 @@ xg::BreadRenderer::~BreadRenderer()
     m_TextProgram.reset();
     m_GridProgram.reset();
     m_CogBoxProgram.reset();
+
+    glDeleteTextures(1, &m_WireTexture);
 }
 
 void xg::BreadRenderer::Load()
@@ -47,9 +52,14 @@ void xg::BreadRenderer::Load()
         .m_VertexPath = "shaders/CogBoxVertex.glsl",
         .m_FragmentPath = "shaders/CogBoxFragment.glsl" });
 
+    m_CogNodeProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
+        .m_VertexPath = "shaders/CogNodeVertex.glsl",
+        .m_FragmentPath = "shaders/CogNodeFragment.glsl" });
+
     m_TextProgram->TryLoadAndOutputError();
     m_GridProgram->TryLoadAndOutputError();
     m_CogBoxProgram->TryLoadAndOutputError();
+    m_CogNodeProgram->TryLoadAndOutputError();
 
     m_Font = std::make_unique<xc::Font>();
     m_Font->Load(DATA_DIR "/sourcecodepro-medium.png", DATA_DIR "/sourcecodepro-medium.json");
@@ -76,6 +86,18 @@ void xg::BreadRenderer::Load()
     m_CogBoxPreviewDropRenderer->SetFillColor(glm::vec3(1.f, 1.f, 1.f));
     m_CogBoxPreviewDropRenderer->m_Border = 0.4f;
     m_CogBoxPreviewDropRenderer->m_Expand = 0.f;
+
+    m_CogNodeRenderer = std::make_unique<xg::CogNodeRenderer>(*m_CogNodeProgram);
+    m_CogNodeRenderer->SetRingColor(glm::vec3(0.f, 1.f, 0.f));
+    m_CogNodeRenderer->SetRadius(0.7f);
+    m_CogNodeRenderer->AddNode(glm::ivec2(1, 1), glm::ivec2(0, 0));
+    m_CogNodeRenderer->AddNode(glm::ivec2(2, 1), glm::ivec2(1, 0));
+    m_CogNodeRenderer->AddNode(glm::ivec2(3, 1), glm::ivec2(2, 0));
+    m_CogNodeRenderer->AddNode(glm::ivec2(4, 1), glm::ivec2(3, 0));
+    m_CogNodeRenderer->AddNode(glm::ivec2(5, 1), glm::ivec2(4, 0));
+    m_CogNodeRenderer->AddNode(glm::ivec2(6, 1), glm::ivec2(5, 0));
+    m_CogNodeRenderer->AddNode(glm::ivec2(7, 1), glm::ivec2(6, 0));
+    m_CogNodeRenderer->AddNode(glm::ivec2(8, 1), glm::ivec2(7, 0));
 }
 
 void xg::BreadRenderer::Update(const flecs::world& world)
@@ -83,6 +105,23 @@ void xg::BreadRenderer::Update(const flecs::world& world)
     const bool anyOnStageChanges =
         !world.get<const xg::OnStageAddedComponent>().m_Entities.empty() ||
         !world.get<const xg::OnStageRemovedComponent>().m_Entities.empty();
+
+    const glm::ivec2& wireTextureSize = world.get<xg::WireTextureSizeComponent>().m_Size;
+    if (wireTextureSize != m_WireTextureSize)
+    {
+        m_WireTextureSize = wireTextureSize;
+
+        glDeleteTextures(1, &m_WireTexture);
+        glGenTextures(1, &m_WireTexture);
+        glBindTexture(GL_TEXTURE_2D, m_WireTexture);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        std::vector<uint8_t> data = { 255, 0, 0, 255, 0, 0, 255, 255 };
+        data.resize(wireTextureSize.x * wireTextureSize.y);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, wireTextureSize.x, wireTextureSize.y, 0, GL_RED, GL_UNSIGNED_BYTE, data.data());
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
 
     if (anyOnStageChanges)
     {
@@ -107,6 +146,7 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
     const auto& camera = world.get<xg::CameraComponent>();
     const auto& cogMap = world.get<xg::CogMap>();
     const glm::ivec2& gridSize = world.get<xg::GridSizeComponent>().m_Size;
+    const glm::ivec2& wireTextureSize = world.get<xg::WireTextureSizeComponent>().m_Size;
 
     m_GridRenderer->Draw(camera.m_ViewProjection, camera.m_InvViewProjection, gridSize, camera.m_Feather);
 
@@ -166,6 +206,8 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
             const glm::mat4 previewCameraView = glm::lookAt(cameraPos, cameraTarget, cameraUp);
             m_CogBoxPreviewRenderer->Draw(camera.m_Projection * previewCameraView, camera.m_Feather);
         });
+
+    m_CogNodeRenderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
 
     m_TextRenderer->Draw(camera.m_ViewProjection);
 }

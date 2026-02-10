@@ -53,6 +53,8 @@ set(source_files
     src/CogBoxRenderer.h
     src/CogComponent.h
     src/CogCreatedComponent.h
+    src/CogNodeRenderer.cpp
+    src/CogNodeRenderer.h
     src/CogSystem.cpp
     src/CogSystem.h
     src/GridAttachmentsComponent.h

@@ -6,6 +6,8 @@
 #include <glm/vec3.hpp>
 #include <string>
 
+typedef unsigned int GLuint;
+
 namespace xc
 {
     struct Font;
@@ -19,6 +21,7 @@ namespace xg
 
     struct BreadRenderer;
     struct CogBoxRenderer;
+    struct CogNodeRenderer;
     struct GridRenderer;
     struct TextRenderer;
 
@@ -39,10 +42,15 @@ namespace xg
         std::unique_ptr<xg::CogBoxRenderer> m_CogBoxRenderer;
         std::unique_ptr<xg::CogBoxRenderer> m_CogBoxPreviewRenderer;
         std::unique_ptr<xg::CogBoxRenderer> m_CogBoxPreviewDropRenderer;
+        std::unique_ptr<xg::CogNodeRenderer> m_CogNodeRenderer;
 
         std::unique_ptr<xc::ShaderProgram> m_TextProgram;
         std::unique_ptr<xc::ShaderProgram> m_GridProgram;
         std::unique_ptr<xc::ShaderProgram> m_CogBoxProgram;
+        std::unique_ptr<xc::ShaderProgram> m_CogNodeProgram;
+
+        GLuint m_WireTexture = 0;
+        glm::ivec2 m_WireTextureSize;
 
         float m_FontSize = 0.2f;
         glm::vec2 m_Position = glm::vec2(-0.9f, -0.9f);

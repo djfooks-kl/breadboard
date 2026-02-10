@@ -49,3 +49,17 @@ void xc::ShaderProgram::TryLoadAndOutputError()
         printf("%s\n", result.GetError().c_str());
     }
 }
+
+GLint xc::ShaderProgram::GetUniformLocation(const char* uniformName) const
+{
+    GLint result = glGetUniformLocation(GetProgramId(), uniformName);
+    if (result == -1)
+    {
+        printf(
+            "Failed to find uniform '%s' for program vert='%s' frag='%s'\n",
+            uniformName,
+            m_Options.m_VertexPath.c_str(),
+            m_Options.m_FragmentPath.c_str());
+    }
+    return result;
+}
