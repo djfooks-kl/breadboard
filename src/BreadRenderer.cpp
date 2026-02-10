@@ -119,7 +119,7 @@ void xg::BreadRenderer::Update(const flecs::world& world)
         std::vector<uint8_t> data = { 255, 0, 0, 255, 0, 0, 255, 255 };
         data.resize(wireTextureSize.x * wireTextureSize.y);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, wireTextureSize.x, wireTextureSize.y, 0, GL_RED, GL_UNSIGNED_BYTE, data.data());
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, wireTextureSize.x, wireTextureSize.y, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, data.data());
         glGenerateMipmap(GL_TEXTURE_2D);
     }
 
