@@ -53,6 +53,10 @@ TEST_CASE("Test shaders compile", "[shaders]")
         .m_VertexPath = "shaders/CogNodeVertex.glsl",
         .m_FragmentPath = "shaders/CogNodeFragment.glsl" });
 
+    TestCompile(xc::ShaderProgramOptions{
+        .m_VertexPath = "shaders/IconVertex.glsl",
+        .m_FragmentPath = "shaders/BatteryIconFragment.glsl" });
+
     glfwDestroyWindow(window);
     glfwTerminate();
 }

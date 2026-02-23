@@ -34,8 +34,6 @@ xg::CogNodeRenderer::CogNodeRenderer(const xc::ShaderProgram& program)
     m_ViewProjectionUniform = m_Program.GetUniformLocation("viewProjection");
     m_RadiusUniform = m_Program.GetUniformLocation("radius");
     m_RingColorUniform = m_Program.GetUniformLocation("ringColor");
-
-    m_Radius = 0.7f;
 }
 
 xg::CogNodeRenderer::~CogNodeRenderer()

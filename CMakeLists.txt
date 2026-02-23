@@ -61,6 +61,8 @@ set(source_files
     src/GridAttachmentsMap.h
     src/GridAttachmentSystem.cpp
     src/GridAttachmentSystem.h
+    src/GridIconRenderer.cpp
+    src/GridIconRenderer.h
     src/GridRenderer.cpp
     src/GridRenderer.h
     src/GridSizeComponent.h

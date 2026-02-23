@@ -1,11 +1,14 @@
 #pragma once
 
-#include <glm/ext/matrix_int2x2.hpp>
+#include <array>
 #include <glm/ext/matrix_float2x2.hpp>
+#include <glm/ext/matrix_int2x2.hpp>
 #include <iosfwd>
 
 namespace xc
 {
+	using Rotation90UVs = std::array<int, 8>;
+
 	class Rotation90
 	{
 	public:
@@ -18,6 +21,8 @@ namespace xc
 
 		const glm::imat2x2& GetIMatrix() const;
 		const glm::mat2x2& GetFMatrix() const;
+
+		const xc::Rotation90UVs& GetUVs() const;
 
 		bool operator==(const xc::Rotation90& other) const = default;
 		Rotation90 operator+(const xc::Rotation90& other) const;

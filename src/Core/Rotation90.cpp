@@ -19,6 +19,20 @@ namespace
 		glm::mat2x2(0.f, 1.f, -1.f, 0.f)
 	};
 
+	// Winding used
+	//   2---3
+	//   | \ |
+	//   0---1
+	//
+	// to rotate 2->3, 3->1, 1->0, 0->2
+	const std::array<std::array<int, 8>, 4> s_UVs = {
+		//                  0    |1    |2    |3   |
+		std::array<int, 8>{ 0, 0, 1, 0, 0, 1, 1, 1},
+		std::array<int, 8>{ 1, 0, 1, 1, 0, 0, 0, 1},
+		std::array<int, 8>{ 1, 1, 0, 1, 1, 0, 0, 0},
+		std::array<int, 8>{ 0, 1, 0, 0, 1, 1, 1, 0},
+	};
+
 	int WrapIndex(const int v)
 	{
 		return (v % 4 + 4) % 4;
@@ -48,6 +62,11 @@ const glm::imat2x2& xc::Rotation90::GetIMatrix() const
 const glm::mat2x2& xc::Rotation90::GetFMatrix() const
 {
 	return s_FMatrices[m_Index];
+}
+
+const xc::Rotation90UVs& xc::Rotation90::GetUVs() const
+{
+	return s_UVs[m_Index];
 }
 
 xc::Rotation90 xc::Rotation90::operator+(const xc::Rotation90& other) const

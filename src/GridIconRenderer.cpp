@@ -1,4 +1,4 @@
-#include "BoxRenderer.h"
+#include "GridIconRenderer.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -10,8 +10,9 @@ namespace
     int s_PositionNumComponents = 2;
 
     constexpr GLuint s_AttributePosition = 0;
-    constexpr GLuint s_AttributeTextureUV = 1;
-    constexpr GLuint s_AttributeColor = 2;
+    constexpr GLuint s_AttributeOffset = 1;
+    constexpr GLuint s_AttributeTextureUV = 2;
+    constexpr GLuint s_AttributeColor = 3 ;
 
     template<typename TDATA>
     GLuint TryCreateAndBindBuffer(const GLenum target, const std::vector<TDATA>& data, GLuint buffer)
@@ -26,54 +27,67 @@ namespace
     }
 }
 
-BoxRenderer::BoxRenderer(const xc::ShaderProgram& program)
+xg::GridIconRenderer::GridIconRenderer(const xc::ShaderProgram& program)
     : m_Program(program)
 {
+    m_ViewProjectionUniform = program.GetUniformLocation("viewProjection");
+    m_FeatherUniform = program.GetUniformLocation("feather");
+    m_IconSizeUniform = program.GetUniformLocation("iconSize");
 }
 
-BoxRenderer::~BoxRenderer()
+xg::GridIconRenderer::~GridIconRenderer()
 {
     glDeleteVertexArrays(1, &m_VBO);
     glDeleteBuffers(1, &m_PositionsBuffer);
+    glDeleteBuffers(1, &m_OffsetsBuffer);
     glDeleteBuffers(1, &m_TextureUVBuffer);
     glDeleteBuffers(1, &m_ColorBuffer);
     glDeleteBuffers(1, &m_IndicesBuffer);
 }
 
-void BoxRenderer::AddBox(float size, const glm::vec2& center, const glm::vec3& color)
+void xg::GridIconRenderer::AddIcon(
+    const glm::ivec2& position,
+    const xc::Rotation90 rotation,
+    const glm::vec3& color)
 {
     const unsigned int i = static_cast<unsigned int>(m_Positions.size()) / s_PositionNumComponents;
 
-    const float halfSize = size * 0.5f;
-    const float x0 = center.x - halfSize;
-    const float y0 = center.y - halfSize;
-    const float x1 = center.x + halfSize;
-    const float y1 = center.y + halfSize;
-
-    const float s0 = 0.f;
-    const float t0 = 0.f;
-    const float s1 = 1.f;
-    const float t1 = 1.f;
-
     m_Positions.reserve(m_Positions.size() + 8);
-    m_Positions.push_back(x0);
-    m_Positions.push_back(y0);
-    m_Positions.push_back(x1);
-    m_Positions.push_back(y0);
-    m_Positions.push_back(x0);
-    m_Positions.push_back(y1);
-    m_Positions.push_back(x1);
-    m_Positions.push_back(y1);
+    m_Positions.push_back(position.x);
+    m_Positions.push_back(position.y);
+    m_Positions.push_back(position.x);
+    m_Positions.push_back(position.y);
+    m_Positions.push_back(position.x);
+    m_Positions.push_back(position.y);
+    m_Positions.push_back(position.x);
+    m_Positions.push_back(position.y);
+
+    const int offsetS0 = 0;
+    const int offsetT0 = 0;
+    const int offsetS1 = 1;
+    const int offsetT1 = 1;
+
+    m_Offsets.reserve(m_Offsets.size() + 8);
+    m_Offsets.push_back(offsetS0);
+    m_Offsets.push_back(offsetT0);
+    m_Offsets.push_back(offsetS1);
+    m_Offsets.push_back(offsetT0);
+    m_Offsets.push_back(offsetS0);
+    m_Offsets.push_back(offsetT1);
+    m_Offsets.push_back(offsetS1);
+    m_Offsets.push_back(offsetT1);
+
+    const xc::Rotation90UVs& uvs = rotation.GetUVs();
 
     m_TextureUV.reserve(m_TextureUV.size() + 8);
-    m_TextureUV.push_back(s0);
-    m_TextureUV.push_back(t0);
-    m_TextureUV.push_back(s1);
-    m_TextureUV.push_back(t0);
-    m_TextureUV.push_back(s0);
-    m_TextureUV.push_back(t1);
-    m_TextureUV.push_back(s1);
-    m_TextureUV.push_back(t1);
+    m_TextureUV.push_back(uvs[0]);
+    m_TextureUV.push_back(uvs[1]);
+    m_TextureUV.push_back(uvs[2]);
+    m_TextureUV.push_back(uvs[3]);
+    m_TextureUV.push_back(uvs[4]);
+    m_TextureUV.push_back(uvs[5]);
+    m_TextureUV.push_back(uvs[6]);
+    m_TextureUV.push_back(uvs[7]);
 
     m_Colors.reserve(m_Colors.size() + 12);
     m_Colors.push_back(color.r);
@@ -104,7 +118,7 @@ void BoxRenderer::AddBox(float size, const glm::vec2& center, const glm::vec3& c
     m_BuffersDirty = true;
 }
 
-void BoxRenderer::RemoveAllBoxes()
+void xg::GridIconRenderer::RemoveAllIcons()
 {
     m_Positions.clear();
     m_TextureUV.clear();
@@ -113,7 +127,7 @@ void BoxRenderer::RemoveAllBoxes()
     m_BuffersDirty = true;
 }
 
-void BoxRenderer::Draw(const glm::mat4& viewProjection)
+void xg::GridIconRenderer::Draw(const glm::mat4& viewProjection, const float feather)
 {
     if (m_Positions.empty())
     {
@@ -129,20 +143,25 @@ void BoxRenderer::Draw(const glm::mat4& viewProjection)
 
         glBindVertexArray(m_VBO);
         m_PositionsBuffer = TryCreateAndBindBuffer(GL_ARRAY_BUFFER, m_Positions, m_PositionsBuffer);
+        m_OffsetsBuffer = TryCreateAndBindBuffer(GL_ARRAY_BUFFER, m_Offsets, m_OffsetsBuffer);
         m_TextureUVBuffer = TryCreateAndBindBuffer(GL_ARRAY_BUFFER, m_TextureUV, m_TextureUVBuffer);
         m_ColorBuffer = TryCreateAndBindBuffer(GL_ARRAY_BUFFER, m_Colors, m_ColorBuffer);
         m_IndicesBuffer = TryCreateAndBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Indices, m_IndicesBuffer);
 
         glBindBuffer(GL_ARRAY_BUFFER, m_PositionsBuffer);
-        glVertexAttribPointer(s_AttributePosition, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+        glVertexAttribPointer(s_AttributePosition, 2, GL_INT, GL_FALSE, 2 * sizeof(int), (void*)0);
         glEnableVertexAttribArray(s_AttributePosition);
 
+        glBindBuffer(GL_ARRAY_BUFFER, m_OffsetsBuffer);
+        glVertexAttribPointer(s_AttributeOffset, 2, GL_INT, GL_FALSE, 2 * sizeof(int), (void*)0);
+        glEnableVertexAttribArray(s_AttributeOffset);
+
         glBindBuffer(GL_ARRAY_BUFFER, m_TextureUVBuffer);
-        glVertexAttribPointer(s_AttributeTextureUV, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+        glVertexAttribPointer(s_AttributeTextureUV, 2, GL_INT, GL_FALSE, 2 * sizeof(int), (void*)0);
         glEnableVertexAttribArray(s_AttributeTextureUV);
 
         glBindBuffer(GL_ARRAY_BUFFER, m_ColorBuffer);
-        glVertexAttribPointer(s_AttributeColor, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glVertexAttribPointer(s_AttributeColor, 3, GL_INT, GL_FALSE, 3 * sizeof(int), (void*)0);
         glEnableVertexAttribArray(s_AttributeColor);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndicesBuffer);
@@ -155,8 +174,9 @@ void BoxRenderer::Draw(const glm::mat4& viewProjection)
     glEnable(GL_BLEND);
     glBindVertexArray(m_VBO);
 
-    GLint viewProjectionUniform = glGetUniformLocation(m_Program.GetProgramId(), "viewProjection");
-    glUniformMatrix4fv(viewProjectionUniform, 1, GL_FALSE, glm::value_ptr(viewProjection));
+    glUniformMatrix4fv(m_ViewProjectionUniform, 1, GL_FALSE, glm::value_ptr(viewProjection));
+    glUniform1f(m_FeatherUniform, feather);
+    glUniform1f(m_IconSizeUniform, m_IconSize);
 
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_Indices.size()), GL_UNSIGNED_INT, nullptr);
 }

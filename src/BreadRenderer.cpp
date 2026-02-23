@@ -11,6 +11,7 @@
 #include "Core/Font.h"
 #include "Core/GLFWLib.h"
 #include "Core/ShaderProgram.h"
+#include "GridIconRenderer.h"
 #include "GridRenderer.h"
 #include "GridSizeComponent.h"
 #include "OnStageAddedComponent.h"
@@ -34,6 +35,7 @@ xg::BreadRenderer::~BreadRenderer()
     m_TextProgram.reset();
     m_GridProgram.reset();
     m_CogBoxProgram.reset();
+    m_BatteryIconRenderer.reset();
 
     glDeleteTextures(1, &m_WireTexture);
 }
@@ -56,10 +58,15 @@ void xg::BreadRenderer::Load()
         .m_VertexPath = "shaders/CogNodeVertex.glsl",
         .m_FragmentPath = "shaders/CogNodeFragment.glsl" });
 
+    m_BatteryIconProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
+        .m_VertexPath = "shaders/IconVertex.glsl",
+        .m_FragmentPath = "shaders/BatteryIconFragment.glsl" });
+
     m_TextProgram->TryLoadAndOutputError();
     m_GridProgram->TryLoadAndOutputError();
     m_CogBoxProgram->TryLoadAndOutputError();
     m_CogNodeProgram->TryLoadAndOutputError();
+    m_BatteryIconProgram->TryLoadAndOutputError();
 
     m_Font = std::make_unique<xc::Font>();
     m_Font->Load(DATA_DIR "/sourcecodepro-medium.png", DATA_DIR "/sourcecodepro-medium.json");
@@ -98,6 +105,13 @@ void xg::BreadRenderer::Load()
     m_CogNodeRenderer->AddNode(glm::ivec2(6, 1), glm::ivec2(5, 0));
     m_CogNodeRenderer->AddNode(glm::ivec2(7, 1), glm::ivec2(6, 0));
     m_CogNodeRenderer->AddNode(glm::ivec2(8, 1), glm::ivec2(7, 0));
+
+    m_BatteryIconRenderer = std::make_unique<xg::GridIconRenderer>(*m_BatteryIconProgram);
+    m_BatteryIconRenderer->SetIconSize(1.f);
+    m_BatteryIconRenderer->AddIcon(glm::ivec2(1, 0), xc::Rotation90(0), glm::vec3(0.f, 1.f, 0.f));
+    m_BatteryIconRenderer->AddIcon(glm::ivec2(2, 0), xc::Rotation90(1), glm::vec3(1.f, 0.f, 0.f));
+    m_BatteryIconRenderer->AddIcon(glm::ivec2(3, 0), xc::Rotation90(2), glm::vec3(0.f, 0.f, 0.f));
+    m_BatteryIconRenderer->AddIcon(glm::ivec2(4, 0), xc::Rotation90(3), glm::vec3(0.f, 0.f, 0.f));
 }
 
 void xg::BreadRenderer::Update(const flecs::world& world)
@@ -208,6 +222,8 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
         });
 
     m_CogNodeRenderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
+
+    m_BatteryIconRenderer->Draw(camera.m_ViewProjection, camera.m_Feather);
 
     m_TextRenderer->Draw(camera.m_ViewProjection);
 }

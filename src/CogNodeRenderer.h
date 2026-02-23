@@ -38,7 +38,7 @@ namespace xg
     private:
         const xc::ShaderProgram& m_Program;
         glm::vec3 m_RingColor;
-        float m_Radius;
+        float m_Radius = 1.f;
 
         std::vector<int> m_Positions;
         std::vector<int> m_Circles;
