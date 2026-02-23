@@ -31,7 +31,7 @@ namespace xg
             const glm::ivec2& p1,
             const glm::ivec2& p2);
 
-        void RemoveAllBoxes();
+        void RemoveAll();
 
         float m_Border;
         float m_Expand;

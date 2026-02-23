@@ -139,7 +139,8 @@ void xg::BreadRenderer::Update(const flecs::world& world)
 
     if (anyOnStageChanges)
     {
-        m_CogBoxRenderer->RemoveAllBoxes();
+        m_CogBoxRenderer->RemoveAll();
+        m_BatteryIconRenderer->RemoveAllIcons();
 
         const auto& cogMap = world.get<xg::CogMap>();
         world.each([&](
@@ -168,7 +169,7 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
 
     const auto& previewAddingCog = world.get<xg::UIPreviewAddingCogComponent>();
     const bool dragValid = world.get<xg::UIDragValidComponent>().m_Valid;
-    m_CogBoxPreviewDropRenderer->RemoveAllBoxes();
+    m_CogBoxPreviewDropRenderer->RemoveAll();
     if (dragValid)
     {
         world.each([&](const xg::UIDragPreviewComponent& dragPreview)
@@ -195,7 +196,7 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
     }
 
     m_CogBoxPreviewRenderer->SetColor(glm::vec3(dragValid ? 0.f : 1.f, 0.f, 0.f));
-    m_CogBoxPreviewRenderer->RemoveAllBoxes();
+    m_CogBoxPreviewRenderer->RemoveAll();
     world.each([&](const xg::UIDragPreviewComponent& dragPreview)
         {
             const xg::CogPrototype* cog = cogMap.Get(dragPreview.m_CogId);

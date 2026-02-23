@@ -7,8 +7,8 @@ namespace xg
 {
 	struct CameraComponent
 	{
-		glm::vec2 m_Position = { 0.378f, 0.f };
-		float m_Zoom = 2.27f;
+		glm::vec2 m_Position = { 5.f, 3.f };
+		float m_Zoom = 11.f;
 
 		glm::mat4 m_View;
 		glm::mat4 m_Projection;

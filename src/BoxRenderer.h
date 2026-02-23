@@ -23,7 +23,7 @@ struct BoxRenderer
         float size,
         const glm::vec2& center,
         const glm::vec3& color);
-    void RemoveAllBoxes();
+    void RemoveAll();
 
 private:
     const xc::ShaderProgram& m_Program;

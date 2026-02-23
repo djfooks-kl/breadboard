@@ -105,7 +105,7 @@ void xg::CogBoxRenderer::AddBox(
     m_BuffersDirty = true;
 }
 
-void xg::CogBoxRenderer::RemoveAllBoxes()
+void xg::CogBoxRenderer::RemoveAll()
 {
     m_P1.clear();
     m_P2.clear();

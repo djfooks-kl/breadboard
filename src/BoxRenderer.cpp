@@ -104,7 +104,7 @@ void BoxRenderer::AddBox(float size, const glm::vec2& center, const glm::vec3& c
     m_BuffersDirty = true;
 }
 
-void BoxRenderer::RemoveAllBoxes()
+void BoxRenderer::RemoveAll()
 {
     m_Positions.clear();
     m_TextureUV.clear();
