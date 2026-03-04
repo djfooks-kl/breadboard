@@ -7,6 +7,9 @@ namespace
 {
     static const char* s_Id1 = "ID_1";
     static const char* s_Id2 = "ID_2";
+
+    static const char* s_AnotherId1 = "ID_1";
+    static const char* s_AnotherId2 = "ID_2";
 }
 
 TEST_CASE("Simple Resource tests", "[xc::ResourceId]")
@@ -62,6 +65,12 @@ TEST_CASE("Simple Resource tests", "[xc::ResourceId]")
 
     CHECK(id2Copy != idEmpty);
     CHECK(idEmpty != id2Copy);
+
+    TestResourceId anotherId1 = TestResourceId::Create(s_AnotherId1);
+    TestResourceId anotherId2 = TestResourceId::Create(s_AnotherId2);
+
+    CHECK(anotherId1 == id1);
+    CHECK(anotherId2 == id2);
 
     std::unordered_set<TestResourceId> set;
     set.insert(id1);

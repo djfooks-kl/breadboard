@@ -1,9 +1,12 @@
 #pragma once
 
 #include <functional>
+#include <unordered_map>
+#include <string>
 
 namespace xc
 {
+    // Non-threadsafe resource ids
     template<typename TResourceType>
     struct ResourceId
     {
@@ -54,6 +57,16 @@ namespace xc
         explicit ResourceId(const char* name)
             : m_Name(name)
         {
+            static std::unordered_map<std::string, const char*> lookupMap;
+            auto itr = lookupMap.find(name);
+            if (itr != lookupMap.end())
+            {
+                m_Name = itr->second;
+            }
+            else
+            {
+                lookupMap[name] = name;
+            }
         }
 
         const char* m_Name;
