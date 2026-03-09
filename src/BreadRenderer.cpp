@@ -6,6 +6,8 @@
 #include "CameraComponent.h"
 #include "CogBoxRenderer.h"
 #include "CogComponent.h"
+#include "Rendering/RegisterRenderables.h"
+#include "Rendering/RenderableAdder.h"
 #include "CogNodeRenderer.h"
 #include "Cogs/CogMap.h"
 #include "Core/Font.h"
@@ -35,38 +37,33 @@ xg::BreadRenderer::~BreadRenderer()
     m_TextProgram.reset();
     m_GridProgram.reset();
     m_CogBoxProgram.reset();
-    m_BatteryIconRenderer.reset();
 
     glDeleteTextures(1, &m_WireTexture);
 }
 
 void xg::BreadRenderer::Load()
 {
+    xg::RegisterCogRenderers(m_CogRendererMap, m_ShaderProgramMap);
+
     m_TextProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
         .m_VertexPath = "shaders/BoxVertex.glsl",
         .m_FragmentPath = "shaders/TextFragment.glsl" });
+    m_TextProgram->TryLoadAndOutputError();
 
     m_GridProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
         .m_VertexPath = "shaders/GridVertex.glsl",
         .m_FragmentPath = "shaders/GridFragment.glsl" });
+    m_GridProgram->TryLoadAndOutputError();
 
     m_CogBoxProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
         .m_VertexPath = "shaders/CogBoxVertex.glsl",
         .m_FragmentPath = "shaders/CogBoxFragment.glsl" });
+    m_CogBoxProgram->TryLoadAndOutputError();
 
     m_CogNodeProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
         .m_VertexPath = "shaders/CogNodeVertex.glsl",
         .m_FragmentPath = "shaders/CogNodeFragment.glsl" });
-
-    m_BatteryIconProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
-        .m_VertexPath = "shaders/IconVertex.glsl",
-        .m_FragmentPath = "shaders/BatteryIconFragment.glsl" });
-
-    m_TextProgram->TryLoadAndOutputError();
-    m_GridProgram->TryLoadAndOutputError();
-    m_CogBoxProgram->TryLoadAndOutputError();
     m_CogNodeProgram->TryLoadAndOutputError();
-    m_BatteryIconProgram->TryLoadAndOutputError();
 
     m_Font = std::make_unique<xc::Font>();
     m_Font->Load(DATA_DIR "/sourcecodepro-medium.png", DATA_DIR "/sourcecodepro-medium.json");
@@ -105,13 +102,22 @@ void xg::BreadRenderer::Load()
     m_CogNodeRenderer->AddNode(glm::ivec2(6, 1), glm::ivec2(5, 0));
     m_CogNodeRenderer->AddNode(glm::ivec2(7, 1), glm::ivec2(6, 0));
     m_CogNodeRenderer->AddNode(glm::ivec2(8, 1), glm::ivec2(7, 0));
+}
 
-    m_BatteryIconRenderer = std::make_unique<xg::GridIconRenderer>(*m_BatteryIconProgram);
-    m_BatteryIconRenderer->SetIconSize(1.f);
-    m_BatteryIconRenderer->AddIcon(glm::ivec2(1, 0), xc::Rotation90(0), glm::vec3(0.f, 1.f, 0.f));
-    m_BatteryIconRenderer->AddIcon(glm::ivec2(2, 0), xc::Rotation90(1), glm::vec3(1.f, 0.f, 0.f));
-    m_BatteryIconRenderer->AddIcon(glm::ivec2(3, 0), xc::Rotation90(2), glm::vec3(0.f, 0.f, 0.f));
-    m_BatteryIconRenderer->AddIcon(glm::ivec2(4, 0), xc::Rotation90(3), glm::vec3(0.f, 0.f, 0.f));
+void xg::BreadRenderer::AddRenderable(
+    const xg::RenderableDescriptor& renderableDescriptor,
+    const glm::ivec2& position,
+    const xc::Rotation90 rotation)
+{
+    auto* renderer = m_CogRendererMap.Get(renderableDescriptor);
+    if (!renderer)
+    {
+        printf("Could not find renderer for resource with id '%s' mode %d",
+            renderableDescriptor.m_ResourceId.GetName(),
+            renderableDescriptor.m_Mode);
+        return;
+    }
+    renderer->AddRenderable(position, rotation);
 }
 
 void xg::BreadRenderer::Update(const flecs::world& world)
@@ -140,7 +146,10 @@ void xg::BreadRenderer::Update(const flecs::world& world)
     if (anyOnStageChanges)
     {
         m_CogBoxRenderer->RemoveAll();
-        m_BatteryIconRenderer->RemoveAllIcons();
+        for (auto& pair : m_CogRendererMap.GetMap())
+        {
+            pair.second->RemoveAll();
+        }
 
         const auto& cogMap = world.get<xg::CogMap>();
         world.each([&](
@@ -152,6 +161,9 @@ void xg::BreadRenderer::Update(const flecs::world& world)
             cogExtents = cogComponent.m_Rotation.GetIMatrix() * cogExtents;
 
             m_CogBoxRenderer->AddBox(cogComponent.m_Position, cogComponent.m_Position + cogExtents);
+
+            xg::RenderableAdder renderableAdder(*this);
+            cog->AddStaticRenderables(cogComponent.m_Position, cogComponent.m_Rotation, renderableAdder);
         });
     }
 }
@@ -166,6 +178,11 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
     m_GridRenderer->Draw(camera.m_ViewProjection, camera.m_InvViewProjection, gridSize, camera.m_Feather);
 
     m_CogBoxRenderer->Draw(camera.m_ViewProjection, camera.m_Feather);
+
+    for (auto& pair : m_CogRendererMap.GetMap())
+    {
+        pair.second->Draw(camera.m_ViewProjection, camera.m_Feather);
+    }
 
     const auto& previewAddingCog = world.get<xg::UIPreviewAddingCogComponent>();
     const bool dragValid = world.get<xg::UIDragValidComponent>().m_Valid;
@@ -223,8 +240,6 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
         });
 
     m_CogNodeRenderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
-
-    m_BatteryIconRenderer->Draw(camera.m_ViewProjection, camera.m_Feather);
 
     m_TextRenderer->Draw(camera.m_ViewProjection);
 }

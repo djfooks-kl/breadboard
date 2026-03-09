@@ -69,6 +69,7 @@ set(source_files
     src/InputComponent.h
     src/InputSystem.cpp
     src/InputSystem.h
+    src/IRenderableAdder.h
     src/MouseTrailComponent.h
     src/MouseTrailSystem.cpp
     src/MouseTrailSystem.h
@@ -99,6 +100,20 @@ set(source_files
     src/WindowSizeSystem.cpp
     src/WindowSizeSystem.h
     src/WorldMouseComponent.h
+)
+
+set(rendering_files
+
+    src/Rendering/IRenderer.h
+    src/Rendering/RegisterRenderables.cpp
+    src/Rendering/RenderableAdder.cpp
+    src/Rendering/RenderableAdder.h
+    src/Rendering/RenderableDescriptor.h
+    src/Rendering/RenderableResourceId.h
+    src/Rendering/RendererMap.cpp
+    src/Rendering/RendererMap.h
+    src/Rendering/ShaderProgramMap.h
+    src/Rendering/ShaderProgramResourceId.h
 )
 
 set(cog_files
@@ -140,6 +155,9 @@ set(command_files
 
 list(APPEND source_files ${core_files})
 source_group("Core" FILES ${core_files})
+
+list(APPEND source_files ${rendering_files})
+source_group("Command" FILES ${rendering_files})
 
 list(APPEND source_files ${cog_files})
 source_group("Cogs" FILES ${cog_files})

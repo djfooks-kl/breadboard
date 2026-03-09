@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "Core/Rotation90.h"
+#include "Rendering/IRenderer.h"
 
 typedef int GLint;
 typedef unsigned int GLuint;
@@ -17,25 +18,34 @@ namespace xc
 
 namespace xg
 {
-    struct GridIconRenderer
+    struct GridIconRenderer : public xg::IRenderer
     {
-        GridIconRenderer(const xc::ShaderProgram& program);
-        ~GridIconRenderer();
+        GridIconRenderer(const xg::RenderableDescriptor& renderableDescriptor, const xc::ShaderProgram& program);
+        ~GridIconRenderer() override;
+
+        const xg::RenderableDescriptor& GetRenderableDescriptor() const override { return m_RenderableDescriptor; }
+
+        void AddRenderable(
+            const glm::ivec2& position,
+            const xc::Rotation90 rotation) override;
+
+        void RemoveAll() override;
+
+        void Draw(const glm::mat4& viewProjection, const float feather) override;
 
         void SetIconSize(const float v) { m_IconSize = v; }
-
-        void Draw(const glm::mat4& viewProjection, const float feather);
+        void SetColor(const glm::vec3& v) { m_Color = v; }
 
         void AddIcon(
             const glm::ivec2& position,
             const xc::Rotation90 rotation,
             const glm::vec3& color);
 
-        void RemoveAllIcons();
-
     private:
+        xg::RenderableDescriptor m_RenderableDescriptor;
         const xc::ShaderProgram& m_Program;
         float m_IconSize = 1.f;
+        glm::vec3 m_Color = glm::vec3(0.f);
 
         GLint m_ViewProjectionUniform = -1;
         GLint m_FeatherUniform = -1;

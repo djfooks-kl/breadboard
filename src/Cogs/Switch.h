@@ -14,8 +14,6 @@ namespace xg::cog
 
     struct Switch final : public xg::CogPrototype
     {
-        virtual xg::CogResourceId GetResourceId() const;
-
-        virtual glm::ivec2 GetSize() const;
+        DECLARE_COG_FUNCTIONS();
     };
 }

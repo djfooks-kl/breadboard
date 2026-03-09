@@ -6,6 +6,11 @@
 #include <glm/vec3.hpp>
 #include <string>
 
+#include "Core/Rotation90.h"
+#include "Rendering/RenderableResourceId.h"
+#include "Rendering/RendererMap.h"
+#include "Rendering/ShaderProgramMap.h"
+
 typedef unsigned int GLuint;
 
 namespace xc
@@ -36,7 +41,15 @@ namespace xg
         void Update(const flecs::world& world);
         void Draw(const flecs::world& world);
 
+        void AddRenderable(
+            const xg::RenderableDescriptor& renderableDescriptor,
+            const glm::ivec2& position,
+            const xc::Rotation90 rotation);
+
     private:
+        xg::ShaderProgramMap m_ShaderProgramMap;
+        xg::RendererMap m_CogRendererMap;
+
         std::unique_ptr<xc::Font> m_Font;
         std::unique_ptr<xg::TextRenderer> m_TextRenderer;
         std::unique_ptr<xg::GridRenderer> m_GridRenderer;
@@ -44,13 +57,11 @@ namespace xg
         std::unique_ptr<xg::CogBoxRenderer> m_CogBoxPreviewRenderer;
         std::unique_ptr<xg::CogBoxRenderer> m_CogBoxPreviewDropRenderer;
         std::unique_ptr<xg::CogNodeRenderer> m_CogNodeRenderer;
-        std::unique_ptr<xg::GridIconRenderer> m_BatteryIconRenderer;
 
         std::unique_ptr<xc::ShaderProgram> m_TextProgram;
         std::unique_ptr<xc::ShaderProgram> m_GridProgram;
         std::unique_ptr<xc::ShaderProgram> m_CogBoxProgram;
         std::unique_ptr<xc::ShaderProgram> m_CogNodeProgram;
-        std::unique_ptr<xc::ShaderProgram> m_BatteryIconProgram;
 
         GLuint m_WireTexture = 0;
         glm::ivec2 m_WireTextureSize;

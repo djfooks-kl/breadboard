@@ -27,8 +27,9 @@ namespace
     }
 }
 
-xg::GridIconRenderer::GridIconRenderer(const xc::ShaderProgram& program)
-    : m_Program(program)
+xg::GridIconRenderer::GridIconRenderer(const xg::RenderableDescriptor& renderableDescriptor, const xc::ShaderProgram& program)
+    : m_RenderableDescriptor(renderableDescriptor)
+    , m_Program(program)
 {
     m_ViewProjectionUniform = program.GetUniformLocation("viewProjection");
     m_FeatherUniform = program.GetUniformLocation("feather");
@@ -43,6 +44,13 @@ xg::GridIconRenderer::~GridIconRenderer()
     glDeleteBuffers(1, &m_TextureUVBuffer);
     glDeleteBuffers(1, &m_ColorBuffer);
     glDeleteBuffers(1, &m_IndicesBuffer);
+}
+
+void xg::GridIconRenderer::AddRenderable(
+    const glm::ivec2& position,
+    const xc::Rotation90 rotation)
+{
+    AddIcon(position, rotation, glm::vec3(0.f, 0.f, 0.f));
 }
 
 void xg::GridIconRenderer::AddIcon(
@@ -118,7 +126,7 @@ void xg::GridIconRenderer::AddIcon(
     m_BuffersDirty = true;
 }
 
-void xg::GridIconRenderer::RemoveAllIcons()
+void xg::GridIconRenderer::RemoveAll()
 {
     m_Positions.clear();
     m_TextureUV.clear();
