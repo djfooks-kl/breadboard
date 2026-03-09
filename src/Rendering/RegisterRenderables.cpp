@@ -18,30 +18,26 @@ namespace
         xg::ShaderProgramResourceId shaderProgramId,
         xc::ShaderProgramOptions options)
     {
-        xc::ShaderProgram& shaderProgram = inout_shaderProgramMap.try_emplace(shaderProgramId, std::move(options)).first->second;
-        shaderProgram.TryLoadAndOutputError();
+        auto emplace = inout_shaderProgramMap.try_emplace(shaderProgramId, std::move(options));
+        if (emplace.second)
+        {
+            xc::ShaderProgram& shaderProgram = emplace.first->second;
+            shaderProgram.TryLoadAndOutputError();
+        }
     }
 }
 
-void xg::RegisterCogRenderers(xg::RendererMap& map, xg::ShaderProgramMap& shaderProgramMap)
+void xg::RegisterCogRenderers(xg::RendererMap& map, xg::ShaderProgramMap& shaderProgramMap, bool isPreview)
 {
     RegisterShaderProgram(shaderProgramMap, s_ShaderBatteryIcon, xc::ShaderProgramOptions{
         .m_VertexPath = "shaders/IconVertex.glsl",
         .m_FragmentPath = "shaders/BatteryIconFragment.glsl" });
 
     {
-        std::unique_ptr<xg::GridIconRenderer> renderer = std::make_unique<xg::GridIconRenderer>(
-            xg::RenderableDescriptor{ s_RenderableBatteryIcon },
-            shaderProgramMap.at(s_ShaderBatteryIcon));
+        std::unique_ptr<xg::GridIconRenderer> renderer = std::make_unique<xg::GridIconRenderer>(shaderProgramMap.at(s_ShaderBatteryIcon));
         renderer->SetIconSize(1.f);
-        map.Register(std::move(renderer));
-    }
-    {
-        std::unique_ptr<xg::GridIconRenderer> renderer = std::make_unique<xg::GridIconRenderer>(
-            xg::RenderableDescriptor{ s_RenderableBatteryIcon, xg::ERenderableMode::Preview },
-            shaderProgramMap.at(s_ShaderBatteryIcon));
-        renderer->SetIconSize(1.f);
-        renderer->SetColor(glm::vec3(0.5f, 0.5f, 0.5f));
-        map.Register(std::move(renderer));
+        if (isPreview)
+            renderer->SetColor(glm::vec3(0.5f, 0.5f, 0.5f));
+        map.Register(s_RenderableBatteryIcon, std::move(renderer));
     }
 }

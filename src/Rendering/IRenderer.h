@@ -2,8 +2,6 @@
 
 #include <glm/fwd.hpp>
 
-#include "RenderableDescriptor.h"
-
 namespace xc
 {
     class Rotation90;
@@ -14,8 +12,6 @@ namespace xg
     struct IRenderer
     {
         virtual ~IRenderer() = default;
-
-        virtual const xg::RenderableDescriptor& GetRenderableDescriptor() const = 0;
 
         virtual void AddRenderable(
             const glm::ivec2& position,

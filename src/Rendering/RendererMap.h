@@ -4,7 +4,7 @@
 #include <unordered_map>
 
 #include "Rendering/IRenderer.h"
-#include "Rendering/RenderableDescriptor.h"
+#include "Rendering/RenderableResourceId.h"
 
 namespace xg
 {
@@ -14,18 +14,17 @@ namespace xg
         RendererMap(const RendererMap&) = delete;
         RendererMap& operator=(const RendererMap&) = delete;
 
-        xg::IRenderer* Get(const xg::RenderableDescriptor& renderableDescriptor);
-        const xg::IRenderer* Get(const xg::RenderableDescriptor& renderableDescriptor) const;
+        xg::IRenderer* Get(const xg::RenderableResourceId& renderableResourceId);
+        const xg::IRenderer* Get(const xg::RenderableResourceId& renderableResourceId) const;
 
-        const std::unordered_map<xg::RenderableDescriptor, std::unique_ptr<xg::IRenderer>>& GetMap() const { return m_Map; }
+        const std::unordered_map<xg::RenderableResourceId, std::unique_ptr<xg::IRenderer>>& GetMap() const { return m_Map; }
 
-        void Register(std::unique_ptr<xg::IRenderer>&& renderer)
+        void Register(const xg::RenderableResourceId& resourceId, std::unique_ptr<xg::IRenderer>&& renderer)
         {
-            const xg::RenderableDescriptor& renderableDescriptor = renderer->GetRenderableDescriptor();
-            m_Map[renderableDescriptor] = std::move(renderer);
+            m_Map[resourceId] = std::move(renderer);
         }
 
     private:
-        std::unordered_map<xg::RenderableDescriptor, std::unique_ptr<xg::IRenderer>> m_Map;
+        std::unordered_map<xg::RenderableResourceId, std::unique_ptr<xg::IRenderer>> m_Map;
     };
 }

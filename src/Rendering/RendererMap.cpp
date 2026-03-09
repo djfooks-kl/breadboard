@@ -1,8 +1,8 @@
 #include "Rendering/RendererMap.h"
 
-xg::IRenderer* xg::RendererMap::Get(const xg::RenderableDescriptor& renderableDescriptor)
+xg::IRenderer* xg::RendererMap::Get(const xg::RenderableResourceId& renderableResourceId)
 {
-    auto itr = m_Map.find(renderableDescriptor);
+    auto itr = m_Map.find(renderableResourceId);
     if (itr != m_Map.end())
     {
         return itr->second.get();
@@ -10,9 +10,9 @@ xg::IRenderer* xg::RendererMap::Get(const xg::RenderableDescriptor& renderableDe
     return nullptr;
 }
 
-const xg::IRenderer* xg::RendererMap::Get(const xg::RenderableDescriptor& renderableDescriptor) const
+const xg::IRenderer* xg::RendererMap::Get(const xg::RenderableResourceId& renderableResourceId) const
 {
-    auto itr = m_Map.find(renderableDescriptor);
+    auto itr = m_Map.find(renderableResourceId);
     if (itr != m_Map.end())
     {
         return itr->second.get();

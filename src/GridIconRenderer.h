@@ -20,10 +20,8 @@ namespace xg
 {
     struct GridIconRenderer : public xg::IRenderer
     {
-        GridIconRenderer(const xg::RenderableDescriptor& renderableDescriptor, const xc::ShaderProgram& program);
+        GridIconRenderer(const xc::ShaderProgram& program);
         ~GridIconRenderer() override;
-
-        const xg::RenderableDescriptor& GetRenderableDescriptor() const override { return m_RenderableDescriptor; }
 
         void AddRenderable(
             const glm::ivec2& position,
@@ -42,7 +40,6 @@ namespace xg
             const glm::vec3& color);
 
     private:
-        xg::RenderableDescriptor m_RenderableDescriptor;
         const xc::ShaderProgram& m_Program;
         float m_IconSize = 1.f;
         glm::vec3 m_Color = glm::vec3(0.f);

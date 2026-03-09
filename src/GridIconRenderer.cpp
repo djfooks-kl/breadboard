@@ -27,9 +27,8 @@ namespace
     }
 }
 
-xg::GridIconRenderer::GridIconRenderer(const xg::RenderableDescriptor& renderableDescriptor, const xc::ShaderProgram& program)
-    : m_RenderableDescriptor(renderableDescriptor)
-    , m_Program(program)
+xg::GridIconRenderer::GridIconRenderer(const xc::ShaderProgram& program)
+    : m_Program(program)
 {
     m_ViewProjectionUniform = program.GetUniformLocation("viewProjection");
     m_FeatherUniform = program.GetUniformLocation("feather");

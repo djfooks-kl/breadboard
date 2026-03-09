@@ -41,14 +41,11 @@ namespace xg
         void Update(const flecs::world& world);
         void Draw(const flecs::world& world);
 
-        void AddRenderable(
-            const xg::RenderableDescriptor& renderableDescriptor,
-            const glm::ivec2& position,
-            const xc::Rotation90 rotation);
-
     private:
         xg::ShaderProgramMap m_ShaderProgramMap;
         xg::RendererMap m_CogRendererMap;
+        xg::RendererMap m_CogPreviewRendererMap;
+        xg::RendererMap m_CogDropPreviewRendererMap;
 
         std::unique_ptr<xc::Font> m_Font;
         std::unique_ptr<xg::TextRenderer> m_TextRenderer;

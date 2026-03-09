@@ -43,7 +43,9 @@ xg::BreadRenderer::~BreadRenderer()
 
 void xg::BreadRenderer::Load()
 {
-    xg::RegisterCogRenderers(m_CogRendererMap, m_ShaderProgramMap);
+    xg::RegisterCogRenderers(m_CogRendererMap, m_ShaderProgramMap, false);
+    xg::RegisterCogRenderers(m_CogPreviewRendererMap, m_ShaderProgramMap, false);
+    xg::RegisterCogRenderers(m_CogDropPreviewRendererMap, m_ShaderProgramMap, true);
 
     m_TextProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
         .m_VertexPath = "shaders/BoxVertex.glsl",
@@ -104,22 +106,6 @@ void xg::BreadRenderer::Load()
     m_CogNodeRenderer->AddNode(glm::ivec2(8, 1), glm::ivec2(7, 0));
 }
 
-void xg::BreadRenderer::AddRenderable(
-    const xg::RenderableDescriptor& renderableDescriptor,
-    const glm::ivec2& position,
-    const xc::Rotation90 rotation)
-{
-    auto* renderer = m_CogRendererMap.Get(renderableDescriptor);
-    if (!renderer)
-    {
-        printf("Could not find renderer for resource with id '%s' mode %d",
-            renderableDescriptor.m_ResourceId.GetName(),
-            renderableDescriptor.m_Mode);
-        return;
-    }
-    renderer->AddRenderable(position, rotation);
-}
-
 void xg::BreadRenderer::Update(const flecs::world& world)
 {
     const bool anyOnStageChanges =
@@ -162,7 +148,7 @@ void xg::BreadRenderer::Update(const flecs::world& world)
 
             m_CogBoxRenderer->AddBox(cogComponent.m_Position, cogComponent.m_Position + cogExtents);
 
-            xg::RenderableAdder renderableAdder(*this);
+            xg::RenderableAdder renderableAdder("Cog", m_CogRendererMap);
             cog->AddStaticRenderables(cogComponent.m_Position, cogComponent.m_Rotation, renderableAdder);
         });
     }
