@@ -45,7 +45,7 @@ void xg::BreadRenderer::Load()
 {
     xg::RegisterCogRenderers(m_CogRendererMap, m_ShaderProgramMap, false);
     xg::RegisterCogRenderers(m_CogPreviewRendererMap, m_ShaderProgramMap, false);
-    xg::RegisterCogRenderers(m_CogDropPreviewRendererMap, m_ShaderProgramMap, true);
+    xg::RegisterCogRenderers(m_CogPreviewDropRendererMap, m_ShaderProgramMap, true);
 
     m_TextProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
         .m_VertexPath = "shaders/BoxVertex.glsl",
@@ -173,6 +173,10 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
     const auto& previewAddingCog = world.get<xg::UIPreviewAddingCogComponent>();
     const bool dragValid = world.get<xg::UIDragValidComponent>().m_Valid;
     m_CogBoxPreviewDropRenderer->RemoveAll();
+    for (auto& pair : m_CogPreviewDropRendererMap.GetMap())
+    {
+        pair.second->RemoveAll();
+    }
     if (dragValid)
     {
         world.each([&](const xg::UIDragPreviewComponent& dragPreview)
@@ -194,19 +198,32 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
                 const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
                 const glm::mat4 previewCameraView = glm::lookAt(cameraPos, cameraTarget, cameraUp);
-                m_CogBoxPreviewDropRenderer->Draw(camera.m_Projection * previewCameraView, camera.m_Feather);
+                const glm::mat4 previewViewProjection = camera.m_Projection * previewCameraView;
+                m_CogBoxPreviewDropRenderer->Draw(previewViewProjection, camera.m_Feather);
+
+                xg::RenderableAdder renderableAdder("CogPreview", m_CogPreviewDropRendererMap);
+                cog->AddStaticRenderables(glm::ivec2(0, 0), dragPreview.m_Rotation, renderableAdder);
+
+                for (auto& pair : m_CogPreviewDropRendererMap.GetMap())
+                {
+                    pair.second->Draw(previewViewProjection, camera.m_Feather);
+                }
             });
     }
 
     m_CogBoxPreviewRenderer->SetColor(glm::vec3(dragValid ? 0.f : 1.f, 0.f, 0.f));
     m_CogBoxPreviewRenderer->RemoveAll();
+    for (auto& pair : m_CogPreviewRendererMap.GetMap())
+    {
+        pair.second->RemoveAll();
+    }
     world.each([&](const xg::UIDragPreviewComponent& dragPreview)
         {
             const xg::CogPrototype* cog = cogMap.Get(dragPreview.m_CogId);
             glm::ivec2 cogExtents = cog->GetSize() - glm::ivec2(1, 1);
             cogExtents = dragPreview.m_Rotation.GetIMatrix() * cogExtents;
 
-            m_CogBoxPreviewRenderer->AddBox(glm::vec2(0, 0), cogExtents);
+            m_CogBoxPreviewRenderer->AddBox(glm::ivec2(0, 0), cogExtents);
 
             glm::vec2 offset(0.f, 0.f);
             if (world.get<xg::UIPreviewAddingCogComponent>().m_HoverCogId)
@@ -222,7 +239,16 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
             const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
             const glm::mat4 previewCameraView = glm::lookAt(cameraPos, cameraTarget, cameraUp);
-            m_CogBoxPreviewRenderer->Draw(camera.m_Projection * previewCameraView, camera.m_Feather);
+            const glm::mat4 previewViewProjection = camera.m_Projection * previewCameraView;
+            m_CogBoxPreviewRenderer->Draw(previewViewProjection, camera.m_Feather);
+
+            xg::RenderableAdder renderableAdder("CogPreview", m_CogPreviewRendererMap);
+            cog->AddStaticRenderables(glm::ivec2(0, 0), dragPreview.m_Rotation, renderableAdder);
+
+            for (auto& pair : m_CogPreviewRendererMap.GetMap())
+            {
+                pair.second->Draw(previewViewProjection, camera.m_Feather);
+            }
         });
 
     m_CogNodeRenderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);

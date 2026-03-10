@@ -45,7 +45,7 @@ namespace xg
         xg::ShaderProgramMap m_ShaderProgramMap;
         xg::RendererMap m_CogRendererMap;
         xg::RendererMap m_CogPreviewRendererMap;
-        xg::RendererMap m_CogDropPreviewRendererMap;
+        xg::RendererMap m_CogPreviewDropRendererMap;
 
         std::unique_ptr<xc::Font> m_Font;
         std::unique_ptr<xg::TextRenderer> m_TextRenderer;

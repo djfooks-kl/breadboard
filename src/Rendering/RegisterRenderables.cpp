@@ -27,7 +27,7 @@ namespace
     }
 }
 
-void xg::RegisterCogRenderers(xg::RendererMap& map, xg::ShaderProgramMap& shaderProgramMap, bool isPreview)
+void xg::RegisterCogRenderers(xg::RendererMap& map, xg::ShaderProgramMap& shaderProgramMap, bool isDropPreview)
 {
     RegisterShaderProgram(shaderProgramMap, s_ShaderBatteryIcon, xc::ShaderProgramOptions{
         .m_VertexPath = "shaders/IconVertex.glsl",
@@ -36,7 +36,7 @@ void xg::RegisterCogRenderers(xg::RendererMap& map, xg::ShaderProgramMap& shader
     {
         std::unique_ptr<xg::GridIconRenderer> renderer = std::make_unique<xg::GridIconRenderer>(shaderProgramMap.at(s_ShaderBatteryIcon));
         renderer->SetIconSize(1.f);
-        if (isPreview)
+        if (isDropPreview)
             renderer->SetColor(glm::vec3(0.5f, 0.5f, 0.5f));
         map.Register(s_RenderableBatteryIcon, std::move(renderer));
     }

@@ -47,6 +47,7 @@ namespace xg
         GLint m_ViewProjectionUniform = -1;
         GLint m_FeatherUniform = -1;
         GLint m_IconSizeUniform = -1;
+        GLint m_ColorUniform = -1;
 
         std::vector<int> m_Positions;
         std::vector<int> m_Offsets;

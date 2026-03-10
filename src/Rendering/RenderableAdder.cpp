@@ -18,7 +18,7 @@ void xg::RenderableAdder::Add(
 	auto* renderer = m_RendererMap.Get(renderableResourceId);
 	if (!renderer)
 	{
-		printf("Could not find renderer for resource with id '%s' renderer map name '%s'",
+		printf("Could not find renderer for resource with id '%s' renderer map name '%s'\n",
 			renderableResourceId.GetName(),
 			m_Name);
 		return;

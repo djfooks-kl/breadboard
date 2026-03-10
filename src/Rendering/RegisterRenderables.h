@@ -9,5 +9,5 @@ namespace xg
 
 namespace xg
 {
-	void RegisterCogRenderers(xg::RendererMap& map, xg::ShaderProgramMap& shaderProgramMap, bool isPreview);
+	void RegisterCogRenderers(xg::RendererMap& map, xg::ShaderProgramMap& shaderProgramMap, bool isDropPreview);
 }

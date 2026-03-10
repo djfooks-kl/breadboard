@@ -3,6 +3,7 @@ precision mediump float;
 precision highp int;
 
 uniform float feather;
+uniform vec3 color;
 
 in vec2 vUV;
 in vec3 vColor;
@@ -46,5 +47,5 @@ void main(void)
     alpha = max(alpha, line(vec2( offsetX * 0.5,  bump),    vec2( offsetX * 0.5,  offsetY)));
     alpha = max(alpha, line(vec2( offsetX * 0.5,  offsetY), vec2( offsetX,        offsetY)));
 
-    FragColor = vec4(vColor, alpha);
+    FragColor = vec4(color, alpha);
 }

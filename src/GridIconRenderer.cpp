@@ -33,6 +33,7 @@ xg::GridIconRenderer::GridIconRenderer(const xc::ShaderProgram& program)
     m_ViewProjectionUniform = program.GetUniformLocation("viewProjection");
     m_FeatherUniform = program.GetUniformLocation("feather");
     m_IconSizeUniform = program.GetUniformLocation("iconSize");
+    m_ColorUniform = program.GetUniformLocation("color");
 }
 
 xg::GridIconRenderer::~GridIconRenderer()
@@ -49,7 +50,7 @@ void xg::GridIconRenderer::AddRenderable(
     const glm::ivec2& position,
     const xc::Rotation90 rotation)
 {
-    AddIcon(position, rotation, glm::vec3(0.f, 0.f, 0.f));
+    AddIcon(position, rotation, glm::vec3(1.f, 1.f, 1.f));
 }
 
 void xg::GridIconRenderer::AddIcon(
@@ -184,6 +185,7 @@ void xg::GridIconRenderer::Draw(const glm::mat4& viewProjection, const float fea
     glUniformMatrix4fv(m_ViewProjectionUniform, 1, GL_FALSE, glm::value_ptr(viewProjection));
     glUniform1f(m_FeatherUniform, feather);
     glUniform1f(m_IconSizeUniform, m_IconSize);
+    glUniform3fv(m_ColorUniform, 1, glm::value_ptr(m_Color));
 
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_Indices.size()), GL_UNSIGNED_INT, nullptr);
 }
