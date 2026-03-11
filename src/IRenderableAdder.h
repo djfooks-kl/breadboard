@@ -2,7 +2,7 @@
 
 #include "Rendering/RenderableResourceId.h"
 
-#include <glm/fwd.hpp>
+#include <glm/ext/vector_int2.hpp>
 
 namespace xc
 {
@@ -16,6 +16,7 @@ namespace xg
 		virtual void Add(
 			const xg::RenderableResourceId renderableResourceId,
 			const glm::ivec2& position,
-			const xc::Rotation90 rotation) const = 0;
+			const xc::Rotation90 rotation,
+			const glm::ivec2& infoUV = glm::ivec2(0, 0)) const = 0;
 	};
 }

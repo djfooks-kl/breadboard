@@ -105,10 +105,10 @@ set(source_files
 set(rendering_files
 
     src/Rendering/IRenderer.h
-    src/Rendering/RegisterRenderables.cpp
+    src/Rendering/RegisterRenderers.cpp
+    src/Rendering/RegisterRenderers.h
     src/Rendering/RenderableAdder.cpp
     src/Rendering/RenderableAdder.h
-    src/Rendering/RenderableDescriptor.h
     src/Rendering/RenderableResourceId.h
     src/Rendering/RendererMap.cpp
     src/Rendering/RendererMap.h

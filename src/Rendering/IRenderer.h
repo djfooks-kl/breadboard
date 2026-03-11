@@ -2,10 +2,9 @@
 
 #include <glm/fwd.hpp>
 
-namespace xc
-{
-    class Rotation90;
-}
+#include "Core/Rotation90.h"
+
+typedef unsigned int GLuint;
 
 namespace xg
 {
@@ -15,10 +14,15 @@ namespace xg
 
         virtual void AddRenderable(
             const glm::ivec2& position,
-            const xc::Rotation90 rotation) = 0;
+            const xc::Rotation90 rotation,
+            const glm::ivec2& infoUV) = 0;
 
         virtual void RemoveAll() = 0;
 
-        virtual void Draw(const glm::mat4& viewProjection, const float feather) = 0;
+        virtual void Draw(
+            const glm::mat4& viewProjection,
+            const float feather,
+            const glm::ivec2& infoTextureSize,
+            const GLuint infoTexture) = 0;
     };
 }

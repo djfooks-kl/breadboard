@@ -6,7 +6,7 @@
 #include "CameraComponent.h"
 #include "CogBoxRenderer.h"
 #include "CogComponent.h"
-#include "Rendering/RegisterRenderables.h"
+#include "Rendering/RegisterRenderers.h"
 #include "Rendering/RenderableAdder.h"
 #include "CogNodeRenderer.h"
 #include "Cogs/CogMap.h"
@@ -167,7 +167,7 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
 
     for (auto& pair : m_CogRendererMap.GetMap())
     {
-        pair.second->Draw(camera.m_ViewProjection, camera.m_Feather);
+        pair.second->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
     }
 
     const auto& previewAddingCog = world.get<xg::UIPreviewAddingCogComponent>();
@@ -206,7 +206,7 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
 
                 for (auto& pair : m_CogPreviewDropRendererMap.GetMap())
                 {
-                    pair.second->Draw(previewViewProjection, camera.m_Feather);
+                    pair.second->Draw(previewViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
                 }
             });
     }
@@ -247,7 +247,7 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
 
             for (auto& pair : m_CogPreviewRendererMap.GetMap())
             {
-                pair.second->Draw(previewViewProjection, camera.m_Feather);
+                pair.second->Draw(previewViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
             }
         });
 

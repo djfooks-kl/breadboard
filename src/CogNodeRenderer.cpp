@@ -101,13 +101,21 @@ void xg::CogNodeRenderer::AddNode(
     m_BuffersDirty = true;
 }
 
-void xg::CogNodeRenderer::RemoveAllNodes()
+void xg::CogNodeRenderer::RemoveAll()
 {
     m_Positions.clear();
     m_Circles.clear();
     m_WireUVs.clear();
     m_Indices.clear();
     m_BuffersDirty = true;
+}
+
+void xg::CogNodeRenderer::AddRenderable(
+    const glm::ivec2& position,
+    const xc::Rotation90,
+    const glm::ivec2& infoUV)
+{
+    AddNode(position, infoUV);
 }
 
 void xg::CogNodeRenderer::Draw(

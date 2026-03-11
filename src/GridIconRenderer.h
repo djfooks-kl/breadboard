@@ -25,11 +25,16 @@ namespace xg
 
         void AddRenderable(
             const glm::ivec2& position,
-            const xc::Rotation90 rotation) override;
+            const xc::Rotation90 rotation,
+            const glm::ivec2& infoUV) override;
 
         void RemoveAll() override;
 
-        void Draw(const glm::mat4& viewProjection, const float feather) override;
+        void Draw(
+            const glm::mat4& viewProjection,
+            const float feather,
+            const glm::ivec2& infoTextureSize,
+            const GLuint infoTexture) override;
 
         void SetIconSize(const float v) { m_IconSize = v; }
         void SetColor(const glm::vec3& v) { m_Color = v; }

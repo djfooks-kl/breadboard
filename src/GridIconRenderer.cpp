@@ -48,7 +48,8 @@ xg::GridIconRenderer::~GridIconRenderer()
 
 void xg::GridIconRenderer::AddRenderable(
     const glm::ivec2& position,
-    const xc::Rotation90 rotation)
+    const xc::Rotation90 rotation,
+    const glm::ivec2&)
 {
     AddIcon(position, rotation, glm::vec3(1.f, 1.f, 1.f));
 }
@@ -135,7 +136,11 @@ void xg::GridIconRenderer::RemoveAll()
     m_BuffersDirty = true;
 }
 
-void xg::GridIconRenderer::Draw(const glm::mat4& viewProjection, const float feather)
+void xg::GridIconRenderer::Draw(
+    const glm::mat4& viewProjection,
+    const float feather,
+    const glm::ivec2& /*infoTextureSize*/,
+    const GLuint /*infoTexture*/)
 {
     if (m_Positions.empty())
     {

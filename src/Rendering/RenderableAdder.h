@@ -13,7 +13,8 @@ namespace xg
 		void Add(
 			const xg::RenderableResourceId renderableResourceId,
 			const glm::ivec2& position,
-			const xc::Rotation90 rotation) const override;
+			const xc::Rotation90 rotation,
+			const glm::ivec2& infoUV) const override;
 
 	private:
 		const char* m_Name;

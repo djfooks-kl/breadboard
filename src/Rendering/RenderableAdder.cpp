@@ -13,7 +13,8 @@ xg::RenderableAdder::RenderableAdder(const char* name, xg::RendererMap& renderer
 void xg::RenderableAdder::Add(
 	const xg::RenderableResourceId renderableResourceId,
 	const glm::ivec2& position,
-	const xc::Rotation90 rotation) const
+	const xc::Rotation90 rotation,
+	const glm::ivec2& infoUV) const
 {
 	auto* renderer = m_RendererMap.Get(renderableResourceId);
 	if (!renderer)
@@ -23,5 +24,5 @@ void xg::RenderableAdder::Add(
 			m_Name);
 		return;
 	}
-	renderer->AddRenderable(position, rotation);
+	renderer->AddRenderable(position, rotation, infoUV);
 }
