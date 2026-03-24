@@ -26,6 +26,7 @@ namespace xg
         void AddRenderable(
             const glm::ivec2& position,
             const xc::Rotation90 rotation,
+            const int flags,
             const glm::ivec2& infoUV) override;
 
         void RemoveAll() override;

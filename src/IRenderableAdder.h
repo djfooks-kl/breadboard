@@ -17,6 +17,7 @@ namespace xg
 			const xg::RenderableResourceId renderableResourceId,
 			const glm::ivec2& position,
 			const xc::Rotation90 rotation,
+			const int flags = 0,
 			const glm::ivec2& infoUV = glm::ivec2(0, 0)) const = 0;
 	};
 }

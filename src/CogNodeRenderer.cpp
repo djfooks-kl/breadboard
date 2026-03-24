@@ -113,6 +113,7 @@ void xg::CogNodeRenderer::RemoveAll()
 void xg::CogNodeRenderer::AddRenderable(
     const glm::ivec2& position,
     const xc::Rotation90,
+    const int /*flags*/,
     const glm::ivec2& infoUV)
 {
     AddNode(position, infoUV);

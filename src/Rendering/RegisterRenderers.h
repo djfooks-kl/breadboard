@@ -9,5 +9,12 @@ namespace xg
 
 namespace xg
 {
-	void RegisterCogRenderers(xg::RendererMap& map, xg::ShaderProgramMap& shaderProgramMap, bool isDropPreview);
+	enum class ERenderingMode
+	{
+		Normal,
+		Preview,
+		DropPreview
+	};
+
+	void RegisterCogRenderers(xg::RendererMap& map, xg::ShaderProgramMap& shaderProgramMap, xg::ERenderingMode mode);
 }

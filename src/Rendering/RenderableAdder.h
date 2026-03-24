@@ -14,6 +14,7 @@ namespace xg
 			const xg::RenderableResourceId renderableResourceId,
 			const glm::ivec2& position,
 			const xc::Rotation90 rotation,
+			const int flags,
 			const glm::ivec2& infoUV) const override;
 
 	private:

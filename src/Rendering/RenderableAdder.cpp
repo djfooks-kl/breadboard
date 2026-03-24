@@ -14,6 +14,7 @@ void xg::RenderableAdder::Add(
 	const xg::RenderableResourceId renderableResourceId,
 	const glm::ivec2& position,
 	const xc::Rotation90 rotation,
+	const int flags,
 	const glm::ivec2& infoUV) const
 {
 	auto* renderer = m_RendererMap.Get(renderableResourceId);
@@ -24,5 +25,5 @@ void xg::RenderableAdder::Add(
 			m_Name);
 		return;
 	}
-	renderer->AddRenderable(position, rotation, infoUV);
+	renderer->AddRenderable(position, rotation, flags, infoUV);
 }

@@ -43,9 +43,9 @@ xg::BreadRenderer::~BreadRenderer()
 
 void xg::BreadRenderer::Load()
 {
-    xg::RegisterCogRenderers(m_CogRendererMap, m_ShaderProgramMap, false);
-    xg::RegisterCogRenderers(m_CogPreviewRendererMap, m_ShaderProgramMap, false);
-    xg::RegisterCogRenderers(m_CogPreviewDropRendererMap, m_ShaderProgramMap, true);
+    xg::RegisterCogRenderers(m_CogRendererMap, m_ShaderProgramMap, xg::ERenderingMode::Normal);
+    xg::RegisterCogRenderers(m_CogPreviewRendererMap, m_ShaderProgramMap, xg::ERenderingMode::Preview);
+    xg::RegisterCogRenderers(m_CogPreviewDropRendererMap, m_ShaderProgramMap, xg::ERenderingMode::DropPreview);
 
     m_TextProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
         .m_VertexPath = "shaders/BoxVertex.glsl",

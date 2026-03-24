@@ -15,6 +15,7 @@ namespace xg
         virtual void AddRenderable(
             const glm::ivec2& position,
             const xc::Rotation90 rotation,
+            const int flags,
             const glm::ivec2& infoUV) = 0;
 
         virtual void RemoveAll() = 0;

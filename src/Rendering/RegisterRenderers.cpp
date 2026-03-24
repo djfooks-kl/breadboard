@@ -7,6 +7,7 @@
 #include "RendererMap.h"
 #include "GridIconRenderer.h"
 #include "CogNodeRenderer.h"
+#include "SwitchRenderer.h"
 
 namespace
 {
@@ -17,6 +18,8 @@ namespace
     static const xg::RenderableResourceId s_RenderableInputCogNode = xg::RenderableResourceId::Create("InputCogNode");
     static const xg::RenderableResourceId s_RenderableOutputCogNode = xg::RenderableResourceId::Create("OutputCogNode");
 
+    static const xg::ShaderProgramResourceId s_ShaderSwitch = xg::ShaderProgramResourceId::Create("Switch");
+    static const xg::RenderableResourceId s_RenderableSwitch = xg::RenderableResourceId::Create("Switch");
 
     void RegisterShaderProgram(
         xg::ShaderProgramMap& inout_shaderProgramMap,
@@ -32,7 +35,7 @@ namespace
     }
 }
 
-void xg::RegisterCogRenderers(xg::RendererMap& map, xg::ShaderProgramMap& shaderProgramMap, bool isDropPreview)
+void xg::RegisterCogRenderers(xg::RendererMap& map, xg::ShaderProgramMap& shaderProgramMap, xg::ERenderingMode mode)
 {
     RegisterShaderProgram(shaderProgramMap, s_ShaderBatteryIcon, xc::ShaderProgramOptions{
         .m_VertexPath = "shaders/IconVertex.glsl",
@@ -41,7 +44,7 @@ void xg::RegisterCogRenderers(xg::RendererMap& map, xg::ShaderProgramMap& shader
     {
         std::unique_ptr<xg::GridIconRenderer> renderer = std::make_unique<xg::GridIconRenderer>(shaderProgramMap.at(s_ShaderBatteryIcon));
         renderer->SetIconSize(1.f);
-        if (isDropPreview)
+        if (mode == ERenderingMode::DropPreview)
             renderer->SetColor(glm::vec3(0.5f, 0.5f, 0.5f));
         map.Register(s_RenderableBatteryIcon, std::move(renderer));
     }
@@ -54,7 +57,7 @@ void xg::RegisterCogRenderers(xg::RendererMap& map, xg::ShaderProgramMap& shader
         std::unique_ptr<xg::CogNodeRenderer> renderer = std::make_unique<xg::CogNodeRenderer>(shaderProgramMap.at(s_ShaderCogNode));
         renderer->SetRingColor(glm::vec3(0.f, 1.f, 0.f));
         renderer->SetRadius(0.7f);
-        if (isDropPreview)
+        if (mode == ERenderingMode::DropPreview)
             renderer->SetRingColor(glm::vec3(0.5f, 0.5f, 0.5f));
         map.Register(s_RenderableInputCogNode, std::move(renderer));
     }
@@ -62,8 +65,22 @@ void xg::RegisterCogRenderers(xg::RendererMap& map, xg::ShaderProgramMap& shader
         std::unique_ptr<xg::CogNodeRenderer> renderer = std::make_unique<xg::CogNodeRenderer>(shaderProgramMap.at(s_ShaderCogNode));
         renderer->SetRingColor(glm::vec3(0.f, 0.f, 0.f));
         renderer->SetRadius(0.7f);
-        if (isDropPreview)
+        if (mode == ERenderingMode::DropPreview)
             renderer->SetRingColor(glm::vec3(0.5f, 0.5f, 0.5f));
         map.Register(s_RenderableOutputCogNode, std::move(renderer));
+    }
+
+    RegisterShaderProgram(shaderProgramMap, s_ShaderSwitch, xc::ShaderProgramOptions{
+        .m_VertexPath = "shaders/SwitchVertex.glsl",
+        .m_FragmentPath = "shaders/SwitchFragment.glsl" });
+
+    {
+        std::unique_ptr<xg::SwitchRenderer> renderer = std::make_unique<xg::SwitchRenderer>(shaderProgramMap.at(s_ShaderSwitch));
+        if (mode == ERenderingMode::DropPreview)
+        {
+            renderer->SetColor(glm::vec3(0.5f, 0.5f, 0.5f));
+        }
+        renderer->SetHasInfoTexture(mode == ERenderingMode::Normal);
+        map.Register(s_RenderableSwitch, std::move(renderer));
     }
 }

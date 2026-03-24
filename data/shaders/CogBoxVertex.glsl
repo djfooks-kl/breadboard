@@ -15,7 +15,7 @@ void main()
     vP1 = p1;
     vP2 = p2;
 
-    vec2 p = mix(p1 - vec2(1.5, 1.5), p2 + vec2(1.5, 1.5), textureUV);
+    vec2 p = mix(p1 - vec2(1.0, 1.0), p2 + vec2(1.0, 1.0), textureUV);
     vWorldPos = p;
     gl_Position = viewProjection * vec4(p, 0.0, 1.0);
 }

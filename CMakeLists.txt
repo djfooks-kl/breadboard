@@ -78,6 +78,8 @@ set(source_files
     src/OnStageRemovedComponent.h
     src/OnStageSystem.cpp
     src/OnStageSystem.h
+    src/SwitchRenderer.cpp
+    src/SwitchRenderer.h
     src/TextRenderer.cpp
     src/TextRenderer.h
     src/UI.cpp
@@ -157,7 +159,7 @@ list(APPEND source_files ${core_files})
 source_group("Core" FILES ${core_files})
 
 list(APPEND source_files ${rendering_files})
-source_group("Command" FILES ${rendering_files})
+source_group("Rendering" FILES ${rendering_files})
 
 list(APPEND source_files ${cog_files})
 source_group("Cogs" FILES ${cog_files})
