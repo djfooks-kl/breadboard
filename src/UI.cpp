@@ -93,7 +93,9 @@ void xg::UI::DrawComponentMenu(flecs::world& world)
     bool openning = false;
     if (!ImGui::IsPopupOpen("LeftClickPopup") &&
         ImGui::IsMouseClicked(ImGuiMouseButton_Left) &&
-        !ImGui::IsAnyItemHovered())
+        !ImGui::IsAnyItemHovered() &&
+        !ImGui::IsWindowHovered() &&
+        !io.WantCaptureMouse)
     {
         ImGui::OpenPopup("LeftClickPopup");
         openning = true;
