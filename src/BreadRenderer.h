@@ -43,9 +43,10 @@ namespace xg
 
     private:
         xg::ShaderProgramMap m_ShaderProgramMap;
-        xg::RendererMap m_CogRendererMap;
-        xg::RendererMap m_CogPreviewRendererMap;
-        xg::RendererMap m_CogPreviewDropRendererMap;
+        xg::CogRendererMap m_CogRendererMap;
+        xg::CogRendererMap m_CogPreviewRendererMap;
+        xg::CogRendererMap m_CogPreviewDropRendererMap;
+        xg::WireRendererMap m_WireRendererMap;
 
         std::unique_ptr<xc::Font> m_Font;
         std::unique_ptr<xg::TextRenderer> m_TextRenderer;

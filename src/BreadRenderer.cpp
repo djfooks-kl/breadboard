@@ -47,6 +47,8 @@ void xg::BreadRenderer::Load()
     xg::RegisterCogRenderers(m_CogPreviewRendererMap, m_ShaderProgramMap, xg::ERenderingMode::Preview);
     xg::RegisterCogRenderers(m_CogPreviewDropRendererMap, m_ShaderProgramMap, xg::ERenderingMode::DropPreview);
 
+    xg::RegisterWireRenderers(m_WireRendererMap, m_ShaderProgramMap, xg::ERenderingMode::Normal);
+
     m_TextProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
         .m_VertexPath = "shaders/BoxVertex.glsl",
         .m_FragmentPath = "shaders/TextFragment.glsl" });
@@ -104,6 +106,12 @@ void xg::BreadRenderer::Load()
     m_CogNodeRenderer->AddNode(glm::ivec2(6, 1), glm::ivec2(5, 0));
     m_CogNodeRenderer->AddNode(glm::ivec2(7, 1), glm::ivec2(6, 0));
     m_CogNodeRenderer->AddNode(glm::ivec2(8, 1), glm::ivec2(7, 0));
+
+    /*m_WireRendererMap.Get(s_RenderableWireCircleTop)->AddWireEnd(glm::ivec2(1, 2), glm::ivec2(0, 0));
+    m_WireRendererMap.Get(s_RenderableWireCircleBottom)->AddWireEnd(glm::ivec2(1, 2), glm::ivec2(0, 0));
+    m_WireRendererMap.Get(s_RenderableWire)->AddWire(glm::ivec2(1, 2), glm::ivec2(5, 2), glm::ivec2(0, 0));
+    m_WireRendererMap.Get(s_RenderableWireCircleTop)->AddWireEnd(glm::ivec2(5, 2), glm::ivec2(5, 0));
+    m_WireRendererMap.Get(s_RenderableWireCircleBottom)->AddWireEnd(glm::ivec2(5, 2), glm::ivec2(5, 0));*/
 }
 
 void xg::BreadRenderer::Update(const flecs::world& world)
@@ -132,9 +140,9 @@ void xg::BreadRenderer::Update(const flecs::world& world)
     if (anyOnStageChanges)
     {
         m_CogBoxRenderer->RemoveAll();
-        for (auto& pair : m_CogRendererMap.GetMap())
+        for (xg::IRenderer* renderer : m_CogRendererMap.GetOrder())
         {
-            pair.second->RemoveAll();
+            renderer->RemoveAll();
         }
 
         const auto& cogMap = world.get<xg::CogMap>();
@@ -164,18 +172,17 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
     m_GridRenderer->Draw(camera.m_ViewProjection, camera.m_InvViewProjection, gridSize, camera.m_Feather);
 
     m_CogBoxRenderer->Draw(camera.m_ViewProjection, camera.m_Feather);
-
-    for (auto& pair : m_CogRendererMap.GetMap())
+    for (xg::IRenderer* renderer : m_CogRendererMap.GetOrder())
     {
-        pair.second->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
+        renderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
     }
 
     const auto& previewAddingCog = world.get<xg::UIPreviewAddingCogComponent>();
     const bool dragValid = world.get<xg::UIDragValidComponent>().m_Valid;
     m_CogBoxPreviewDropRenderer->RemoveAll();
-    for (auto& pair : m_CogPreviewDropRendererMap.GetMap())
+    for (xg::IRenderer* renderer : m_CogPreviewDropRendererMap.GetOrder())
     {
-        pair.second->RemoveAll();
+        renderer->RemoveAll();
     }
     if (dragValid)
     {
@@ -204,18 +211,19 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
                 xg::RenderableAdder renderableAdder("CogPreview", m_CogPreviewDropRendererMap);
                 cog->AddStaticRenderables(glm::ivec2(0, 0), dragPreview.m_Rotation, renderableAdder);
 
-                for (auto& pair : m_CogPreviewDropRendererMap.GetMap())
+                for (xg::IRenderer* renderer : m_CogPreviewDropRendererMap.GetOrder())
                 {
-                    pair.second->Draw(previewViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
+                    renderer->Draw(previewViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
                 }
             });
     }
 
     m_CogBoxPreviewRenderer->SetColor(glm::vec3(dragValid ? 0.f : 1.f, 0.f, 0.f));
     m_CogBoxPreviewRenderer->RemoveAll();
-    for (auto& pair : m_CogPreviewRendererMap.GetMap())
+
+    for (xg::IRenderer* renderer : m_CogPreviewRendererMap.GetOrder())
     {
-        pair.second->RemoveAll();
+        renderer->RemoveAll();
     }
     world.each([&](const xg::UIDragPreviewComponent& dragPreview)
         {
@@ -245,9 +253,9 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
             xg::RenderableAdder renderableAdder("CogPreview", m_CogPreviewRendererMap);
             cog->AddStaticRenderables(glm::ivec2(0, 0), dragPreview.m_Rotation, renderableAdder);
 
-            for (auto& pair : m_CogPreviewRendererMap.GetMap())
+            for (xg::IRenderer* renderer : m_CogPreviewRendererMap.GetOrder())
             {
-                pair.second->Draw(previewViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
+                renderer->Draw(previewViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
             }
         });
 

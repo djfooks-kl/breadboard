@@ -1,11 +1,7 @@
 #pragma once
 
+#include "Rendering/RendererMap.h"
 #include "ShaderProgramMap.h"
-
-namespace xg
-{
-	struct RendererMap;
-}
 
 namespace xg
 {
@@ -13,8 +9,11 @@ namespace xg
 	{
 		Normal,
 		Preview,
+		PreviewInvalid,
 		DropPreview
 	};
 
-	void RegisterCogRenderers(xg::RendererMap& map, xg::ShaderProgramMap& shaderProgramMap, xg::ERenderingMode mode);
+	void RegisterCogRenderers(xg::CogRendererMap& map, xg::ShaderProgramMap& shaderProgramMap, xg::ERenderingMode mode);
+
+	void RegisterWireRenderers(xg::WireRendererMap& map, xg::ShaderProgramMap& shaderProgramMap, xg::ERenderingMode mode);
 }

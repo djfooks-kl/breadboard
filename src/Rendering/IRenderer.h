@@ -25,5 +25,7 @@ namespace xg
             const float feather,
             const glm::ivec2& infoTextureSize,
             const GLuint infoTexture) = 0;
+
+        virtual float GetHeight() { return 0.f; }
     };
 }

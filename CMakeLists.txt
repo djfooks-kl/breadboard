@@ -243,6 +243,7 @@ if (NOT EMSCRIPTEN)
         src/ut/CommandListSystemTest.cpp
         src/ut/GridAttachmentSystemTest.cpp
         src/ut/OnStageSystemTest.cpp
+        src/ut/RendererMapTest.cpp
         src/ut/ResourceIdTest.cpp
         src/ut/ResultTest.cpp
         src/ut/Rotation90Test.cpp

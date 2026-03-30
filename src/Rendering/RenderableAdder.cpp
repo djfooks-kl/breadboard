@@ -4,7 +4,7 @@
 #include "Rendering/RenderableResourceId.h"
 #include "Rendering/RendererMap.h"
 
-xg::RenderableAdder::RenderableAdder(const char* name, xg::RendererMap& rendererMap)
+xg::RenderableAdder::RenderableAdder(const char* name, xg::CogRendererMap& rendererMap)
 	: m_Name(name)
 	, m_RendererMap(rendererMap)
 {

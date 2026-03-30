@@ -8,7 +8,7 @@ namespace xg
 	class RenderableAdder : public xg::IRenderableAdder
 	{
 	public:
-		RenderableAdder(const char* name, xg::RendererMap& rendererMap);
+		RenderableAdder(const char* name, xg::CogRendererMap& rendererMap);
 
 		void Add(
 			const xg::RenderableResourceId renderableResourceId,
@@ -19,6 +19,6 @@ namespace xg
 
 	private:
 		const char* m_Name;
-		xg::RendererMap& m_RendererMap;
+		xg::CogRendererMap& m_RendererMap;
 	};
 }

@@ -12,7 +12,7 @@ namespace
     constexpr GLuint s_AttributePosition = 0;
     constexpr GLuint s_AttributeOffset = 1;
     constexpr GLuint s_AttributeTextureUV = 2;
-    constexpr GLuint s_AttributeColor = 3 ;
+    constexpr GLuint s_AttributeColor = 3;
 
     template<typename TDATA>
     GLuint TryCreateAndBindBuffer(const GLenum target, const std::vector<TDATA>& data, GLuint buffer)
@@ -131,6 +131,7 @@ void xg::GridIconRenderer::AddIcon(
 void xg::GridIconRenderer::RemoveAll()
 {
     m_Positions.clear();
+    m_Offsets.clear();
     m_TextureUV.clear();
     m_Colors.clear();
     m_Indices.clear();

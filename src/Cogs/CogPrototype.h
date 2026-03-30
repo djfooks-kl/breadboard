@@ -17,12 +17,12 @@ namespace xg
 
         virtual glm::ivec2 GetSize() const = 0;
 
-        virtual const std::vector<glm::ivec2>& GetWireNodes() const = 0;
+        virtual const std::vector<glm::ivec2>& GetWireNodes() const;
 
         virtual void AddStaticRenderables(
             const glm::ivec2& position,
             const xc::Rotation90 rotation,
-            const xg::IRenderableAdder& renderableAdder) const = 0;
+            const xg::IRenderableAdder& renderableAdder) const;
     };
 }
 
