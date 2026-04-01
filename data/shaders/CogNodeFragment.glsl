@@ -6,7 +6,7 @@ uniform float radius;
 uniform vec3 ringColor;
 
 in vec2 vP;
-in vec2 vCircle;
+in vec2 vNode;
 in float vWireValue;
 out vec4 FragColor;
 
@@ -35,7 +35,7 @@ void main(void) {
     float outerR = outerRadius - feather * 0.5;
     float innerR = innerRadius - feather * 0.5;
 
-    vec2 offset = vP - vCircle.xy;
+    vec2 offset = vP - vNode.xy;
     float d = length(offset);
 
     float alphaBg = 1.0 - ((d - outerR) / feather);
