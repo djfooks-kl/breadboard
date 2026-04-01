@@ -116,6 +116,10 @@ set(rendering_files
     src/Rendering/RendererMap.h
     src/Rendering/ShaderProgramMap.h
     src/Rendering/ShaderProgramResourceId.h
+    src/Rendering/VBOHelpers.cpp
+    src/Rendering/VBOHelpers.h
+    src/Rendering/VertexBufferObject.cpp
+    src/Rendering/VertexBufferObject.h
 )
 
 set(cog_files
