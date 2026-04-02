@@ -3,6 +3,8 @@
 #include <glm/ext/matrix_float4x4.hpp>
 #include <vector>
 
+#include "Rendering/VertexBufferObject.h"
+
 typedef unsigned int GLuint;
 typedef int GLint;
 
@@ -16,7 +18,6 @@ namespace xg
     struct GridRenderer
     {
         GridRenderer(const xc::ShaderProgram& program);
-        ~GridRenderer();
 
         void Draw(
             const glm::mat4& viewProjection,
@@ -26,13 +27,7 @@ namespace xg
 
     private:
         const xc::ShaderProgram& m_Program;
-
-        std::vector<float> m_Positions;
-        std::vector<unsigned int> m_Indices;
-
-        GLuint m_PositionsBuffer = 0;
-        GLuint m_IndicesBuffer = 0;
-        GLuint m_VBO = 0;
+        xg::VertexBufferObject m_VBO;
 
         GLint m_ViewProjectionUniform = -1;
         GLint m_BoxUniform = -1;
