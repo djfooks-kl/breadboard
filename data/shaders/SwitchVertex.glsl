@@ -4,7 +4,7 @@ precision mediump float;
 layout (location = 0) in vec2 baseP;
 layout (location = 1) in vec2 p1;
 layout (location = 2) in vec2 p2;
-layout (location = 3) in vec2 textureUV;
+layout (location = 3) in vec2 uv;
 layout (location = 4) in vec2 wireUV;
 
 out vec3 vBase;
@@ -33,7 +33,7 @@ void main()
     vec2 min = min(min(pBaseMin, p1Min), p2Min);
     vec2 max = max(max(pBaseMax, p1Max), p2Max);
 
-    vec2 p = vec2(mix(min.x, max.x, textureUV.x), mix(min.y, max.y, textureUV.y));
+    vec2 p = vec2(mix(min.x, max.x, uv.x), mix(min.y, max.y, uv.y));
 
     float connected;
     float valueBase;

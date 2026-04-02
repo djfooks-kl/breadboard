@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Rendering/IRenderer.h"
+#include "Rendering/VertexBufferObject.h"
 
 #include <glm/fwd.hpp>
 #include <glm/vec2.hpp>
@@ -20,7 +21,6 @@ namespace xg
     struct SwitchRenderer : public xg::IRenderer
     {
         SwitchRenderer(const xc::ShaderProgram& program);
-        ~SwitchRenderer();
 
         void AddRenderable(
             const glm::ivec2& position,
@@ -47,29 +47,14 @@ namespace xg
 
     private:
         const xc::ShaderProgram& m_Program;
+        xg::VertexBufferObject m_VBO;
+
         glm::vec3 m_Color;
         bool m_HasInfoTexture;
         float m_InnerRadius;
         float m_OuterRadius;
         float m_InnerContactWidth;
         float m_OuterContactWidth;
-
-        std::vector<int> m_BaseP;
-        std::vector<int> m_P1;
-        std::vector<int> m_P2;
-        std::vector<float> m_TextureUV;
-        std::vector<int> m_WireUVs;
-        std::vector<unsigned int> m_Indices;
-
-        GLuint m_BasePBuffer = 0;
-        GLuint m_P1Buffer = 0;
-        GLuint m_P2Buffer = 0;
-        GLuint m_TextureUVBuffer = 0;
-        GLuint m_WireUVBuffer = 0;
-        GLuint m_IndicesBuffer = 0;
-
-        GLuint m_VBO = 0;
-        bool m_BuffersDirty = false;
 
         GLint m_FeatherUniform = -1;
         GLint m_WireTextureSizeUniform = -1;
