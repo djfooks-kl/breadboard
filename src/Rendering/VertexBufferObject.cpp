@@ -82,6 +82,11 @@ void xg::VertexBufferObject::AddFVertexAttribute(const GLuint attributePosition,
     vertexAttribute.m_Data.emplace<std::vector<float>>();
 }
 
+const xg::VertexAttribute& xg::VertexBufferObject::GetVertexAttribute(GLuint attributePosition) const
+{
+    return m_VertexAttributes[attributePosition];
+}
+
 xg::TVertexAttributeBuffer& xg::VertexBufferObject::ModifyVertexAttributeData(GLuint attributePosition)
 {
     m_BuffersDirty = true;

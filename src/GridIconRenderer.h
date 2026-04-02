@@ -7,6 +7,7 @@
 
 #include "Core/Rotation90.h"
 #include "Rendering/IRenderer.h"
+#include "Rendering/VertexBufferObject.h"
 
 typedef int GLint;
 typedef unsigned int GLuint;
@@ -21,7 +22,6 @@ namespace xg
     struct GridIconRenderer : public xg::IRenderer
     {
         GridIconRenderer(const xc::ShaderProgram& program);
-        ~GridIconRenderer() override;
 
         void AddRenderable(
             const glm::ivec2& position,
@@ -47,6 +47,8 @@ namespace xg
 
     private:
         const xc::ShaderProgram& m_Program;
+        xg::VertexBufferObject m_VBO;
+
         float m_IconSize = 1.f;
         glm::vec3 m_Color = glm::vec3(0.f);
 
@@ -54,19 +56,5 @@ namespace xg
         GLint m_FeatherUniform = -1;
         GLint m_IconSizeUniform = -1;
         GLint m_ColorUniform = -1;
-
-        std::vector<int> m_Positions;
-        std::vector<int> m_Offsets;
-        std::vector<int> m_TextureUV;
-        std::vector<float> m_Colors;
-        std::vector<unsigned int> m_Indices;
-
-        GLuint m_PositionsBuffer = 0;
-        GLuint m_OffsetsBuffer = 0;
-        GLuint m_TextureUVBuffer = 0;
-        GLuint m_ColorBuffer = 0;
-        GLuint m_IndicesBuffer = 0;
-        GLuint m_VBO = 0;
-        bool m_BuffersDirty = false;
     };
 }

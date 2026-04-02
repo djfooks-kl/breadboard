@@ -32,9 +32,9 @@ void xg::CogNodeRenderer::AddNode(
     const glm::ivec2& wireUV)
 {
     m_VBO.AddQuad();
-    xg::VBOAddIPosition2D(m_VBO, s_AttributePosition, position);
+    xg::VBOAdd(m_VBO, s_AttributePosition, position);
     xg::VBOAddQuadUV(m_VBO, s_AttributeUV);
-    xg::VBOAddIPosition2D(m_VBO, s_AttributeWireUV, wireUV);
+    xg::VBOAdd(m_VBO, s_AttributeWireUV, wireUV);
 }
 
 void xg::CogNodeRenderer::RemoveAll()

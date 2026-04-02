@@ -37,8 +37,8 @@ void xg::CogBoxRenderer::AddBox(
 
     m_VBO.AddQuad();
     xg::VBOAddQuadUV(m_VBO, s_AttributeTextureUV);
-    xg::VBOAddIPosition2D(m_VBO, s_AttributeP1, min);
-    xg::VBOAddIPosition2D(m_VBO, s_AttributeP2, max);
+    xg::VBOAdd(m_VBO, s_AttributeP1, min);
+    xg::VBOAdd(m_VBO, s_AttributeP2, max);
 }
 
 void xg::CogBoxRenderer::RemoveAll()
