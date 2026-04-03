@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "Rendering/VertexBufferObject.h"
+
 typedef unsigned int GLuint;
 
 namespace xc
@@ -19,7 +21,6 @@ namespace xg
     struct TextRenderer
     {
         TextRenderer(const xc::Font& font, const xc::ShaderProgram& program);
-        ~TextRenderer();
 
         void Draw(const glm::mat4& viewProjection);
 
@@ -41,17 +42,6 @@ namespace xg
 
         const xc::Font& m_Font;
         const xc::ShaderProgram& m_Program;
-
-        std::vector<float> m_Positions;
-        std::vector<float> m_TextureUV;
-        std::vector<float> m_Colors;
-        std::vector<unsigned int> m_Indices;
-
-        GLuint m_PositionsBuffer = 0;
-        GLuint m_TextureUVBuffer = 0;
-        GLuint m_ColorBuffer = 0;
-        GLuint m_IndicesBuffer = 0;
-        GLuint m_VBO = 0;
-        bool m_BuffersDirty = false;
+        xg::VertexBufferObject m_VBO;
     };
 }
