@@ -21,4 +21,5 @@ namespace xg
 	void VBOAdd(xg::VertexBufferObject& vbo, GLuint attributePosition, const glm::vec2& value);
 	void VBOAdd(xg::VertexBufferObject& vbo, GLuint attributePosition, const glm::vec3& value);
 
+	void GLEnableAlphaBlend();
 }

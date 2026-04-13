@@ -4,7 +4,7 @@
 
 #include "Core/GLFWLib.h"
 #include "Core/ShaderProgram.h"
-#include "Rendering/VBOHelpers.h"
+#include "Rendering/RendererHelpers.h"
 
 namespace
 {

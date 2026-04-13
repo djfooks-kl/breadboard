@@ -33,8 +33,6 @@ set(source_files
 
     src/BaseApp.cpp
     src/BaseApp.h
-    src/BoxRenderer.cpp
-    src/BoxRenderer.h
     src/BreadApp.cpp
     src/BreadApp.h
     src/BreadEntityWorld.cpp
@@ -112,12 +110,12 @@ set(rendering_files
     src/Rendering/RenderableAdder.cpp
     src/Rendering/RenderableAdder.h
     src/Rendering/RenderableResourceId.h
+    src/Rendering/RendererHelpers.cpp
+    src/Rendering/RendererHelpers.h
     src/Rendering/RendererMap.cpp
     src/Rendering/RendererMap.h
     src/Rendering/ShaderProgramMap.h
     src/Rendering/ShaderProgramResourceId.h
-    src/Rendering/VBOHelpers.cpp
-    src/Rendering/VBOHelpers.h
     src/Rendering/VertexBufferObject.cpp
     src/Rendering/VertexBufferObject.h
 )

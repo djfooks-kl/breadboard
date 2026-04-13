@@ -5,7 +5,7 @@
 #include "Core/Font.h"
 #include "Core/GLFWLib.h"
 #include "Core/ShaderProgram.h"
-#include "Rendering/VBOHelpers.h"
+#include "Rendering/RendererHelpers.h"
 
 namespace
 {
@@ -118,8 +118,7 @@ void xg::TextRenderer::Draw(const glm::mat4& viewProjection)
     m_VBO.UpdateAndBindBuffers();
 
     glUseProgram(m_Program.GetProgramId());
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
+    xg::GLEnableAlphaBlend();
     glBindTexture(GL_TEXTURE_2D, m_Font.m_GLTexture);
     m_VBO.Bind();
 

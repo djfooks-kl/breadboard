@@ -1,4 +1,4 @@
-#include "VBOHelpers.h"
+#include "RendererHelpers.h"
 
 #include <cassert>
 #include <vector>
@@ -142,4 +142,10 @@ void xg::VBOAdd(xg::VertexBufferObject& vbo, GLuint attributePosition, const glm
 	data.push_back(value.x);
 	data.push_back(value.y);
 	data.push_back(value.z);
+}
+
+void xg::GLEnableAlphaBlend()
+{
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
 }

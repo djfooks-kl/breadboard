@@ -7,7 +7,6 @@
 #include <glm/vec2.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "BoxRenderer.h"
 #include "BreadEntityWorld.h"
 #include "BreadRenderer.h"
 #include "CameraComponent.h"

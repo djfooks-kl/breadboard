@@ -4,7 +4,7 @@
 
 #include "Core/GLFWLib.h"
 #include "Core/ShaderProgram.h"
-#include "Rendering/VBOHelpers.h"
+#include "Rendering/RendererHelpers.h"
 
 namespace
 {
@@ -68,8 +68,7 @@ void xg::GridIconRenderer::Draw(
     m_VBO.UpdateAndBindBuffers();
 
     glUseProgram(m_Program.GetProgramId());
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
+    xg::GLEnableAlphaBlend();
     m_VBO.Bind();
 
     glUniformMatrix4fv(m_ViewProjectionUniform, 1, GL_FALSE, glm::value_ptr(viewProjection));
