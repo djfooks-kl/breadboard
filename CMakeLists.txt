@@ -99,6 +99,8 @@ set(source_files
     src/WindowSizeComponent.h
     src/WindowSizeSystem.cpp
     src/WindowSizeSystem.h
+    src/WireEndRenderer.cpp
+    src/WireEndRenderer.h
     src/WorldMouseComponent.h
 )
 

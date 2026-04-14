@@ -25,6 +25,13 @@
 #include "UIPreviewAddingCogComponent.h"
 #include "WireTextureSizeComponent.h"
 
+namespace
+{
+    static const xg::RenderableResourceId s_RenderableWireCircleTop = xg::RenderableResourceId::Create("WireCircleTop");
+    static const xg::RenderableResourceId s_RenderableWireCircleBottom = xg::RenderableResourceId::Create("WireCircleBottom");
+    static const xg::RenderableResourceId s_RenderableWire = xg::RenderableResourceId::Create("Wire");
+}
+
 xg::BreadRenderer::BreadRenderer()
 {
 }
@@ -107,11 +114,11 @@ void xg::BreadRenderer::Load()
     m_CogNodeRenderer->AddNode(glm::ivec2(7, 1), glm::ivec2(6, 0));
     m_CogNodeRenderer->AddNode(glm::ivec2(8, 1), glm::ivec2(7, 0));
 
-    /*m_WireRendererMap.Get(s_RenderableWireCircleTop)->AddWireEnd(glm::ivec2(1, 2), glm::ivec2(0, 0));
+    m_WireRendererMap.Get(s_RenderableWireCircleTop)->AddWireEnd(glm::ivec2(1, 2), glm::ivec2(0, 0));
     m_WireRendererMap.Get(s_RenderableWireCircleBottom)->AddWireEnd(glm::ivec2(1, 2), glm::ivec2(0, 0));
-    m_WireRendererMap.Get(s_RenderableWire)->AddWire(glm::ivec2(1, 2), glm::ivec2(5, 2), glm::ivec2(0, 0));
+    //m_WireRendererMap.Get(s_RenderableWire)->AddWire(glm::ivec2(1, 2), glm::ivec2(5, 2), glm::ivec2(0, 0));
     m_WireRendererMap.Get(s_RenderableWireCircleTop)->AddWireEnd(glm::ivec2(5, 2), glm::ivec2(5, 0));
-    m_WireRendererMap.Get(s_RenderableWireCircleBottom)->AddWireEnd(glm::ivec2(5, 2), glm::ivec2(5, 0));*/
+    m_WireRendererMap.Get(s_RenderableWireCircleBottom)->AddWireEnd(glm::ivec2(5, 2), glm::ivec2(5, 0));
 }
 
 void xg::BreadRenderer::Update(const flecs::world& world)
@@ -173,6 +180,10 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
 
     m_CogBoxRenderer->Draw(camera.m_ViewProjection, camera.m_Feather);
     for (xg::IRenderer* renderer : m_CogRendererMap.GetOrder())
+    {
+        renderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
+    }
+    for (xg::IWireRenderer* renderer : m_WireRendererMap.GetOrder())
     {
         renderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
     }

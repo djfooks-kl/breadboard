@@ -2,12 +2,13 @@
 
 #include <memory>
 
-#include "ShaderProgramMap.h"
+#include "CogNodeRenderer.h"
+#include "GridIconRenderer.h"
 #include "RenderableResourceId.h"
 #include "RendererMap.h"
-#include "GridIconRenderer.h"
-#include "CogNodeRenderer.h"
+#include "ShaderProgramMap.h"
 #include "SwitchRenderer.h"
+#include "WireEndRenderer.h"
 
 namespace
 {
@@ -29,6 +30,9 @@ namespace
     static const xg::RenderableResourceId s_RenderableWire = xg::RenderableResourceId::Create("Wire");
 
     constexpr glm::vec3 s_DropPreviewColor(0.5f, 0.5f, 0.5f);
+    constexpr glm::vec3 s_WireFullColor(1.f, 0.53f, 0.53f);
+
+    constexpr float s_WireDotTopHeight = 3.f;
 
     void RegisterShaderProgram(
         xg::ShaderProgramMap& inout_shaderProgramMap,
@@ -90,33 +94,35 @@ void xg::RegisterCogRenderers(xg::CogRendererMap& map, xg::ShaderProgramMap& sha
         renderer->SetHasInfoTexture(mode == ERenderingMode::Normal);
         map.Register(s_RenderableSwitch, std::move(renderer));
     }
+
+    map.SortRenderers();
 }
 
 void xg::RegisterWireRenderers(xg::WireRendererMap& map, xg::ShaderProgramMap& shaderProgramMap, xg::ERenderingMode mode)
 {
-    (void)map;
-    (void)shaderProgramMap;
-    (void)mode;
-    /*RegisterShaderProgram(shaderProgramMap, s_ShaderWireCircle, xc::ShaderProgramOptions{
+    RegisterShaderProgram(shaderProgramMap, s_ShaderWireCircle, xc::ShaderProgramOptions{
         .m_VertexPath = "shaders/WireCircleVertex.glsl",
         .m_FragmentPath = "shaders/WireCircleFragment.glsl" });
 
     {
         std::unique_ptr<xg::WireEndRenderer> renderer = std::make_unique<xg::WireEndRenderer>(shaderProgramMap.at(s_ShaderWireCircle));
-        renderer->SetColor(glm::vec3(1.f, 1.f, 1.f));
-        renderer->SetRadius(0.14f);
+        renderer->SetColorEmpty(glm::vec3(1.f));
+        renderer->SetColorFull(s_WireFullColor);
+        renderer->SetSize(0.14f);
         renderer->SetHasInfoTexture(mode == ERenderingMode::Normal);
+        renderer->SetHeight(s_WireDotTopHeight);
         map.Register(s_RenderableWireCircleTop, std::move(renderer));
     }
     {
         std::unique_ptr<xg::WireEndRenderer> renderer = std::make_unique<xg::WireEndRenderer>(shaderProgramMap.at(s_ShaderWireCircle));
-        renderer->SetColor(glm::vec3(0.f, 0.f, 0.f));
-        renderer->SetRadius(0.19f);
+        renderer->SetColorEmpty(glm::vec3(0.f));
+        renderer->SetColorFull(glm::vec3(0.f));
+        renderer->SetSize(0.19f);
         renderer->SetHasInfoTexture(false);
         map.Register(s_RenderableWireCircleBottom, std::move(renderer));
     }
 
-    RegisterShaderProgram(shaderProgramMap, s_ShaderWire, xc::ShaderProgramOptions{
+    /*RegisterShaderProgram(shaderProgramMap, s_ShaderWire, xc::ShaderProgramOptions{
         .m_VertexPath = "shaders/WireVertex.glsl",
         .m_FragmentPath = "shaders/WireFragment.glsl" });
 
@@ -127,4 +133,6 @@ void xg::RegisterWireRenderers(xg::WireRendererMap& map, xg::ShaderProgramMap& s
         renderer->SetHasInfoTexture(mode == ERenderingMode::Normal);
         map.Register(s_RenderableWire, std::move(renderer));
     }*/
+
+    map.SortRenderers();
 }

@@ -31,6 +31,6 @@ namespace xg
             const glm::ivec2& infoTextureSize,
             const GLuint infoTexture) = 0;
 
-        virtual float GetHeight() { return 0.f; }
+        virtual float GetHeight() const { return 0.f; }
     };
 }
