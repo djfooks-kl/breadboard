@@ -101,6 +101,8 @@ set(source_files
     src/WindowSizeSystem.h
     src/WireEndRenderer.cpp
     src/WireEndRenderer.h
+    src/WireLineRenderer.cpp
+    src/WireLineRenderer.h
     src/WorldMouseComponent.h
 )
 

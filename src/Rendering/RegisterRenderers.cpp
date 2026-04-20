@@ -9,6 +9,7 @@
 #include "ShaderProgramMap.h"
 #include "SwitchRenderer.h"
 #include "WireEndRenderer.h"
+#include "WireLineRenderer.h"
 
 namespace
 {
@@ -32,7 +33,8 @@ namespace
     constexpr glm::vec3 s_DropPreviewColor(0.5f, 0.5f, 0.5f);
     constexpr glm::vec3 s_WireFullColor(1.f, 0.53f, 0.53f);
 
-    constexpr float s_WireDotTopHeight = 3.f;
+    constexpr float s_WireLineHeight = 1.f;
+    constexpr float s_WireDotTopHeight = 2.f;
 
     void RegisterShaderProgram(
         xg::ShaderProgramMap& inout_shaderProgramMap,
@@ -122,17 +124,20 @@ void xg::RegisterWireRenderers(xg::WireRendererMap& map, xg::ShaderProgramMap& s
         map.Register(s_RenderableWireCircleBottom, std::move(renderer));
     }
 
-    /*RegisterShaderProgram(shaderProgramMap, s_ShaderWire, xc::ShaderProgramOptions{
-        .m_VertexPath = "shaders/WireVertex.glsl",
-        .m_FragmentPath = "shaders/WireFragment.glsl" });
+    RegisterShaderProgram(shaderProgramMap, s_ShaderWire, xc::ShaderProgramOptions{
+        .m_VertexPath = "shaders/WireLineVertex.glsl",
+        .m_FragmentPath = "shaders/WireLineFragment.glsl" });
 
     {
-        std::unique_ptr<xg::WireRenderer> renderer = std::make_unique<xg::WireRenderer>(shaderProgramMap.at(s_ShaderWire));
+        std::unique_ptr<xg::WireLineRenderer> renderer = std::make_unique<xg::WireLineRenderer>(shaderProgramMap.at(s_ShaderWire));
+        renderer->SetColorEmpty(glm::vec3(1.f));
+        renderer->SetColorFull(s_WireFullColor);
         if (mode == ERenderingMode::DropPreview)
-            renderer->SetColor(s_DropPreviewColor);
+            renderer->SetColorEmpty(s_DropPreviewColor);
         renderer->SetHasInfoTexture(mode == ERenderingMode::Normal);
+        renderer->SetHeight(s_WireLineHeight);
         map.Register(s_RenderableWire, std::move(renderer));
-    }*/
+    }
 
     map.SortRenderers();
 }

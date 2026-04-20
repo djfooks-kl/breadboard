@@ -116,9 +116,9 @@ void xg::BreadRenderer::Load()
 
     m_WireRendererMap.Get(s_RenderableWireCircleTop)->AddWireEnd(glm::ivec2(1, 2), glm::ivec2(0, 0));
     m_WireRendererMap.Get(s_RenderableWireCircleBottom)->AddWireEnd(glm::ivec2(1, 2), glm::ivec2(0, 0));
-    //m_WireRendererMap.Get(s_RenderableWire)->AddWire(glm::ivec2(1, 2), glm::ivec2(5, 2), glm::ivec2(0, 0));
-    m_WireRendererMap.Get(s_RenderableWireCircleTop)->AddWireEnd(glm::ivec2(5, 2), glm::ivec2(5, 0));
-    m_WireRendererMap.Get(s_RenderableWireCircleBottom)->AddWireEnd(glm::ivec2(5, 2), glm::ivec2(5, 0));
+    m_WireRendererMap.Get(s_RenderableWire)->AddWire(glm::ivec2(1, 2), glm::ivec2(8, 9), glm::ivec2(0, 0));
+    m_WireRendererMap.Get(s_RenderableWireCircleTop)->AddWireEnd(glm::ivec2(8, 9), glm::ivec2(7, 0));
+    m_WireRendererMap.Get(s_RenderableWireCircleBottom)->AddWireEnd(glm::ivec2(8, 9), glm::ivec2(7, 0));
 }
 
 void xg::BreadRenderer::Update(const flecs::world& world)

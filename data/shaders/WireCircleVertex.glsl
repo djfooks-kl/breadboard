@@ -6,11 +6,11 @@ uniform mat4 viewProjection;
 uniform float size;
 uniform vec2 wireTextureSize;
 
+uniform sampler2D wireTexture;
+
 layout (location = 0) in vec2 position;
 layout (location = 1) in vec2 uv;
 layout (location = 2) in vec2 wireUV;
-
-uniform sampler2D wireTexture;
 
 out vec2 vP;
 out vec2 vCircleCenter;
@@ -28,7 +28,7 @@ void main()
     vP = p;
     vCircleCenter = position;
     vUV = uv;
-    vWireValue = texture(wireTexture, (wireUV.xy + vec2(0.5, 0.5)) / wireTextureSize).x;
+    vWireValue = texture(wireTexture, (wireUV + vec2(0.5, 0.5)) / wireTextureSize).x;
 
     vec4 mvPosition = vec4(p, 0.0, 1.0);
     gl_Position = viewProjection * mvPosition;

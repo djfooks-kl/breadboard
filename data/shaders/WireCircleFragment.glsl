@@ -16,8 +16,6 @@ out vec4 FragColor;
 #define SQRT2 1.4142135
 
 void main(void) {
-    //FragColor = vec4(0.9, 0.9, 0.9, 1.0);
-
     vec2 offset1 = vP - vCircleCenter;
     float d = length(offset1);
 

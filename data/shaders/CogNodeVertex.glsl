@@ -24,7 +24,7 @@ void main()
 
     vec2 p = vec2(mix(p1.x, p2.x, uv.x), mix(p1.y, p2.y, uv.y));
 
-    vWireValue = texture(wireTexture, (wireUV.xy + vec2(0.5, 0.5)) / wireTextureSize).x;
+    vWireValue = texture(wireTexture, (wireUV + vec2(0.5, 0.5)) / wireTextureSize).x;
     vP = p;
     vNode = position;
     vec4 mvPosition = vec4(p, 0.0, 1.0);
