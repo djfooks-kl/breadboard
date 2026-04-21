@@ -53,6 +53,7 @@ set(source_files
     src/CogCreatedComponent.h
     src/CogNodeRenderer.cpp
     src/CogNodeRenderer.h
+    src/CogNodesComponent.h
     src/CogSystem.cpp
     src/CogSystem.h
     src/GridAttachmentsComponent.h
@@ -76,6 +77,8 @@ set(source_files
     src/OnStageRemovedComponent.h
     src/OnStageSystem.cpp
     src/OnStageSystem.h
+    src/STDStreamFunctions.cpp
+    src/STDStreamFunctions.h
     src/SwitchRenderer.cpp
     src/SwitchRenderer.h
     src/TextRenderer.cpp
@@ -243,6 +246,8 @@ if (NOT EMSCRIPTEN)
     add_subdirectory(3rdParty/Catch2)
 
     add_executable(BreadTests
+
+        src/ut/BreadTest.h
 
         src/ut/CogSystemTest.cpp
         src/ut/CommandCreateSystemTest.cpp

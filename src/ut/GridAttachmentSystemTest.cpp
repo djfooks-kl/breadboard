@@ -1,4 +1,4 @@
-#include <catch2/catch_test_macros.hpp>
+#include "BreadTest.h"
 #include <flecs/flecs.h>
 
 #include "CogComponent.h"
@@ -17,16 +17,16 @@ namespace
 
     struct Size1Cog final : public xg::CogPrototype
     {
-        virtual xg::CogResourceId GetResourceId() const { return s_Size1Cog; }
+        xg::CogResourceId GetResourceId() const override { return s_Size1Cog; }
 
-        virtual glm::ivec2 GetSize() const { return glm::ivec2(1, 1); }
+        glm::ivec2 GetSize() const override { return glm::ivec2(1, 1); }
     };
 
     struct LongCog final : public xg::CogPrototype
     {
-        virtual xg::CogResourceId GetResourceId() const { return s_LongCog; }
+        xg::CogResourceId GetResourceId() const override { return s_LongCog; }
 
-        virtual glm::ivec2 GetSize() const { return glm::ivec2(2, 3); }
+        glm::ivec2 GetSize() const override { return glm::ivec2(2, 3); }
     };
 
     bool CellOnlyHas(const xg::GridAttachmentsMap& map, const glm::ivec2& p, const flecs::entity entity)

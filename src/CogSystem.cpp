@@ -2,11 +2,13 @@
 
 #include <flecs/flecs.h>
 
+#include "CogComponent.h"
+#include "CogCreatedComponent.h"
+#include "CogNodesComponent.h"
+#include "Cogs/CogMap.h"
 #include "Command/CommandAddCogComponent.h"
 #include "Command/CommandEntityComponent.h"
 #include "Command/CommandExecuteComponent.h"
-#include "CogCreatedComponent.h"
-#include "CogComponent.h"
 
 void xg::CogSystem::Update(flecs::world& world)
 {
@@ -33,6 +35,14 @@ void xg::CogSystem::Update(flecs::world& world)
                 cog.m_CogId = addCog.m_CogId;
                 cog.m_Position = addCog.m_Position;
                 cog.m_Rotation = addCog.m_Rotation;
+
+                auto& cogNodes = cogEntity.ensure<xg::CogNodesComponent>();
+                const xg::CogPrototype* prototype = world.get<const xg::CogMap>().Get(cog.m_CogId);
+                cogNodes.m_Nodes.reserve(prototype->GetWireNodes().size());
+                for (const glm::ivec2& node : prototype->GetWireNodes())
+                {
+                    cogNodes.m_Nodes.push_back(addCog.m_Position + addCog.m_Rotation.GetIMatrix() * node);
+                }
             }
         });
     world.defer_end();
