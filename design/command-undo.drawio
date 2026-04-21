@@ -8,7 +8,7 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="YGHjAvCXZNfqI8ObGLt6-47" value="" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;" parent="1" vertex="1">
-          <mxGeometry x="-90" y="315" width="220" height="200" as="geometry" />
+          <mxGeometry x="-90" y="282.5" width="220" height="265" as="geometry" />
         </mxCell>
         <mxCell id="YGHjAvCXZNfqI8ObGLt6-45" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=0;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;strokeWidth=2;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=classic;" parent="1" source="YGHjAvCXZNfqI8ObGLt6-34" edge="1">
           <mxGeometry relative="1" as="geometry">
@@ -47,13 +47,13 @@
           <mxGeometry x="210" y="390" width="190" height="50" as="geometry" />
         </mxCell>
         <mxCell id="YGHjAvCXZNfqI8ObGLt6-4" value="UIDeleteCogComponent" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
-          <mxGeometry x="-80" y="385" width="200" height="50" as="geometry" />
+          <mxGeometry x="-80" y="352.5" width="200" height="50" as="geometry" />
         </mxCell>
         <mxCell id="YGHjAvCXZNfqI8ObGLt6-7" value="xg::command::DeleteCogComponent" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
           <mxGeometry x="499" y="310" width="230" height="50" as="geometry" />
         </mxCell>
         <mxCell id="YGHjAvCXZNfqI8ObGLt6-8" value="UIAddCogComponent" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
-          <mxGeometry x="-80" y="325" width="200" height="50" as="geometry" />
+          <mxGeometry x="-80" y="292.5" width="200" height="50" as="geometry" />
         </mxCell>
         <mxCell id="YGHjAvCXZNfqI8ObGLt6-12" value="xg::command::ToQueueComponent" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" parent="1" vertex="1">
           <mxGeometry x="500" y="534.5" width="230" height="50" as="geometry" />
@@ -122,8 +122,8 @@
         <mxCell id="YGHjAvCXZNfqI8ObGLt6-36" value="xg::command::...Component" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
           <mxGeometry x="500" y="375" width="230" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="YGHjAvCXZNfqI8ObGLt6-46" value="UI...Component" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
-          <mxGeometry x="-80" y="455" width="200" height="50" as="geometry" />
+        <mxCell id="YGHjAvCXZNfqI8ObGLt6-46" value="UIAddWireComponent" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="-80" y="422.5" width="200" height="50" as="geometry" />
         </mxCell>
         <mxCell id="lIGIKd06vuekioZ7R7uM-3" style="edgeStyle=orthogonalEdgeStyle;shape=connector;curved=0;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;strokeWidth=2;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=classic;" parent="1" source="BByhIp4R-tEHu_aJ17ZC-1" target="YGHjAvCXZNfqI8ObGLt6-3" edge="1">
           <mxGeometry relative="1" as="geometry">
@@ -141,6 +141,9 @@
         </mxCell>
         <mxCell id="ZmIIuqxmaUnPUo76AI51-2" value="xg::command::EntityComponent" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
           <mxGeometry x="500" y="435" width="230" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="8pNKsA2hWMyy1zEb6ZzQ-1" value="UIDeleteWireComponent" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="-80" y="487.5" width="200" height="50" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
