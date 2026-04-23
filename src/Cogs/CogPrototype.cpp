@@ -13,8 +13,7 @@ const std::vector<glm::ivec2>& xg::CogPrototype::GetWireNodes() const
 }
 
 void xg::CogPrototype::AddStaticRenderables(
-    const glm::ivec2& /*position*/,
-    const xc::Rotation90 /*rotation*/,
+    const xc::ITransform& /*transform*/,
     const xg::IRenderableAdder& /*renderableAdder*/) const
 {
 }

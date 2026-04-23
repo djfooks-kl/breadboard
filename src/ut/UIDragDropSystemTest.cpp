@@ -54,7 +54,7 @@ SYSTEM_TEST_CASE("When dropping add a new entity requesting the cog at the given
             CHECK(newEntity != entity);
 
             CHECK(addCog.m_CogId == s_TestCog1);
-            CHECK(addCog.m_Position == glm::ivec2(1, 2));
+            CHECK(addCog.m_Transform == xc::ITransform{ glm::ivec2(1, 2), xc::Rotation90(3) });
         });
 }
 
@@ -81,7 +81,7 @@ SYSTEM_TEST_CASE("After dropping remove the UIAddCogComponent")
             CHECK(newEntity != entity);
 
             CHECK(addCog.m_CogId == s_TestCog1);
-            CHECK(addCog.m_Position == glm::ivec2(1, 2));
+            CHECK(addCog.m_Transform == xc::ITransform{ glm::ivec2(1, 2), xc::Rotation90(3) });
         });
 
     world.get_mut<xg::UIDraggingDropComponent>().m_Drop = false;

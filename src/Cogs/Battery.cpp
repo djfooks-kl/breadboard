@@ -33,10 +33,9 @@ const std::vector<glm::ivec2>& xg::cog::Battery::GetWireNodes() const
 }
 
 void xg::cog::Battery::AddStaticRenderables(
-    const glm::ivec2& position,
-    const xc::Rotation90 rotation,
+    const xc::ITransform& transform,
     const xg::IRenderableAdder& renderableAdder) const
 {
-    renderableAdder.Add(s_RenderableBatteryIcon, position, rotation);
-    renderableAdder.Add(s_RenderableOutputCogNode, position + rotation.GetIMatrix() * glm::ivec2(0, 1), rotation);
+    renderableAdder.Add(s_RenderableBatteryIcon, transform);
+    renderableAdder.Add(s_RenderableOutputCogNode, transform.WithLocalTranslation(glm::ivec2(0, 1)));
 }

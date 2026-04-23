@@ -18,6 +18,8 @@ set(core_files
     src/Core/Font.cpp
     src/Core/Font.h
     src/Core/GLFWLib.h
+    src/Core/ITransform.cpp
+    src/Core/ITransform.h
     src/Core/ResourceId.h
     src/Core/Result.h
     src/Core/Rotation90.cpp

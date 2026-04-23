@@ -33,15 +33,14 @@ void xg::CogSystem::Update(flecs::world& world)
                 cogEntity.add<xg::CogCreatedComponent>();
                 auto& cog = cogEntity.ensure<xg::CogComponent>();
                 cog.m_CogId = addCog.m_CogId;
-                cog.m_Position = addCog.m_Position;
-                cog.m_Rotation = addCog.m_Rotation;
+                cog.m_Transform = addCog.m_Transform;
 
                 auto& cogNodes = cogEntity.ensure<xg::CogNodesComponent>();
                 const xg::CogPrototype* prototype = world.get<const xg::CogMap>().Get(cog.m_CogId);
                 cogNodes.m_Nodes.reserve(prototype->GetWireNodes().size());
                 for (const glm::ivec2& node : prototype->GetWireNodes())
                 {
-                    cogNodes.m_Nodes.push_back(addCog.m_Position + addCog.m_Rotation.GetIMatrix() * node);
+                    cogNodes.m_Nodes.push_back(addCog.m_Transform.Apply(node));
                 }
             }
         });

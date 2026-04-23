@@ -21,10 +21,7 @@ void xg::GridAttachmentSystem::Update(flecs::world& world)
         {
             for (int y = 0; y <= cogPrototype->GetSize().y - 1; ++y)
             {
-                glm::ivec2 offset(x, y);
-                offset = cog->m_Rotation.GetIMatrix() * offset;
-                const glm::ivec2 p = cog->m_Position + offset;
-                map[p].push_back(entity);
+                map[cog->m_Transform.Apply(glm::ivec2(x, y))].push_back(entity);
             }
         }
     }
@@ -38,10 +35,7 @@ void xg::GridAttachmentSystem::Update(flecs::world& world)
         {
             for (int y = 0; y <= cogPrototype->GetSize().y - 1; ++y)
             {
-                glm::ivec2 offset(x, y);
-                offset = cog->m_Rotation.GetIMatrix() * offset;
-                const glm::ivec2 p = cog->m_Position + offset;
-                map.erase(p);
+                map.erase(cog->m_Transform.Apply(glm::ivec2(x, y)));
             }
         }
     }

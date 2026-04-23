@@ -36,8 +36,7 @@ void xg::command::CreateSystem::Update(flecs::world& world)
         {
             auto& addCog = entity.ensure<xg::command::AddCogComponent>();
             addCog.m_CogId = uiAddCog.m_CogId;
-            addCog.m_Position = uiAddCog.m_Position;
-            addCog.m_Rotation = uiAddCog.m_Rotation;
+            addCog.m_Transform = uiAddCog.m_Transform;
 
             flecs::entity addEntity = world.entity();
             entity.ensure<xg::command::EntityComponent>().m_Entity = addEntity;

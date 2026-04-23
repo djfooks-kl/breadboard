@@ -15,7 +15,7 @@ namespace xc
 		Rotation90() = default;
 		Rotation90(int rotationIndex);
 
-		void RotateRight(int rotationIndexOffset);
+		void RotateClockwise(int rotationIndexOffset);
 
 		int GetRotationIndex() const;
 
@@ -23,6 +23,9 @@ namespace xc
 		const glm::mat2x2& GetFMatrix() const;
 
 		const xc::Rotation90UVs& GetUVs() const;
+
+		[[nodiscard]] const glm::vec2& Apply(const glm::vec2& v) const;
+		[[nodiscard]] const glm::ivec2& Apply(const glm::ivec2& v) const;
 
 		bool operator==(const xc::Rotation90& other) const = default;
 		Rotation90 operator+(const xc::Rotation90& other) const;

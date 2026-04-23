@@ -60,25 +60,24 @@ void xg::SwitchRenderer::RemoveAll()
 }
 
 void xg::SwitchRenderer::AddRenderable(
-    const glm::ivec2& position,
-    const xc::Rotation90 rotation,
+    const xc::ITransform& transform,
     const int flags,
     const glm::ivec2& infoUV)
 {
     if (flags == xg::rendering::s_SwitchSingle)
     {
         AddSwitch(
-            position,
-            position,
-            position + rotation.GetIMatrix() * glm::ivec2(0, 1),
+            transform.m_Translation,
+            transform.m_Translation,
+            transform.Apply(glm::ivec2(0, 1)),
             infoUV);
     }
     else
     {
         AddSwitch(
-            position + rotation.GetIMatrix() * glm::ivec2(0, 1),
-            position,
-            position + rotation.GetIMatrix() * glm::ivec2(0, 2),
+            transform.Apply(glm::ivec2(0, 1)),
+            transform.m_Translation,
+            transform.Apply(glm::ivec2(0, 2)),
             infoUV);
     }
 }

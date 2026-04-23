@@ -13,7 +13,7 @@ TEST_CASE("Simple Rotation90 tests", "[xc::Rotation90]")
 
     {
         xc::Rotation90 direction;
-        direction.RotateRight(1);
+        direction.RotateClockwise(1);
         CHECK(direction.GetRotationIndex() == 1);
         CHECK(direction.GetIMatrix() == glm::imat2x2(0, -1, 1, 0));
         CHECK(direction.GetFMatrix() == glm::mat2x2(0.f, -1.f, 1.f, 0.f));
@@ -21,7 +21,7 @@ TEST_CASE("Simple Rotation90 tests", "[xc::Rotation90]")
 
     {
         xc::Rotation90 direction;
-        direction.RotateRight(2);
+        direction.RotateClockwise(2);
         CHECK(direction.GetRotationIndex() == 2);
         CHECK(direction.GetIMatrix() == glm::imat2x2(-1, 0, 0, -1));
         CHECK(direction.GetFMatrix() == glm::mat2x2(-1.f, 0.f, 0.f, -1.f));
@@ -29,7 +29,7 @@ TEST_CASE("Simple Rotation90 tests", "[xc::Rotation90]")
 
     {
         xc::Rotation90 direction;
-        direction.RotateRight(3);
+        direction.RotateClockwise(3);
         CHECK(direction.GetRotationIndex() == 3);
         CHECK(direction.GetIMatrix() == glm::imat2x2(0, 1, -1, 0));
         CHECK(direction.GetFMatrix() == glm::mat2x2(0.f, 1.f, -1.f, 0.f));
@@ -54,33 +54,33 @@ TEST_CASE("Simple Rotation90 tests", "[xc::Rotation90]")
 
     {
         xc::Rotation90 direction;
-        direction.RotateRight(1);
-        direction.RotateRight(1);
+        direction.RotateClockwise(1);
+        direction.RotateClockwise(1);
         CHECK(direction.GetRotationIndex() == 2);
     }
 
     {
         xc::Rotation90 direction;
-        direction.RotateRight(3);
-        direction.RotateRight(1);
+        direction.RotateClockwise(3);
+        direction.RotateClockwise(1);
         CHECK(direction.GetRotationIndex() == 0);
     }
 
     {
         xc::Rotation90 direction;
-        direction.RotateRight(9);
+        direction.RotateClockwise(9);
         CHECK(direction.GetRotationIndex() == 1);
     }
 
     {
         xc::Rotation90 direction;
-        direction.RotateRight(-1);
+        direction.RotateClockwise(-1);
         CHECK(direction.GetRotationIndex() == 3);
     }
 
     {
         xc::Rotation90 direction;
-        direction.RotateRight(-5);
+        direction.RotateClockwise(-5);
         CHECK(direction.GetRotationIndex() == 3);
     }
 

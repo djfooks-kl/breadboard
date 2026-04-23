@@ -43,12 +43,11 @@ void xg::CogNodeRenderer::RemoveAll()
 }
 
 void xg::CogNodeRenderer::AddRenderable(
-    const glm::ivec2& position,
-    const xc::Rotation90,
+    const xc::ITransform& transform,
     const int /*flags*/,
     const glm::ivec2& infoUV)
 {
-    AddNode(position, infoUV);
+    AddNode(transform.m_Translation, infoUV);
 }
 
 void xg::CogNodeRenderer::Draw(

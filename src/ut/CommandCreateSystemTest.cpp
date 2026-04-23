@@ -57,14 +57,12 @@ TEST_CASE("Add a cog -> Queue for execution and add a delete cog undo command")
     const flecs::entity command = world.entity();
     auto& uiAddCog = command.ensure<xg::UIAddCogComponent>();
     uiAddCog.m_CogId = s_TestCog1;
-    uiAddCog.m_Rotation = xc::Rotation90(1);
-    uiAddCog.m_Position = glm::ivec2(2, 3);
+    uiAddCog.m_Transform = { glm::ivec2(2, 3), xc::Rotation90(1) };
     env.Update();
 
     REQUIRE(command.has<xg::command::AddCogComponent>());
     CHECK(command.get<const xg::command::AddCogComponent>().m_CogId == s_TestCog1);
-    CHECK(command.get<const xg::command::AddCogComponent>().m_Rotation == xc::Rotation90(1));
-    CHECK(command.get<const xg::command::AddCogComponent>().m_Position == glm::ivec2(2, 3));
+    CHECK(command.get<const xg::command::AddCogComponent>().m_Transform == xc::ITransform{ glm::ivec2(2, 3), xc::Rotation90(1) });
 
     REQUIRE(command.has<xg::command::EntityComponent>());
     CHECK(command.get<const xg::command::EntityComponent>().m_Entity != flecs::entity::null());

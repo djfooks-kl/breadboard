@@ -159,12 +159,10 @@ void xg::BreadRenderer::Update(const flecs::world& world)
         {
             const xg::CogPrototype* cog = cogMap.Get(cogComponent.m_CogId);
             glm::ivec2 cogExtents = cog->GetSize() - glm::ivec2(1, 1);
-            cogExtents = cogComponent.m_Rotation.GetIMatrix() * cogExtents;
-
-            m_CogBoxRenderer->AddBox(cogComponent.m_Position, cogComponent.m_Position + cogExtents);
+            m_CogBoxRenderer->AddBox(cogComponent.m_Transform.m_Translation, cogComponent.m_Transform.Apply(cogExtents));
 
             xg::RenderableAdder renderableAdder("Cog", m_CogRendererMap);
-            cog->AddStaticRenderables(cogComponent.m_Position, cogComponent.m_Rotation, renderableAdder);
+            cog->AddStaticRenderables(cogComponent.m_Transform, renderableAdder);
         });
     }
 }
@@ -220,7 +218,7 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
                 m_CogBoxPreviewDropRenderer->Draw(previewViewProjection, camera.m_Feather);
 
                 xg::RenderableAdder renderableAdder("CogPreview", m_CogPreviewDropRendererMap);
-                cog->AddStaticRenderables(glm::ivec2(0, 0), dragPreview.m_Rotation, renderableAdder);
+                cog->AddStaticRenderables({ glm::ivec2(0, 0), dragPreview.m_Rotation }, renderableAdder);
 
                 for (xg::IRenderer* renderer : m_CogPreviewDropRendererMap.GetOrder())
                 {
@@ -262,7 +260,7 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
             m_CogBoxPreviewRenderer->Draw(previewViewProjection, camera.m_Feather);
 
             xg::RenderableAdder renderableAdder("CogPreview", m_CogPreviewRendererMap);
-            cog->AddStaticRenderables(glm::ivec2(0, 0), dragPreview.m_Rotation, renderableAdder);
+            cog->AddStaticRenderables({ glm::ivec2(0, 0), dragPreview.m_Rotation }, renderableAdder);
 
             for (xg::IRenderer* renderer : m_CogPreviewRendererMap.GetOrder())
             {

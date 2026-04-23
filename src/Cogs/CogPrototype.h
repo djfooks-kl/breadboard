@@ -3,7 +3,7 @@
 #include <glm/fwd.hpp>
 
 #include "CogResourceId.h"
-#include "Core/Rotation90.h"
+#include "Core/ITransform.h"
 
 namespace xg
 {
@@ -20,8 +20,7 @@ namespace xg
         virtual const std::vector<glm::ivec2>& GetWireNodes() const;
 
         virtual void AddStaticRenderables(
-            const glm::ivec2& position,
-            const xc::Rotation90 rotation,
+            const xc::ITransform& transform,
             const xg::IRenderableAdder& renderableAdder) const;
     };
 }
@@ -31,6 +30,5 @@ namespace xg
     glm::ivec2 GetSize() const override;                                    \
     const std::vector<glm::ivec2>& GetWireNodes() const override;           \
     void AddStaticRenderables(                                              \
-        const glm::ivec2& position,                                         \
-        const xc::Rotation90 rotation,                                      \
+        const xc::ITransform& transform,                                    \
         const xg::IRenderableAdder& renderableAdder) const override;

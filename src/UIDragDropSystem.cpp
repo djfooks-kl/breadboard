@@ -25,8 +25,7 @@ void xg::UIDragDropSystem::Update(flecs::world& world)
                 flecs::entity entity = world.entity();
                 auto& addCog = entity.ensure<xg::UIAddCogComponent>();
                 addCog.m_CogId = dragPreview.m_CogId;
-                addCog.m_Position = dragPreview.m_Position;
-                addCog.m_Rotation = dragPreview.m_Rotation;
+                addCog.m_Transform = xc::ITransform{ dragPreview.m_Position, dragPreview.m_Rotation };
             });
         world.defer_end();
     }

@@ -44,7 +44,7 @@ xc::Rotation90::Rotation90(int rotationIndex)
 {
 }
 
-void xc::Rotation90::RotateRight(int rotationIndexOffset)
+void xc::Rotation90::RotateClockwise(int rotationIndexOffset)
 {
 	m_Index = WrapIndex(m_Index + rotationIndexOffset);
 }
@@ -69,6 +69,16 @@ const xc::Rotation90UVs& xc::Rotation90::GetUVs() const
 	return s_UVs[m_Index];
 }
 
+const glm::vec2& xc::Rotation90::Apply(const glm::vec2& v) const
+{
+	return GetFMatrix() * v;
+}
+
+const glm::ivec2& xc::Rotation90::Apply(const glm::ivec2& v) const
+{
+	return GetIMatrix() * v;
+}
+
 xc::Rotation90 xc::Rotation90::operator+(const xc::Rotation90& other) const
 {
 	return xc::Rotation90(WrapIndex(m_Index + other.m_Index));
@@ -76,7 +86,7 @@ xc::Rotation90 xc::Rotation90::operator+(const xc::Rotation90& other) const
 
 void xc::Rotation90::operator+=(const xc::Rotation90& other)
 {
-	RotateRight(other.m_Index);
+	RotateClockwise(other.m_Index);
 }
 
 std::ostream& xc::operator<<(std::ostream& os, const xc::Rotation90& obj)

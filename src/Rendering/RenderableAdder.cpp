@@ -12,8 +12,7 @@ xg::RenderableAdder::RenderableAdder(const char* name, xg::CogRendererMap& rende
 
 void xg::RenderableAdder::Add(
 	const xg::RenderableResourceId renderableResourceId,
-	const glm::ivec2& position,
-	const xc::Rotation90 rotation,
+	const xc::ITransform& transform,
 	const int flags,
 	const glm::ivec2& infoUV) const
 {
@@ -25,5 +24,5 @@ void xg::RenderableAdder::Add(
 			m_Name);
 		return;
 	}
-	renderer->AddRenderable(position, rotation, flags, infoUV);
+	renderer->AddRenderable(transform, flags, infoUV);
 }

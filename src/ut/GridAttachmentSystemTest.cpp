@@ -76,7 +76,7 @@ SYSTEM_TEST_CASE("Adding on stage to a cog -> Attach it to the grid")
     {
         auto& cog = entity.ensure<xg::CogComponent>();
         cog.m_CogId = s_Size1Cog;
-        cog.m_Position = glm::ivec2(3, 2);
+        cog.m_Transform = xc::ITransform{ glm::ivec2(3, 2) };
     }
     world.get_mut<xg::OnStageAddedComponent>().m_Entities.push_back(entity);
 
@@ -100,7 +100,7 @@ SYSTEM_TEST_CASE("Removing on stage on a cog -> Deattach it from the grid")
     {
         auto& cog = entity.ensure<xg::CogComponent>();
         cog.m_CogId = s_Size1Cog;
-        cog.m_Position = glm::ivec2(3, 2);
+        cog.m_Transform = xc::ITransform{ glm::ivec2(3, 2) };
     }
     world.get_mut<xg::OnStageAddedComponent>().m_Entities.push_back(entity);
     env.Update();
@@ -121,13 +121,13 @@ SYSTEM_TEST_CASE("Removing on stage on 1 cog out of 2 -> Deattach only removed c
     {
         auto& cog = entity1.ensure<xg::CogComponent>();
         cog.m_CogId = s_Size1Cog;
-        cog.m_Position = glm::ivec2(3, 2);
+        cog.m_Transform = xc::ITransform{ glm::ivec2(3, 2) };
     }
     flecs::entity entity2 = world.entity();
     {
         auto& cog = entity2.ensure<xg::CogComponent>();
         cog.m_CogId = s_Size1Cog;
-        cog.m_Position = glm::ivec2(13, 12);
+        cog.m_Transform = xc::ITransform{ glm::ivec2(13, 12) };
     }
     world.get_mut<xg::OnStageAddedComponent>().m_Entities.push_back(entity1);
     world.get_mut<xg::OnStageAddedComponent>().m_Entities.push_back(entity2);
@@ -150,7 +150,7 @@ SYSTEM_TEST_CASE("Adding on stage to a long cog -> Attach it to the grid on ever
     {
         auto& cog = entity.ensure<xg::CogComponent>();
         cog.m_CogId = s_LongCog;
-        cog.m_Position = glm::ivec2(3, 2);
+        cog.m_Transform = xc::ITransform{ glm::ivec2(3, 2) };
     }
     world.get_mut<xg::OnStageAddedComponent>().m_Entities.push_back(entity);
 
@@ -178,7 +178,7 @@ SYSTEM_TEST_CASE("Removing on stage on a long cog -> Deattach it from the grid")
     {
         auto& cog = entity.ensure<xg::CogComponent>();
         cog.m_CogId = s_LongCog;
-        cog.m_Position = glm::ivec2(3, 2);
+        cog.m_Transform = xc::ITransform{ glm::ivec2(3, 2) };
     }
     world.get_mut<xg::OnStageAddedComponent>().m_Entities.push_back(entity);
     env.Update();
@@ -199,8 +199,7 @@ SYSTEM_TEST_CASE("Adding on stage to a rotated long cog -> Attach it to the grid
     {
         auto& cog = entity.ensure<xg::CogComponent>();
         cog.m_CogId = s_LongCog;
-        cog.m_Position = glm::ivec2(3, 2);
-        cog.m_Rotation = xc::Rotation90(1);
+        cog.m_Transform = xc::ITransform{ glm::ivec2(3, 2), xc::Rotation90(1) };
     }
     world.get_mut<xg::OnStageAddedComponent>().m_Entities.push_back(entity);
 
@@ -227,8 +226,7 @@ SYSTEM_TEST_CASE("Removing on stage on a rotated long cog -> Deattach it from th
     {
         auto& cog = entity.ensure<xg::CogComponent>();
         cog.m_CogId = s_LongCog;
-        cog.m_Position = glm::ivec2(3, 2);
-        cog.m_Rotation = xc::Rotation90(1);
+        cog.m_Transform = xc::ITransform{ glm::ivec2(3, 2), xc::Rotation90(1) };
     }
     world.get_mut<xg::OnStageAddedComponent>().m_Entities.push_back(entity);
     env.Update();

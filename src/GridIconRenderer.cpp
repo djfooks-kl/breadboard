@@ -29,12 +29,11 @@ xg::GridIconRenderer::GridIconRenderer(const xc::ShaderProgram& program)
 }
 
 void xg::GridIconRenderer::AddRenderable(
-    const glm::ivec2& position,
-    const xc::Rotation90 rotation,
+    const xc::ITransform& transform,
     const int /*flags*/,
     const glm::ivec2&)
 {
-    AddIcon(position, rotation, glm::vec3(1.f, 1.f, 1.f));
+    AddIcon(transform.m_Translation, transform.m_Rotation, glm::vec3(1.f, 1.f, 1.f));
 }
 
 void xg::GridIconRenderer::AddIcon(

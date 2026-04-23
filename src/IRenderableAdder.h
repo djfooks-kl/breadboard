@@ -6,7 +6,7 @@
 
 namespace xc
 {
-	class Rotation90;
+	class ITransform;
 }
 
 namespace xg
@@ -15,8 +15,7 @@ namespace xg
 	{
 		virtual void Add(
 			const xg::RenderableResourceId renderableResourceId,
-			const glm::ivec2& position,
-			const xc::Rotation90 rotation,
+			const xc::ITransform& transform,
 			const int flags = 0,
 			const glm::ivec2& infoUV = glm::ivec2(0, 0)) const = 0;
 	};

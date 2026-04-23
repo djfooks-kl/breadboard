@@ -62,8 +62,7 @@ SYSTEM_TEST_CASE("Executing an add command -> "
     {
         auto& addCog = commandAdd.ensure<xg::command::AddCogComponent>();
         addCog.m_CogId = s_TestCog1;
-        addCog.m_Position = glm::ivec2(1, 2);
-        addCog.m_Rotation = xc::Rotation90(1);
+        addCog.m_Transform = xc::ITransform{ glm::ivec2(1, 2), xc::Rotation90(1) };
     }
     commandAdd.ensure<xg::command::EntityComponent>().m_Entity = addedEntity;
     commandAdd.add<xg::command::ExecuteComponent>();
@@ -72,8 +71,7 @@ SYSTEM_TEST_CASE("Executing an add command -> "
     CHECK(addedEntity.has<xg::CogCreatedComponent>());
     REQUIRE(addedEntity.has<xg::CogComponent>());
     CHECK(addedEntity.get<xg::CogComponent>().m_CogId == s_TestCog1);
-    CHECK(addedEntity.get<xg::CogComponent>().m_Position == glm::ivec2(1, 2));
-    CHECK(addedEntity.get<xg::CogComponent>().m_Rotation == xc::Rotation90(1));
+    CHECK(addedEntity.get<xg::CogComponent>().m_Transform == xc::ITransform{ glm::ivec2(1, 2), xc::Rotation90(1) });
 
     REQUIRE(addedEntity.has<xg::CogNodesComponent>());
     REQUIRE(addedEntity.get<xg::CogNodesComponent>().m_Nodes.size() == 2);
@@ -94,8 +92,7 @@ SYSTEM_TEST_CASE("Executing an add command a 2nd time -> Do not add a CogCreated
     {
         auto& addCog = commandAdd.ensure<xg::command::AddCogComponent>();
         addCog.m_CogId = s_TestCog1;
-        addCog.m_Position = glm::ivec2(1, 2);
-        addCog.m_Rotation = xc::Rotation90(1);
+        addCog.m_Transform = xc::ITransform{ glm::ivec2(1, 2), xc::Rotation90(1) };
     }
     commandAdd.ensure<xg::command::EntityComponent>().m_Entity = addedEntity;
     commandAdd.add<xg::command::ExecuteComponent>();

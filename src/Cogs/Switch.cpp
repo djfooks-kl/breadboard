@@ -33,9 +33,8 @@ const std::vector<glm::ivec2>& xg::cog::Switch::GetWireNodes() const
 }
 
 void xg::cog::Switch::AddStaticRenderables(
-    const glm::ivec2& position,
-    const xc::Rotation90 rotation,
+    const xc::ITransform& transform,
     const xg::IRenderableAdder& renderableAdder) const
 {
-    renderableAdder.Add(s_RenderableSwitch, position, rotation);
+    renderableAdder.Add(s_RenderableSwitch, transform);
 }

@@ -35,10 +35,9 @@ const std::vector<glm::ivec2>& xg::cog::Relay::GetWireNodes() const
 }
 
 void xg::cog::Relay::AddStaticRenderables(
-    const glm::ivec2& position,
-    const xc::Rotation90 rotation,
+    const xc::ITransform& transform,
     const xg::IRenderableAdder& renderableAdder) const
 {
-    renderableAdder.Add(s_RenderableSwitch, position + rotation.GetIMatrix() * glm::ivec2(0, 1), rotation, xg::rendering::s_SwitchDouble);
-    renderableAdder.Add(s_RenderableOutputCogNode, position, rotation);
+    renderableAdder.Add(s_RenderableSwitch, transform.WithLocalTranslation(glm::ivec2(0, 1)), xg::rendering::s_SwitchDouble);
+    renderableAdder.Add(s_RenderableOutputCogNode, transform);
 }

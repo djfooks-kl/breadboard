@@ -12,8 +12,7 @@ namespace xg
 
 		void Add(
 			const xg::RenderableResourceId renderableResourceId,
-			const glm::ivec2& position,
-			const xc::Rotation90 rotation,
+			const xc::ITransform& transform,
 			const int flags,
 			const glm::ivec2& infoUV) const override;
 
