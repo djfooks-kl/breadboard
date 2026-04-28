@@ -1,9 +1,11 @@
 #pragma once
 
 #include <glm/fwd.hpp>
+#include <unordered_set>
 
 #include "CogResourceId.h"
 #include "Core/ITransform.h"
+#include "VectorHashFunctions.h"
 
 namespace xg
 {
@@ -17,7 +19,7 @@ namespace xg
 
         virtual glm::ivec2 GetSize() const = 0;
 
-        virtual const std::vector<glm::ivec2>& GetWireNodes() const;
+        virtual const std::unordered_set<glm::ivec2>& GetWireNodes() const;
 
         virtual void AddStaticRenderables(
             const xc::ITransform& transform,
@@ -28,7 +30,7 @@ namespace xg
 #define DECLARE_COG_FUNCTIONS() \
     xg::CogResourceId GetResourceId() const override;                       \
     glm::ivec2 GetSize() const override;                                    \
-    const std::vector<glm::ivec2>& GetWireNodes() const override;           \
+    const std::unordered_set<glm::ivec2>& GetWireNodes() const override;    \
     void AddStaticRenderables(                                              \
         const xc::ITransform& transform,                                    \
         const xg::IRenderableAdder& renderableAdder) const override;

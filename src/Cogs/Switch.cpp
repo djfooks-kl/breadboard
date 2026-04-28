@@ -9,7 +9,7 @@ namespace
 {
     static const xg::CogResourceId s_ResourceId = xg::CogResourceId::Create("Switch");
     static const xg::RenderableResourceId s_RenderableSwitch = xg::RenderableResourceId::Create("Switch");
-    static const std::vector<glm::ivec2> s_WireNodes{ glm::ivec2(0, 0), glm::ivec2(0, 1) };
+    static const std::unordered_set<glm::ivec2> s_WireNodes{ glm::ivec2(0, 0), glm::ivec2(0, 1) };
 }
 
 xg::CogResourceId xg::cog::GetSwitchResourceId()
@@ -27,7 +27,7 @@ glm::ivec2 xg::cog::Switch::GetSize() const
     return glm::ivec2(1, 2);
 }
 
-const std::vector<glm::ivec2>& xg::cog::Switch::GetWireNodes() const
+const std::unordered_set<glm::ivec2>& xg::cog::Switch::GetWireNodes() const
 {
     return s_WireNodes;
 }

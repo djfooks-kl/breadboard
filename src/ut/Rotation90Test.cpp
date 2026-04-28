@@ -9,6 +9,8 @@ TEST_CASE("Simple Rotation90 tests", "[xc::Rotation90]")
         CHECK(direction.GetRotationIndex() == 0);
         CHECK(direction.GetIMatrix() == glm::imat2x2(1, 0, 0, 1));
         CHECK(direction.GetFMatrix() == glm::mat2x2(1.f, 0.f, 0.f, 1.f));
+        CHECK(direction.Apply(glm::ivec2(1, 2)) == glm::ivec2(1, 2));
+        CHECK(direction.ApplyInverse(glm::ivec2(1, 2)) == glm::ivec2(1, 2));
     }
 
     {
@@ -17,6 +19,8 @@ TEST_CASE("Simple Rotation90 tests", "[xc::Rotation90]")
         CHECK(direction.GetRotationIndex() == 1);
         CHECK(direction.GetIMatrix() == glm::imat2x2(0, -1, 1, 0));
         CHECK(direction.GetFMatrix() == glm::mat2x2(0.f, -1.f, 1.f, 0.f));
+        CHECK(direction.Apply(glm::ivec2(1, 2)) == glm::ivec2(2, -1));
+        CHECK(direction.ApplyInverse(glm::ivec2(2, -1)) == glm::ivec2(1, 2));
     }
 
     {
@@ -25,6 +29,8 @@ TEST_CASE("Simple Rotation90 tests", "[xc::Rotation90]")
         CHECK(direction.GetRotationIndex() == 2);
         CHECK(direction.GetIMatrix() == glm::imat2x2(-1, 0, 0, -1));
         CHECK(direction.GetFMatrix() == glm::mat2x2(-1.f, 0.f, 0.f, -1.f));
+        CHECK(direction.Apply(glm::ivec2(1, 2)) == glm::ivec2(-1, -2));
+        CHECK(direction.ApplyInverse(glm::ivec2(-1, -2)) == glm::ivec2(1, 2));
     }
 
     {
@@ -33,6 +39,8 @@ TEST_CASE("Simple Rotation90 tests", "[xc::Rotation90]")
         CHECK(direction.GetRotationIndex() == 3);
         CHECK(direction.GetIMatrix() == glm::imat2x2(0, 1, -1, 0));
         CHECK(direction.GetFMatrix() == glm::mat2x2(0.f, 1.f, -1.f, 0.f));
+        CHECK(direction.Apply(glm::ivec2(1, 2)) == glm::ivec2(-2, 1));
+        CHECK(direction.ApplyInverse(glm::ivec2(-2, 1)) == glm::ivec2(1, 2));
     }
 
     {

@@ -21,7 +21,10 @@ void xg::GridAttachmentSystem::Update(flecs::world& world)
         {
             for (int y = 0; y <= cogPrototype->GetSize().y - 1; ++y)
             {
-                map[cog->m_Transform.Apply(glm::ivec2(x, y))].push_back(entity);
+                glm::ivec2 local = glm::ivec2(x, y);
+                auto& attachments = map[cog->m_Transform.Apply(local)];
+                attachments.m_Entities.push_back(entity);
+                attachments.m_HasNode = cogPrototype->GetWireNodes().contains(local);
             }
         }
     }

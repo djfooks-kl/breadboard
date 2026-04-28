@@ -69,14 +69,24 @@ const xc::Rotation90UVs& xc::Rotation90::GetUVs() const
 	return s_UVs[m_Index];
 }
 
-const glm::vec2& xc::Rotation90::Apply(const glm::vec2& v) const
+glm::vec2 xc::Rotation90::Apply(const glm::vec2& v) const
 {
 	return GetFMatrix() * v;
 }
 
-const glm::ivec2& xc::Rotation90::Apply(const glm::ivec2& v) const
+glm::ivec2 xc::Rotation90::Apply(const glm::ivec2& v) const
 {
 	return GetIMatrix() * v;
+}
+
+glm::vec2 xc::Rotation90::ApplyInverse(const glm::vec2& v) const
+{
+	return v * GetFMatrix();
+}
+
+glm::ivec2 xc::Rotation90::ApplyInverse(const glm::ivec2& v) const
+{
+	return v * GetIMatrix();
 }
 
 xc::Rotation90 xc::Rotation90::operator+(const xc::Rotation90& other) const

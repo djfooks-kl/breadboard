@@ -24,8 +24,10 @@ namespace xc
 
 		const xc::Rotation90UVs& GetUVs() const;
 
-		[[nodiscard]] const glm::vec2& Apply(const glm::vec2& v) const;
-		[[nodiscard]] const glm::ivec2& Apply(const glm::ivec2& v) const;
+		[[nodiscard]] glm::vec2 Apply(const glm::vec2& v) const;
+		[[nodiscard]] glm::ivec2 Apply(const glm::ivec2& v) const;
+		[[nodiscard]] glm::vec2 ApplyInverse(const glm::vec2& v) const;
+		[[nodiscard]] glm::ivec2 ApplyInverse(const glm::ivec2& v) const;
 
 		bool operator==(const xc::Rotation90& other) const = default;
 		Rotation90 operator+(const xc::Rotation90& other) const;

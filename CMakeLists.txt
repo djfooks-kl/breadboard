@@ -101,6 +101,7 @@ set(source_files
     src/UIRedoComponent.h
     src/UIRotateComponent.h
     src/UIUndoComponent.h
+    src/VectorHashFunctions.h
     src/WindowSizeComponent.h
     src/WindowSizeSystem.cpp
     src/WindowSizeSystem.h
@@ -260,6 +261,7 @@ if (NOT EMSCRIPTEN)
         src/ut/ResourceIdTest.cpp
         src/ut/ResultTest.cpp
         src/ut/Rotation90Test.cpp
+        src/ut/ITransformTest.cpp
         src/ut/ShadersTest.cpp
         src/ut/UIDragDropSystemTest.cpp
         src/ut/UIDragPreviewSystemTest.cpp

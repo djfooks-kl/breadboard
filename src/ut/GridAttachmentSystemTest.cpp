@@ -14,6 +14,7 @@ namespace
 {
     static const xg::CogResourceId s_Size1Cog = xg::CogResourceId::Create("Size1Cog");
     static const xg::CogResourceId s_LongCog = xg::CogResourceId::Create("LongCog");
+    static const std::unordered_set<glm::ivec2> s_LongCoreWireNodes{ glm::ivec2(0, 0), glm::ivec2(1, 0), glm::ivec2(0, 2) };
 
     struct Size1Cog final : public xg::CogPrototype
     {
@@ -26,6 +27,8 @@ namespace
     {
         xg::CogResourceId GetResourceId() const override { return s_LongCog; }
 
+        virtual const std::unordered_set<glm::ivec2>& GetWireNodes() const { return s_LongCoreWireNodes; }
+
         glm::ivec2 GetSize() const override { return glm::ivec2(2, 3); }
     };
 
@@ -36,10 +39,23 @@ namespace
             return false;
 
         const auto& list = itr->second;
-        if (list.size() != 1)
+        if (list.m_Entities.size() != 1)
             return false;
 
-        return list[0] == entity;
+        return list.m_Entities[0] == entity;
+    }
+
+    bool CellHasFlags(const xg::GridAttachmentsMap& map, const glm::ivec2& p, const xg::GridAttachments& flags)
+    {
+        auto itr = map.find(p);
+        if (itr == map.end())
+            return false;
+
+        const auto& attachments = itr->second;
+        bool result = true;
+        result = result && flags.m_HasNode == attachments.m_HasNode;
+
+        return result;
     }
 
     struct TestEnv
@@ -87,8 +103,8 @@ SYSTEM_TEST_CASE("Adding on stage to a cog -> Attach it to the grid")
     auto itr = map.find(glm::ivec2(3, 2));
     REQUIRE(itr != map.end());
     const auto& list = itr->second;
-    REQUIRE(list.size() == 1);
-    CHECK(list[0] == entity);
+    REQUIRE(list.m_Entities.size() == 1);
+    CHECK(list.m_Entities[0] == entity);
 }
 
 SYSTEM_TEST_CASE("Removing on stage on a cog -> Deattach it from the grid")
@@ -141,7 +157,7 @@ SYSTEM_TEST_CASE("Removing on stage on 1 cog out of 2 -> Deattach only removed c
     CHECK(CellOnlyHas(map, glm::ivec2(3, 2), entity1));
 }
 
-SYSTEM_TEST_CASE("Adding on stage to a long cog -> Attach it to the grid on every cell it occupies")
+SYSTEM_TEST_CASE("Adding on stage to a long cog -> Attach it to the grid on every cell it occupies and mark the nodes with HasNode")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -167,6 +183,15 @@ SYSTEM_TEST_CASE("Adding on stage to a long cog -> Attach it to the grid on ever
 
     CHECK(CellOnlyHas(map, glm::ivec2(3, 4), entity));
     CHECK(CellOnlyHas(map, glm::ivec2(4, 4), entity));
+
+    CHECK(CellHasFlags(map, glm::ivec2(3, 2), { .m_HasNode = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(4, 2), { .m_HasNode = true }));
+
+    CHECK(CellHasFlags(map, glm::ivec2(3, 3), {}));
+    CHECK(CellHasFlags(map, glm::ivec2(4, 3), {}));
+
+    CHECK(CellHasFlags(map, glm::ivec2(3, 4), {}));
+    CHECK(CellHasFlags(map, glm::ivec2(4, 4), { .m_HasNode = true }));
 }
 
 SYSTEM_TEST_CASE("Removing on stage on a long cog -> Deattach it from the grid")

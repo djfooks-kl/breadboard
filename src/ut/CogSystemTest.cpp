@@ -15,7 +15,7 @@
 namespace
 {
     const xg::CogResourceId s_TestCog1 = xg::CogResourceId::Create("TestCog1");
-    const std::vector<glm::ivec2> s_WireNodes{ glm::ivec2(0, 0), glm::ivec2(2, 0)};
+    const std::unordered_set<glm::ivec2> s_WireNodes{ glm::ivec2(0, 0), glm::ivec2(2, 0)};
 
     struct TestCog1 final : public xg::CogPrototype
     {
@@ -23,7 +23,7 @@ namespace
 
         glm::ivec2 GetSize() const override { return glm::ivec2(3, 1); }
 
-        const std::vector<glm::ivec2>& GetWireNodes() const override { return s_WireNodes; }
+        const std::unordered_set<glm::ivec2>& GetWireNodes() const override { return s_WireNodes; }
     };
 
     struct TestEnv
