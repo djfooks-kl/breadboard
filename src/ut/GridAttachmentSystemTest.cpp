@@ -190,8 +190,8 @@ SYSTEM_TEST_CASE("Adding on stage to a long cog -> Attach it to the grid on ever
     CHECK(CellHasFlags(map, glm::ivec2(3, 3), {}));
     CHECK(CellHasFlags(map, glm::ivec2(4, 3), {}));
 
-    CHECK(CellHasFlags(map, glm::ivec2(3, 4), {}));
-    CHECK(CellHasFlags(map, glm::ivec2(4, 4), { .m_HasNode = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(3, 4), { .m_HasNode = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(4, 4), {}));
 }
 
 SYSTEM_TEST_CASE("Removing on stage on a long cog -> Deattach it from the grid")
