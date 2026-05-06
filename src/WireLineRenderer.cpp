@@ -13,20 +13,43 @@ namespace
     constexpr GLuint s_AttributeUV = 2;
     constexpr GLuint s_AttributeWireUV1 = 3;
     constexpr GLuint s_AttributeWireUV2 = 4;
+
+    void SetUniform(GLint uniform, bool value)
+    {
+        glUniform1f(uniform, value ? 1.f : 0.f);
+    }
+
+    void SetUniform(GLint uniform, float value)
+    {
+        glUniform1f(uniform, value);
+    }
+
+    void SetUniform(GLint uniform, const glm::vec2& value)
+    {
+        glUniform2fv(uniform, 1, glm::value_ptr(value));
+    }
+
+    void SetUniform(GLint uniform, const glm::vec3& value)
+    {
+        glUniform3fv(uniform, 1, glm::value_ptr(value));
+    }
+
+    void SetUniform(GLint uniform, const glm::mat4& value)
+    {
+        glUniformMatrix4fv(uniform, 1, GL_FALSE, glm::value_ptr(value));
+    }
 }
 
 xg::WireLineRenderer::WireLineRenderer(const xc::ShaderProgram& program)
     : m_Program(program)
 {
-    m_ViewProjectionUniform = program.GetUniformLocation("viewProjection");
-    m_WireTextureSizeUniform = m_Program.GetUniformLocation("wireTextureSize");
-    m_FeatherUniform = program.GetUniformLocation("feather");
-    m_InnerWidthUniform = program.GetUniformLocation("innerWidth");
-    m_OuterWidthUniform = program.GetUniformLocation("outerWidth");
-    m_ColorEmptyUniform = program.GetUniformLocation("colorEmpty");
-    m_ColorFullUniform = program.GetUniformLocation("colorFull");
-    m_ColorEdgeUniform = program.GetUniformLocation("colorEdge");
-    m_ExpandUniform = program.GetUniformLocation("expand");
+    m_ViewProjectionUniform = program.GetUniformLocation("u_ViewProjection");
+    m_WireTextureSizeUniform = m_Program.GetUniformLocation("u_WireTextureSize");
+    m_FeatherUniform = program.GetUniformLocation("u_Feather");
+
+#define ADD_UNIFORM(TYPE, NAME, DEFAULT_VALUE) m_##NAME##Uniform = program.GetUniformLocation("u_" #NAME);
+#include "WireLineRendererUniformList.h"
+#undef ADD_UNIFORM
 
     m_VBO.AddIVertexAttribute(s_AttributeP1, 2);
     m_VBO.AddIVertexAttribute(s_AttributeP2, 2);
@@ -72,16 +95,14 @@ void xg::WireLineRenderer::Draw(
     xg::GLEnableAlphaBlend();
     m_VBO.Bind();
 
-    glUniformMatrix4fv(m_ViewProjectionUniform, 1, GL_FALSE, glm::value_ptr(viewProjection));
-    glUniform1f(m_FeatherUniform, feather);
-    glUniform1f(m_InnerWidthUniform, m_InnerWidth);
-    glUniform1f(m_OuterWidthUniform, m_OuterWidth);
-    glUniform3fv(m_ColorEmptyUniform, 1, glm::value_ptr(m_ColorEmpty));
-    glUniform3fv(m_ColorFullUniform, 1, glm::value_ptr(m_ColorFull));
-    glUniform3fv(m_ColorEdgeUniform, 1, glm::value_ptr(m_ColorEdge));
-    glUniform1f(m_ExpandUniform, m_Expand ? 1.f : 0.f);
     const glm::vec2 fWireTextureSize = infoTextureSize;
-    glUniform2fv(m_WireTextureSizeUniform, 1, glm::value_ptr(fWireTextureSize));
+    SetUniform(m_WireTextureSizeUniform, fWireTextureSize);
+    SetUniform(m_ViewProjectionUniform, viewProjection);
+    SetUniform(m_FeatherUniform, feather);
+
+#define ADD_UNIFORM(TYPE, NAME, DEFAULT_VALUE) SetUniform(m_##NAME##Uniform, m_##NAME);
+#include "WireLineRendererUniformList.h"
+#undef ADD_UNIFORM
 
     // todo need to set this every frame?
     glBindTexture(GL_TEXTURE_2D, infoTexture);
