@@ -6,8 +6,6 @@
 #include "CameraComponent.h"
 #include "CogBoxRenderer.h"
 #include "CogComponent.h"
-#include "Rendering/RegisterRenderers.h"
-#include "Rendering/RenderableAdder.h"
 #include "CogNodeRenderer.h"
 #include "Cogs/CogMap.h"
 #include "Core/Font.h"
@@ -19,6 +17,9 @@
 #include "OnStageAddedComponent.h"
 #include "OnStageComponent.h"
 #include "OnStageRemovedComponent.h"
+#include "Rendering/RegisterRenderers.h"
+#include "Rendering/RenderableAdder.h"
+#include "RenderSettings.h"
 #include "TextRenderer.h"
 #include "UIDragPreviewComponent.h"
 #include "UIDragValidComponent.h"
@@ -48,13 +49,13 @@ xg::BreadRenderer::~BreadRenderer()
     glDeleteTextures(1, &m_WireTexture);
 }
 
-void xg::BreadRenderer::Load()
+void xg::BreadRenderer::Load(const xg::RenderSettings& settings)
 {
-    xg::RegisterCogRenderers(m_CogRendererMap, m_ShaderProgramMap, xg::ERenderingMode::Normal);
-    xg::RegisterCogRenderers(m_CogPreviewRendererMap, m_ShaderProgramMap, xg::ERenderingMode::Preview);
-    xg::RegisterCogRenderers(m_CogPreviewDropRendererMap, m_ShaderProgramMap, xg::ERenderingMode::DropPreview);
+    xg::RegisterCogRenderers(settings, m_CogRendererMap, m_ShaderProgramMap, xg::ERenderingMode::Normal);
+    xg::RegisterCogRenderers(settings, m_CogPreviewRendererMap, m_ShaderProgramMap, xg::ERenderingMode::Preview);
+    xg::RegisterCogRenderers(settings, m_CogPreviewDropRendererMap, m_ShaderProgramMap, xg::ERenderingMode::DropPreview);
 
-    xg::RegisterWireRenderers(m_WireRendererMap, m_ShaderProgramMap, xg::ERenderingMode::Normal);
+    xg::RegisterWireRenderers(settings, m_WireRendererMap, m_ShaderProgramMap, xg::ERenderingMode::Normal);
 
     m_TextProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
         .m_VertexPath = "shaders/BoxVertex.glsl",
@@ -104,7 +105,9 @@ void xg::BreadRenderer::Load()
 
     m_CogNodeRenderer = std::make_unique<xg::CogNodeRenderer>(*m_CogNodeProgram);
     m_CogNodeRenderer->SetRingColor(glm::vec3(0.f, 1.f, 0.f));
-    m_CogNodeRenderer->SetRadius(0.7f);
+    m_CogNodeRenderer->SetRadius(settings.m_NodeSize);
+    m_CogNodeRenderer->SetInnerRadius(settings.m_NodeInnerRadius);
+    m_CogNodeRenderer->SetOuterRadius(settings.m_NodeOuterRadius);
     m_CogNodeRenderer->AddNode(glm::ivec2(1, 1), glm::ivec2(0, 0));
     m_CogNodeRenderer->AddNode(glm::ivec2(2, 1), glm::ivec2(1, 0));
     m_CogNodeRenderer->AddNode(glm::ivec2(3, 1), glm::ivec2(2, 0));

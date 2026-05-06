@@ -5,6 +5,8 @@
 
 namespace xg
 {
+	struct RenderSettings;
+
 	enum class ERenderingMode
 	{
 		Normal,
@@ -13,7 +15,15 @@ namespace xg
 		DropPreview
 	};
 
-	void RegisterCogRenderers(xg::CogRendererMap& map, xg::ShaderProgramMap& shaderProgramMap, xg::ERenderingMode mode);
+	void RegisterCogRenderers(
+		const xg::RenderSettings& settings,
+		xg::CogRendererMap& map,
+		xg::ShaderProgramMap& shaderProgramMap,
+		xg::ERenderingMode mode);
 
-	void RegisterWireRenderers(xg::WireRendererMap& map, xg::ShaderProgramMap& shaderProgramMap, xg::ERenderingMode mode);
+	void RegisterWireRenderers(
+		const xg::RenderSettings& settings,
+		xg::WireRendererMap& map,
+		xg::ShaderProgramMap& shaderProgramMap,
+		xg::ERenderingMode mode);
 }

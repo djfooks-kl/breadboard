@@ -1,14 +1,15 @@
 #version 300 es
 precision mediump float;
 
-uniform float feather;
-uniform vec2 wireTextureSize;
-uniform vec3 colorEmpty;
-uniform vec3 colorFull;
-uniform vec3 colorEdge;
-uniform float expand;
-uniform float innerWidth;
-uniform float outerWidth;
+uniform float u_Feather;
+uniform float u_HasInfoTexture;
+uniform vec2 u_WireTextureSize;
+uniform vec3 u_ColorEmpty;
+uniform vec3 u_ColorFull;
+uniform vec3 u_ColorEdge;
+uniform float u_Expand;
+uniform float u_InnerWidth;
+uniform float u_OuterWidth;
 
 in vec2 vP;
 in vec2 vP1;
@@ -32,18 +33,18 @@ void main(void) {
     float maxX = max(vP1.x, vP2.x);
     float minY = min(vP1.y, vP2.y);
     float maxY = max(vP1.y, vP2.y);
-    float outerWire = outerWidth + feather * SQRT2 * expand;
+    float outerWire = u_OuterWidth + u_Feather * SQRT2 * u_Expand;
 
-    float v = (d - outerWire) / feather;
+    float v = (d - outerWire) / u_Feather;
     float alpha = 1.0 - v;
 
-    v = (d - innerWidth) / feather;
+    v = (d - u_InnerWidth) / u_Feather;
 
-    float wireValue = texture(wireTexture, vWireUV / wireTextureSize).x;
+    float wireValue = u_HasInfoTexture * texture(wireTexture, vWireUV / u_WireTextureSize).x;
 
-    vec3 wireColor = mix(colorEmpty, colorFull, wireValue);
+    vec3 wireColor = mix(u_ColorEmpty, u_ColorFull, wireValue);
 
-    wireColor = mix(wireColor, colorEdge, max(min(v, 1.0), 0.0));
+    wireColor = mix(wireColor, u_ColorEdge, max(min(v, 1.0), 0.0));
 
     FragColor = vec4(wireColor.rgb, alpha);
 }

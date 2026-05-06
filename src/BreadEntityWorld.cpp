@@ -27,6 +27,7 @@
 #include "OnStageAddedComponent.h"
 #include "OnStageRemovedComponent.h"
 #include "OnStageSystem.h"
+#include "RenderSettings.h"
 #include "UIDragDropSystem.h"
 #include "UIDraggingDropComponent.h"
 #include "UIDragPreviewSystem.h"
@@ -50,6 +51,7 @@ void xg::SetupWorld(flecs::world& world)
     world.emplace<xg::MouseTrailComponent>();
     world.emplace<xg::OnStageAddedComponent>();
     world.emplace<xg::OnStageRemovedComponent>();
+    world.emplace<xg::RenderSettings>();
     world.emplace<xg::UIDraggingDropComponent>();
     world.emplace<xg::UIDragValidComponent>();
     world.emplace<xg::UIPreviewAddingCogComponent>();

@@ -1,7 +1,7 @@
 #version 300 es
 precision mediump float;
 
-uniform mat4 viewProjection;
+uniform mat4 u_ViewProjection;
 
 layout (location = 0) in vec2 p1;
 layout (location = 1) in vec2 p2;
@@ -32,5 +32,5 @@ void main()
 
     vP = p;
     vec4 mvPosition = vec4(p, 0.0, 1.0);
-    gl_Position = viewProjection * mvPosition;
+    gl_Position = u_ViewProjection * mvPosition;
 }

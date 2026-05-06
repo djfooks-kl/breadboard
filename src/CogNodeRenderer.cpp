@@ -20,6 +20,8 @@ xg::CogNodeRenderer::CogNodeRenderer(const xc::ShaderProgram& program)
     m_WireTextureSizeUniform = m_Program.GetUniformLocation("wireTextureSize");
     m_ViewProjectionUniform = m_Program.GetUniformLocation("viewProjection");
     m_RadiusUniform = m_Program.GetUniformLocation("radius");
+    m_InnerRadiusUniform = m_Program.GetUniformLocation("innerRadius");
+    m_OuterRadiusUniform = m_Program.GetUniformLocation("outerRadius");
     m_RingColorUniform = m_Program.GetUniformLocation("ringColor");
 
     m_VBO.AddIVertexAttribute(s_AttributePosition, 2);
@@ -73,6 +75,8 @@ void xg::CogNodeRenderer::Draw(
     const glm::vec2 fWireTextureSize = wireTextureSize;
     glUniform2fv(m_WireTextureSizeUniform, 1, glm::value_ptr(fWireTextureSize));
     glUniform1f(m_RadiusUniform, m_Radius);
+    glUniform1f(m_InnerRadiusUniform, m_InnerRadius);
+    glUniform1f(m_OuterRadiusUniform, m_OuterRadius);
 
     // todo need to set this every frame?
     glBindTexture(GL_TEXTURE_2D, texture);

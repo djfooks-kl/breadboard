@@ -25,6 +25,8 @@ namespace xg
         DECLARE_IRENDERER_FUNCTIONS();
 
         void SetRingColor(const glm::vec3 v) { m_RingColor = std::move(v); }
+        void SetInnerRadius(const float v) { m_InnerRadius = v; }
+        void SetOuterRadius(const float v) { m_OuterRadius = v; }
         void SetRadius(const float v) { m_Radius = v; }
 
         void AddNode(
@@ -36,12 +38,16 @@ namespace xg
         xg::VertexBufferObject m_VBO;
 
         glm::vec3 m_RingColor;
+        float m_InnerRadius = 0.5f;
+        float m_OuterRadius = 0.5f;
         float m_Radius = 1.f;
 
         GLint m_FeatherUniform = -1;
         GLint m_WireTextureSizeUniform = -1;
         GLint m_ViewProjectionUniform = -1;
         GLint m_RadiusUniform = -1;
+        GLint m_InnerRadiusUniform = -1;
+        GLint m_OuterRadiusUniform = -1;
         GLint m_RingColorUniform = -1;
     };
 }

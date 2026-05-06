@@ -79,6 +79,11 @@ set(source_files
     src/OnStageRemovedComponent.h
     src/OnStageSystem.cpp
     src/OnStageSystem.h
+    src/RenderSettings.h
+    src/RGBColor.cpp
+    src/RGBColor.h
+    src/SettingsHelpers.cpp
+    src/SettingsHelpers.h
     src/STDStreamFunctions.cpp
     src/STDStreamFunctions.h
     src/SwitchRenderer.cpp
@@ -97,6 +102,9 @@ set(source_files
     src/UIDragValidationSystem.cpp
     src/UIDragValidationSystem.h
     src/UIDragValidComponent.h
+    src/UIHoverComponent.h
+    src/UIHoverSystem.cpp
+    src/UIHoverSystem.h
     src/UIPreviewAddingCogComponent.h
     src/UIRedoComponent.h
     src/UIRotateComponent.h
@@ -231,6 +239,7 @@ target_link_libraries(BreadProjectLib PUBLIC glm::glm-header-only)
 
 target_include_directories(BreadProjectLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/stb)
 target_include_directories(BreadProjectLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/nlohmann-json)
+target_include_directories(BreadProjectLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/toml11)
 
 add_subdirectory(3rdParty/imgui-1.92.1)
 target_include_directories(BreadProjectLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/imgui-1.92.1)
@@ -264,6 +273,7 @@ if (NOT EMSCRIPTEN)
         src/ut/ITransformTest.cpp
         src/ut/ShadersTest.cpp
         src/ut/UIDragDropSystemTest.cpp
+        src/ut/UIHoverSystemTest.cpp
         src/ut/UIDragPreviewSystemTest.cpp
         src/ut/UIDragValidationSystemTest.cpp
     )

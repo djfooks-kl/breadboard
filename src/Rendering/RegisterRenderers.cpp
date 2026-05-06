@@ -6,6 +6,7 @@
 #include "GridIconRenderer.h"
 #include "RenderableResourceId.h"
 #include "RendererMap.h"
+#include "RenderSettings.h"
 #include "ShaderProgramMap.h"
 #include "SwitchRenderer.h"
 #include "WireEndRenderer.h"
@@ -30,9 +31,6 @@ namespace
     static const xg::ShaderProgramResourceId s_ShaderWire = xg::ShaderProgramResourceId::Create("Wire");
     static const xg::RenderableResourceId s_RenderableWire = xg::RenderableResourceId::Create("Wire");
 
-    constexpr glm::vec3 s_DropPreviewColor(0.5f, 0.5f, 0.5f);
-    constexpr glm::vec3 s_WireFullColor(1.f, 0.53f, 0.53f);
-
     constexpr float s_WireLineHeight = 1.f;
     constexpr float s_WireDotTopHeight = 2.f;
 
@@ -50,7 +48,11 @@ namespace
     }
 }
 
-void xg::RegisterCogRenderers(xg::CogRendererMap& map, xg::ShaderProgramMap& shaderProgramMap, xg::ERenderingMode mode)
+void xg::RegisterCogRenderers(
+    const xg::RenderSettings& settings,
+    xg::CogRendererMap& map,
+    xg::ShaderProgramMap& shaderProgramMap,
+    xg::ERenderingMode mode)
 {
     RegisterShaderProgram(shaderProgramMap, s_ShaderBatteryIcon, xc::ShaderProgramOptions{
         .m_VertexPath = "shaders/IconVertex.glsl",
@@ -60,7 +62,7 @@ void xg::RegisterCogRenderers(xg::CogRendererMap& map, xg::ShaderProgramMap& sha
         std::unique_ptr<xg::GridIconRenderer> renderer = std::make_unique<xg::GridIconRenderer>(shaderProgramMap.at(s_ShaderBatteryIcon));
         renderer->SetIconSize(1.f);
         if (mode == ERenderingMode::DropPreview)
-            renderer->SetColor(s_DropPreviewColor);
+            renderer->SetColor(settings.m_DropPreviewColor);
         map.Register(s_RenderableBatteryIcon, std::move(renderer));
     }
 
@@ -71,17 +73,21 @@ void xg::RegisterCogRenderers(xg::CogRendererMap& map, xg::ShaderProgramMap& sha
     {
         std::unique_ptr<xg::CogNodeRenderer> renderer = std::make_unique<xg::CogNodeRenderer>(shaderProgramMap.at(s_ShaderCogNode));
         renderer->SetRingColor(glm::vec3(0.f, 1.f, 0.f));
-        renderer->SetRadius(0.7f);
+        renderer->SetRadius(settings.m_NodeSize);
+        renderer->SetInnerRadius(settings.m_NodeInnerRadius);
+        renderer->SetOuterRadius(settings.m_NodeOuterRadius);
         if (mode == ERenderingMode::DropPreview)
-            renderer->SetRingColor(s_DropPreviewColor);
+            renderer->SetRingColor(settings.m_DropPreviewColor);
         map.Register(s_RenderableInputCogNode, std::move(renderer));
     }
     {
         std::unique_ptr<xg::CogNodeRenderer> renderer = std::make_unique<xg::CogNodeRenderer>(shaderProgramMap.at(s_ShaderCogNode));
         renderer->SetRingColor(glm::vec3(0.f, 0.f, 0.f));
-        renderer->SetRadius(0.7f);
+        renderer->SetRadius(settings.m_NodeSize);
+        renderer->SetInnerRadius(settings.m_NodeInnerRadius);
+        renderer->SetOuterRadius(settings.m_NodeOuterRadius);
         if (mode == ERenderingMode::DropPreview)
-            renderer->SetRingColor(s_DropPreviewColor);
+            renderer->SetRingColor(settings.m_DropPreviewColor);
         map.Register(s_RenderableOutputCogNode, std::move(renderer));
     }
 
@@ -92,7 +98,7 @@ void xg::RegisterCogRenderers(xg::CogRendererMap& map, xg::ShaderProgramMap& sha
     {
         std::unique_ptr<xg::SwitchRenderer> renderer = std::make_unique<xg::SwitchRenderer>(shaderProgramMap.at(s_ShaderSwitch));
         if (mode == ERenderingMode::DropPreview)
-            renderer->SetColor(s_DropPreviewColor);
+            renderer->SetColor(settings.m_DropPreviewColor);
         renderer->SetHasInfoTexture(mode == ERenderingMode::Normal);
         map.Register(s_RenderableSwitch, std::move(renderer));
     }
@@ -100,7 +106,11 @@ void xg::RegisterCogRenderers(xg::CogRendererMap& map, xg::ShaderProgramMap& sha
     map.SortRenderers();
 }
 
-void xg::RegisterWireRenderers(xg::WireRendererMap& map, xg::ShaderProgramMap& shaderProgramMap, xg::ERenderingMode mode)
+void xg::RegisterWireRenderers(
+    const xg::RenderSettings& settings,
+    xg::WireRendererMap& map,
+    xg::ShaderProgramMap& shaderProgramMap,
+    xg::ERenderingMode mode)
 {
     RegisterShaderProgram(shaderProgramMap, s_ShaderWireCircle, xc::ShaderProgramOptions{
         .m_VertexPath = "shaders/WireCircleVertex.glsl",
@@ -109,7 +119,7 @@ void xg::RegisterWireRenderers(xg::WireRendererMap& map, xg::ShaderProgramMap& s
     {
         std::unique_ptr<xg::WireEndRenderer> renderer = std::make_unique<xg::WireEndRenderer>(shaderProgramMap.at(s_ShaderWireCircle));
         renderer->SetColorEmpty(glm::vec3(1.f));
-        renderer->SetColorFull(s_WireFullColor);
+        renderer->SetColorFull(settings.m_WireFullColor);
         renderer->SetSize(0.14f);
         renderer->SetHasInfoTexture(mode == ERenderingMode::Normal);
         renderer->SetHeight(s_WireDotTopHeight);
@@ -131,9 +141,9 @@ void xg::RegisterWireRenderers(xg::WireRendererMap& map, xg::ShaderProgramMap& s
     {
         std::unique_ptr<xg::WireLineRenderer> renderer = std::make_unique<xg::WireLineRenderer>(shaderProgramMap.at(s_ShaderWire));
         renderer->SetColorEmpty(glm::vec3(1.f));
-        renderer->SetColorFull(s_WireFullColor);
+        renderer->SetColorFull(settings.m_WireFullColor);
         if (mode == ERenderingMode::DropPreview)
-            renderer->SetColorEmpty(s_DropPreviewColor);
+            renderer->SetColorEmpty(settings.m_DropPreviewColor);
         renderer->SetHasInfoTexture(mode == ERenderingMode::Normal);
         renderer->SetHeight(s_WireLineHeight);
         map.Register(s_RenderableWire, std::move(renderer));

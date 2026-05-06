@@ -6,6 +6,7 @@
 #include <sstream>
 #include <glm/vec2.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <toml11/toml.hpp>
 
 #include "BreadEntityWorld.h"
 #include "BreadRenderer.h"
@@ -15,6 +16,8 @@
 #include "Core/ShaderProgram.h"
 #include "InputSystem.h"
 #include "MouseTrailComponent.h"
+#include "RenderSettings.h"
+#include "SettingsHelpers.h"
 #include "UI.h"
 #include "UIPreviewAddingCogComponent.h"
 #include "WindowSizeSystem.h"
@@ -97,6 +100,7 @@ void BreadApp::Update(GLFWwindow* window, const double time, const float deltaTi
     m_BreadRenderer->Update(m_World);
 
     Render(time, deltaTime);
+    m_UI->UpdateMouse(m_World, window);
     m_UI->Draw(m_World);
 
     // update input system last as it clears all the input state ready for next frame
@@ -107,10 +111,13 @@ void BreadApp::Init(GLFWwindow* window)
 {
     xg::SetupWorld(m_World);
 
+    const toml::value settings = toml::parse(std::format("{}{}", DATA_DIR, "settings.toml"));
+    xg::FillSettings(settings, m_World.get_mut<xg::RenderSettings>());
+
     glfwSetWindowSizeCallback(window, WindowSizeCallback);
 
     m_BreadRenderer = std::make_unique<xg::BreadRenderer>();
-    m_BreadRenderer->Load();
+    m_BreadRenderer->Load(m_World.get<xg::RenderSettings>());
 
     m_DemoProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
         .m_VertexPath = "shaders/DemoVertex.glsl",

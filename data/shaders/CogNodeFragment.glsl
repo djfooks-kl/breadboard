@@ -2,7 +2,8 @@
 precision mediump float;
 
 uniform float feather;
-uniform float radius;
+uniform float innerRadius;
+uniform float outerRadius;
 uniform vec3 ringColor;
 
 in vec2 vP;
@@ -29,9 +30,8 @@ vec3 getWireColor(float wireValue)
     return mix(vec3(1.0, 1.0, 1.0), vec3(1.0, 0.53, 0.53), wireValue);
 }
 
-void main(void) {
-    const float innerRadius = 0.26;
-    const float outerRadius = 0.31;
+void main(void)
+{
     float outerR = outerRadius - feather * 0.5;
     float innerR = innerRadius - feather * 0.5;
 

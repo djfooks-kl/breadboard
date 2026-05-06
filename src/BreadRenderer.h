@@ -27,16 +27,16 @@ namespace xg
     struct BreadRenderer;
     struct CogBoxRenderer;
     struct CogNodeRenderer;
-    struct GridIconRenderer;
     struct GridRenderer;
     struct TextRenderer;
+    struct RenderSettings;
 
     struct BreadRenderer
     {
         BreadRenderer();
         ~BreadRenderer();
 
-        void Load();
+        void Load(const xg::RenderSettings& settings);
 
         void Update(const flecs::world& world);
         void Draw(const flecs::world& world);
