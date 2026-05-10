@@ -1,10 +1,11 @@
 #version 300 es
 precision mediump float;
 
-uniform float feather;
-uniform mat4 viewProjection;
-uniform float size;
-uniform vec2 wireTextureSize;
+uniform float u_Feather;
+uniform mat4 u_ViewProjection;
+uniform float u_Size;
+uniform float u_HasInfoTexture;
+uniform vec2 u_WireTextureSize;
 
 uniform sampler2D wireTexture;
 
@@ -19,7 +20,7 @@ out float vWireValue;
 
 void main()
 {
-    float r = size + feather * 2.0;
+    float r = u_Size + u_Feather * 2.0;
     vec2 p1 = vec2(position.x - r, position.y - r);
     vec2 p2 = vec2(position.x + r, position.y + r);
 
@@ -28,8 +29,8 @@ void main()
     vP = p;
     vCircleCenter = position;
     vUV = uv;
-    vWireValue = texture(wireTexture, (wireUV + vec2(0.5, 0.5)) / wireTextureSize).x;
+    vWireValue = u_HasInfoTexture * texture(wireTexture, (wireUV + vec2(0.5, 0.5)) / u_WireTextureSize).x;
 
     vec4 mvPosition = vec4(p, 0.0, 1.0);
-    gl_Position = viewProjection * mvPosition;
+    gl_Position = u_ViewProjection * mvPosition;
 }

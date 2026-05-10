@@ -118,19 +118,19 @@ void xg::RegisterWireRenderers(
 
     {
         std::unique_ptr<xg::WireEndRenderer> renderer = std::make_unique<xg::WireEndRenderer>(shaderProgramMap.at(s_ShaderWireCircle));
-        renderer->SetColorEmpty(glm::vec3(1.f));
-        renderer->SetColorFull(settings.m_WireFullColor);
-        renderer->SetSize(0.14f);
-        renderer->SetHasInfoTexture(mode == ERenderingMode::Normal);
+        renderer->m_Uniforms.m_ColorEmpty = glm::vec3(1.f);
+        renderer->m_Uniforms.m_ColorFull = settings.m_WireFullColor;
+        renderer->m_Uniforms.m_Size = 0.14f;
+        renderer->m_Uniforms.m_HasInfoTexture = mode == ERenderingMode::Normal;
         renderer->SetHeight(s_WireDotTopHeight);
         map.Register(s_RenderableWireCircleTop, std::move(renderer));
     }
     {
         std::unique_ptr<xg::WireEndRenderer> renderer = std::make_unique<xg::WireEndRenderer>(shaderProgramMap.at(s_ShaderWireCircle));
-        renderer->SetColorEmpty(glm::vec3(0.f));
-        renderer->SetColorFull(glm::vec3(0.f));
-        renderer->SetSize(0.19f);
-        renderer->SetHasInfoTexture(false);
+        renderer->m_Uniforms.m_ColorEmpty = glm::vec3(0.f);
+        renderer->m_Uniforms.m_ColorFull = glm::vec3(0.f);
+        renderer->m_Uniforms.m_Size = 0.19f;
+        renderer->m_Uniforms.m_HasInfoTexture = false;
         map.Register(s_RenderableWireCircleBottom, std::move(renderer));
     }
 

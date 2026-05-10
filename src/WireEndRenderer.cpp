@@ -5,24 +5,42 @@
 #include "Core/GLFWLib.h"
 #include "Core/ShaderProgram.h"
 #include "Rendering/RendererHelpers.h"
+#include "Rendering/UniformHelpers.h"
 
 namespace
 {
     constexpr GLuint s_AttributePosition = 0;
     constexpr GLuint s_AttributeUV = 1;
     constexpr GLuint s_AttributeWireUV = 2;
+
+    // -- [CODEGEN START] UniformsDefinitions(xg::WireEndUniforms)
+    void FillUniformLocations(const xc::ShaderProgram& program, xg::WireEndUniformsLocations& out_uniformsLocations)
+    {
+        out_uniformsLocations.m_ColorEmpty = program.GetUniformLocation("u_ColorEmpty");
+        out_uniformsLocations.m_ColorFull = program.GetUniformLocation("u_ColorFull");
+        out_uniformsLocations.m_Size = program.GetUniformLocation("u_Size");
+        out_uniformsLocations.m_HasInfoTexture = program.GetUniformLocation("u_HasInfoTexture");
+        out_uniformsLocations.m_Expand = program.GetUniformLocation("u_Expand");
+        out_uniformsLocations.m_ViewProjection = program.GetUniformLocation("u_ViewProjection");
+        out_uniformsLocations.m_Feather = program.GetUniformLocation("u_Feather");
+        out_uniformsLocations.m_WireTextureSize = program.GetUniformLocation("u_WireTextureSize");
+    }
+
+    void SetUniformValues(const xg::WireEndUniformsLocations& uniformsLocations, const xg::WireEndUniforms& uniforms)
+    {
+        xg::SetUniform(uniformsLocations.m_ColorEmpty, uniforms.m_ColorEmpty);
+        xg::SetUniform(uniformsLocations.m_ColorFull, uniforms.m_ColorFull);
+        xg::SetUniform(uniformsLocations.m_Size, uniforms.m_Size);
+        xg::SetUniform(uniformsLocations.m_HasInfoTexture, uniforms.m_HasInfoTexture);
+        xg::SetUniform(uniformsLocations.m_Expand, uniforms.m_Expand);
+    }
+    // -- [CODEGEN END]
 }
 
 xg::WireEndRenderer::WireEndRenderer(const xc::ShaderProgram& program)
     : m_Program(program)
 {
-    m_ViewProjectionUniform = program.GetUniformLocation("viewProjection");
-    m_WireTextureSizeUniform = m_Program.GetUniformLocation("wireTextureSize");
-    m_FeatherUniform = program.GetUniformLocation("feather");
-    m_SizeUniform = program.GetUniformLocation("size");
-    m_ColorEmptyUniform = program.GetUniformLocation("colorEmpty");
-    m_ColorFullUniform = program.GetUniformLocation("colorFull");
-    m_ExpandUniform = program.GetUniformLocation("expand");
+    FillUniformLocations(program, m_UniformsLocations);
 
     m_VBO.AddIVertexAttribute(s_AttributePosition, 2);
     m_VBO.AddIVertexAttribute(s_AttributeUV, 2);
@@ -61,14 +79,11 @@ void xg::WireEndRenderer::Draw(
     xg::GLEnableAlphaBlend();
     m_VBO.Bind();
 
-    glUniformMatrix4fv(m_ViewProjectionUniform, 1, GL_FALSE, glm::value_ptr(viewProjection));
-    glUniform1f(m_FeatherUniform, feather);
-    glUniform1f(m_SizeUniform, m_Size);
-    glUniform3fv(m_ColorEmptyUniform, 1, glm::value_ptr(m_ColorEmpty));
-    glUniform3fv(m_ColorFullUniform, 1, glm::value_ptr(m_ColorFull));
-    glUniform1f(m_ExpandUniform, m_Expand ? 1.f : 0.f);
     const glm::vec2 fWireTextureSize = infoTextureSize;
-    glUniform2fv(m_WireTextureSizeUniform, 1, glm::value_ptr(fWireTextureSize));
+    SetUniform(m_UniformsLocations.m_WireTextureSize, fWireTextureSize);
+    SetUniform(m_UniformsLocations.m_ViewProjection, viewProjection);
+    SetUniform(m_UniformsLocations.m_Feather, feather);
+    SetUniformValues(m_UniformsLocations, m_Uniforms);
 
     // todo need to set this every frame?
     glBindTexture(GL_TEXTURE_2D, infoTexture);

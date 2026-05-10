@@ -7,7 +7,7 @@
 
 #include "Rendering/VertexBufferObject.h"
 #include "Rendering/IWireRenderer.h"
-#include "WireLineRendererUniforms.h"
+#include "WireLineUniforms.h"
 
 namespace xc
 {
