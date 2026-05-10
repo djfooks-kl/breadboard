@@ -27,6 +27,22 @@ namespace
     }
 }
 
+xg::UI::UI()
+    : m_CrossCursor(glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR))
+{
+}
+
+xg::UI::~UI()
+{
+    glfwDestroyCursor(m_CrossCursor);
+}
+
+void xg::UI::UpdateMouse(flecs::world& world, GLFWwindow* window)
+{
+
+    glfwSetCursor(window, m_CrossCursor);
+}
+
 void xg::UI::DrawDebugMenu(flecs::world& world)
 {
     const auto& input = world.get<xg::InputComponent>();
