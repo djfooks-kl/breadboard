@@ -1,11 +1,10 @@
 #include "SwitchRenderer.h"
 
-#include <glm/gtc/type_ptr.hpp>
-
 #include "Core/GLFWLib.h"
 #include "Core/ShaderProgram.h"
 #include "Rendering/RenderingFlags.h"
 #include "Rendering/RendererHelpers.h"
+#include "Rendering/UniformHelpers.h"
 
 namespace
 {
@@ -14,24 +13,37 @@ namespace
     constexpr GLuint s_AttributeP2 = 2;
     constexpr GLuint s_AttributeUV = 3;
     constexpr GLuint s_AttributeWireUV = 4;
+
+    // -- [CODEGEN START] UniformsDefinitions(xg::SwitchUniforms)
+    void FillUniformLocations(const xc::ShaderProgram& program, xg::SwitchUniformsLocations& out_uniformsLocations)
+    {
+        out_uniformsLocations.m_OutlineColor = program.GetUniformLocation("u_OutlineColor");
+        out_uniformsLocations.m_HasInfoTexture = program.GetUniformLocation("u_HasInfoTexture");
+        out_uniformsLocations.m_InnerRadius = program.GetUniformLocation("u_InnerRadius");
+        out_uniformsLocations.m_OuterRadius = program.GetUniformLocation("u_OuterRadius");
+        out_uniformsLocations.m_InnerContactWidth = program.GetUniformLocation("u_InnerContactWidth");
+        out_uniformsLocations.m_OuterContactWidth = program.GetUniformLocation("u_OuterContactWidth");
+        out_uniformsLocations.m_ViewProjection = program.GetUniformLocation("u_ViewProjection");
+        out_uniformsLocations.m_Feather = program.GetUniformLocation("u_Feather");
+        out_uniformsLocations.m_WireTextureSize = program.GetUniformLocation("u_WireTextureSize");
+    }
+
+    void SetUniformValues(const xg::SwitchUniformsLocations& uniformsLocations, const xg::SwitchUniforms& uniforms)
+    {
+        xg::SetUniform(uniformsLocations.m_OutlineColor, uniforms.m_OutlineColor);
+        xg::SetUniform(uniformsLocations.m_HasInfoTexture, uniforms.m_HasInfoTexture);
+        xg::SetUniform(uniformsLocations.m_InnerRadius, uniforms.m_InnerRadius);
+        xg::SetUniform(uniformsLocations.m_OuterRadius, uniforms.m_OuterRadius);
+        xg::SetUniform(uniformsLocations.m_InnerContactWidth, uniforms.m_InnerContactWidth);
+        xg::SetUniform(uniformsLocations.m_OuterContactWidth, uniforms.m_OuterContactWidth);
+    }
+    // -- [CODEGEN END]
 }
 
 xg::SwitchRenderer::SwitchRenderer(const xc::ShaderProgram& program)
     : m_Program(program)
-    , m_HasInfoTexture(true)
-    , m_InnerRadius(0.26f)
-    , m_OuterRadius(0.31f)
-    , m_InnerContactWidth(0.07f)
-    , m_OuterContactWidth(0.14f)
 {
-    m_FeatherUniform = m_Program.GetUniformLocation("feather");
-    m_WireTextureSizeUniform = m_Program.GetUniformLocation("wireTextureSize");
-    m_ViewProjectionUniform = m_Program.GetUniformLocation("viewProjection");
-    m_ColorUniform = m_Program.GetUniformLocation("outlineColor");
-    m_InnerRadiusUniform = m_Program.GetUniformLocation("innerRadius");
-    m_OuterRadiusUniform = m_Program.GetUniformLocation("outerRadius");
-    m_InnerContactWidthUniform = m_Program.GetUniformLocation("innerContactWidth");
-    m_OuterContactWidthUniform = m_Program.GetUniformLocation("outerContactWidth");
+    FillUniformLocations(program, m_UniformsLocations);
 
     m_VBO.AddIVertexAttribute(s_AttributeBaseP, 2);
     m_VBO.AddIVertexAttribute(s_AttributeP1, 2);
@@ -99,15 +111,11 @@ void xg::SwitchRenderer::Draw(
     xg::GLEnableAlphaBlend();
     m_VBO.Bind();
 
-    glUniformMatrix4fv(m_ViewProjectionUniform, 1, GL_FALSE, glm::value_ptr(viewProjection));
-    glUniform1f(m_FeatherUniform, feather);
-    glUniform1f(m_InnerRadiusUniform, m_InnerRadius);
-    glUniform1f(m_OuterRadiusUniform, m_OuterRadius);
-    glUniform1f(m_InnerContactWidthUniform, m_InnerContactWidth);
-    glUniform1f(m_OuterContactWidthUniform, m_OuterContactWidth);
-    glUniform3fv(m_ColorUniform, 1, glm::value_ptr(m_Color));
-    const glm::vec2 fWireTextureSize = m_HasInfoTexture ? wireTextureSize : glm::ivec2(0, 0);
-    glUniform2fv(m_WireTextureSizeUniform, 1, glm::value_ptr(fWireTextureSize));
+    const glm::vec2 fWireTextureSize = wireTextureSize;
+    SetUniform(m_UniformsLocations.m_WireTextureSize, fWireTextureSize);
+    SetUniform(m_UniformsLocations.m_ViewProjection, viewProjection);
+    SetUniform(m_UniformsLocations.m_Feather, feather);
+    SetUniformValues(m_UniformsLocations, m_Uniforms);
 
     // todo need to set this every frame?
     glBindTexture(GL_TEXTURE_2D, texture);

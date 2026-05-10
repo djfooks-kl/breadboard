@@ -56,6 +56,7 @@ set(source_files
     src/CogNodeRenderer.cpp
     src/CogNodeRenderer.h
     src/CogNodesComponent.h
+    src/CogNodeUniforms.h
     src/CogSystem.cpp
     src/CogSystem.h
     src/GridAttachmentsComponent.h
@@ -88,6 +89,7 @@ set(source_files
     src/STDStreamFunctions.h
     src/SwitchRenderer.cpp
     src/SwitchRenderer.h
+    src/SwitchUniforms.h
     src/TextRenderer.cpp
     src/TextRenderer.h
     src/UI.cpp
@@ -115,8 +117,10 @@ set(source_files
     src/WindowSizeSystem.h
     src/WireEndRenderer.cpp
     src/WireEndRenderer.h
+    src/WireEndUniforms.h
     src/WireLineRenderer.cpp
     src/WireLineRenderer.h
+    src/WireLineUniforms.h
     src/WorldMouseComponent.h
 )
 

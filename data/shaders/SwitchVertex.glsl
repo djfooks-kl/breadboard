@@ -15,14 +15,15 @@ out float vConnected;
 
 uniform sampler2D infoTexture;
 
-uniform float feather;
-uniform float outerRadius;
-uniform vec2 wireTextureSize;
-uniform mat4 viewProjection;
+uniform float u_Feather;
+uniform float u_OuterRadius;
+uniform vec2 u_WireTextureSize;
+uniform mat4 u_ViewProjection;
+uniform float u_HasInfoTexture;
 
 void main()
 {
-    float r = outerRadius + feather * 2.0;
+    float r = u_OuterRadius + u_Feather * 2.0;
     vec2 pBaseMin = vec2(baseP.x - r, baseP.y - r);
     vec2 pBaseMax = vec2(baseP.x + r, baseP.y + r);
     vec2 p1Min = vec2(p1.x - r, p1.y - r);
@@ -40,7 +41,7 @@ void main()
     float valueP1;
     float valueP2;
 
-    if (wireTextureSize.x == 0)
+    if (u_WireTextureSize.x == 0)
     {
         connected = 0.f;
         valueBase = 0.f;
@@ -49,10 +50,10 @@ void main()
     }
     else
     {
-        connected = texture(infoTexture, (wireUV + vec2(0.5, 0.5)) / wireTextureSize).x;
-        valueBase = texture(infoTexture, (wireUV + vec2(1.5, 0.5)) / wireTextureSize).x;
-        valueP1   = texture(infoTexture, (wireUV + vec2(2.5, 0.5)) / wireTextureSize).x;
-        valueP2   = texture(infoTexture, (wireUV + vec2(3.5, 0.5)) / wireTextureSize).x;
+        connected = u_HasInfoTexture * texture(infoTexture, (wireUV + vec2(0.5, 0.5)) / u_WireTextureSize).x;
+        valueBase = u_HasInfoTexture * texture(infoTexture, (wireUV + vec2(1.5, 0.5)) / u_WireTextureSize).x;
+        valueP1   = u_HasInfoTexture * texture(infoTexture, (wireUV + vec2(2.5, 0.5)) / u_WireTextureSize).x;
+        valueP2   = u_HasInfoTexture * texture(infoTexture, (wireUV + vec2(3.5, 0.5)) / u_WireTextureSize).x;
     }
 
     vWorldPos = p;
@@ -68,5 +69,5 @@ void main()
     vP1.z = sign(valueP1 + (isSimpleSwitch * connected * valueP2) + (valueBase * (is3Pin * (1.0 - connected))));
     vP2.z = sign(valueP2 + (isSimpleSwitch * connected * valueP1) + (valueBase * (is3Pin * connected)));
 
-    gl_Position = viewProjection * vec4(p, 0.0, 1.0);
+    gl_Position = u_ViewProjection * vec4(p, 0.0, 1.0);
 }

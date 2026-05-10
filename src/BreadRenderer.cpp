@@ -104,10 +104,10 @@ void xg::BreadRenderer::Load(const xg::RenderSettings& settings)
     m_CogBoxPreviewDropRenderer->m_Expand = 0.f;
 
     m_CogNodeRenderer = std::make_unique<xg::CogNodeRenderer>(*m_CogNodeProgram);
-    m_CogNodeRenderer->SetRingColor(glm::vec3(0.f, 1.f, 0.f));
-    m_CogNodeRenderer->SetRadius(settings.m_NodeSize);
-    m_CogNodeRenderer->SetInnerRadius(settings.m_NodeInnerRadius);
-    m_CogNodeRenderer->SetOuterRadius(settings.m_NodeOuterRadius);
+    m_CogNodeRenderer->m_Uniforms.m_RingColor = glm::vec3(0.f, 1.f, 0.f);
+    m_CogNodeRenderer->m_Uniforms.m_Radius = settings.m_NodeSize;
+    m_CogNodeRenderer->m_Uniforms.m_InnerRadius = settings.m_NodeInnerRadius;
+    m_CogNodeRenderer->m_Uniforms.m_OuterRadius = settings.m_NodeOuterRadius;
     m_CogNodeRenderer->AddNode(glm::ivec2(1, 1), glm::ivec2(0, 0));
     m_CogNodeRenderer->AddNode(glm::ivec2(2, 1), glm::ivec2(1, 0));
     m_CogNodeRenderer->AddNode(glm::ivec2(3, 1), glm::ivec2(2, 0));

@@ -2,14 +2,9 @@
 
 #include "Rendering/IRenderer.h"
 #include "Rendering/VertexBufferObject.h"
+#include "CogNodeUniforms.h"
 
 #include <glm/fwd.hpp>
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
-#include <vector>
-
-typedef int GLint;
-typedef unsigned int GLuint;
 
 namespace xc
 {
@@ -24,30 +19,16 @@ namespace xg
 
         DECLARE_IRENDERER_FUNCTIONS();
 
-        void SetRingColor(const glm::vec3 v) { m_RingColor = std::move(v); }
-        void SetInnerRadius(const float v) { m_InnerRadius = v; }
-        void SetOuterRadius(const float v) { m_OuterRadius = v; }
-        void SetRadius(const float v) { m_Radius = v; }
-
         void AddNode(
             const glm::ivec2& position,
             const glm::ivec2& wireUV);
+
+        xg::CogNodeUniforms m_Uniforms;
 
     private:
         const xc::ShaderProgram& m_Program;
         xg::VertexBufferObject m_VBO;
 
-        glm::vec3 m_RingColor;
-        float m_InnerRadius = 0.5f;
-        float m_OuterRadius = 0.5f;
-        float m_Radius = 1.f;
-
-        GLint m_FeatherUniform = -1;
-        GLint m_WireTextureSizeUniform = -1;
-        GLint m_ViewProjectionUniform = -1;
-        GLint m_RadiusUniform = -1;
-        GLint m_InnerRadiusUniform = -1;
-        GLint m_OuterRadiusUniform = -1;
-        GLint m_RingColorUniform = -1;
+        xg::CogNodeUniformsLocations m_UniformsLocations;
     };
 }

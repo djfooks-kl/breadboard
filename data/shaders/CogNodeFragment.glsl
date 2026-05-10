@@ -1,10 +1,10 @@
 #version 300 es
 precision mediump float;
 
-uniform float feather;
-uniform float innerRadius;
-uniform float outerRadius;
-uniform vec3 ringColor;
+uniform float u_Feather;
+uniform float u_InnerRadius;
+uniform float u_OuterRadius;
+uniform vec3 u_RingColor;
 
 in vec2 vP;
 in vec2 vNode;
@@ -32,16 +32,16 @@ vec3 getWireColor(float wireValue)
 
 void main(void)
 {
-    float outerR = outerRadius - feather * 0.5;
-    float innerR = innerRadius - feather * 0.5;
+    float outerR = u_OuterRadius - u_Feather * 0.5;
+    float innerR = u_InnerRadius - u_Feather * 0.5;
 
     vec2 offset = vP - vNode.xy;
     float d = length(offset);
 
-    float alphaBg = 1.0 - ((d - outerR) / feather);
-    vec4 color = vec4(ringColor.rgb, alphaBg);
+    float alphaBg = 1.0 - ((d - outerR) / u_Feather);
+    vec4 color = vec4(u_RingColor.rgb, alphaBg);
 
-    float alphaFg = 1.0 - ((d - innerR) / feather);
+    float alphaFg = 1.0 - ((d - innerR) / u_Feather);
     vec3 fgColor = getWireColor(vWireValue);
     color = blend(color, fgColor, alphaFg);
 

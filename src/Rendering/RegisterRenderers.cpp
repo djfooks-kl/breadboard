@@ -72,22 +72,22 @@ void xg::RegisterCogRenderers(
 
     {
         std::unique_ptr<xg::CogNodeRenderer> renderer = std::make_unique<xg::CogNodeRenderer>(shaderProgramMap.at(s_ShaderCogNode));
-        renderer->SetRingColor(glm::vec3(0.f, 1.f, 0.f));
-        renderer->SetRadius(settings.m_NodeSize);
-        renderer->SetInnerRadius(settings.m_NodeInnerRadius);
-        renderer->SetOuterRadius(settings.m_NodeOuterRadius);
+        renderer->m_Uniforms.m_RingColor = glm::vec3(0.f, 1.f, 0.f);
+        renderer->m_Uniforms.m_Radius = settings.m_NodeSize;
+        renderer->m_Uniforms.m_InnerRadius = settings.m_NodeInnerRadius;
+        renderer->m_Uniforms.m_OuterRadius = settings.m_NodeOuterRadius;
         if (mode == ERenderingMode::DropPreview)
-            renderer->SetRingColor(settings.m_DropPreviewColor);
+            renderer->m_Uniforms.m_RingColor = settings.m_DropPreviewColor;
         map.Register(s_RenderableInputCogNode, std::move(renderer));
     }
     {
         std::unique_ptr<xg::CogNodeRenderer> renderer = std::make_unique<xg::CogNodeRenderer>(shaderProgramMap.at(s_ShaderCogNode));
-        renderer->SetRingColor(glm::vec3(0.f, 0.f, 0.f));
-        renderer->SetRadius(settings.m_NodeSize);
-        renderer->SetInnerRadius(settings.m_NodeInnerRadius);
-        renderer->SetOuterRadius(settings.m_NodeOuterRadius);
+        renderer->m_Uniforms.m_RingColor = glm::vec3(0.f, 0.f, 0.f);
+        renderer->m_Uniforms.m_Radius = settings.m_NodeSize;
+        renderer->m_Uniforms.m_InnerRadius = settings.m_NodeInnerRadius;
+        renderer->m_Uniforms.m_OuterRadius = settings.m_NodeOuterRadius;
         if (mode == ERenderingMode::DropPreview)
-            renderer->SetRingColor(settings.m_DropPreviewColor);
+            renderer->m_Uniforms.m_RingColor = settings.m_DropPreviewColor;
         map.Register(s_RenderableOutputCogNode, std::move(renderer));
     }
 
@@ -98,8 +98,8 @@ void xg::RegisterCogRenderers(
     {
         std::unique_ptr<xg::SwitchRenderer> renderer = std::make_unique<xg::SwitchRenderer>(shaderProgramMap.at(s_ShaderSwitch));
         if (mode == ERenderingMode::DropPreview)
-            renderer->SetColor(settings.m_DropPreviewColor);
-        renderer->SetHasInfoTexture(mode == ERenderingMode::Normal);
+            renderer->m_Uniforms.m_OutlineColor = settings.m_DropPreviewColor;
+        renderer->m_Uniforms.m_HasInfoTexture = mode == ERenderingMode::Normal;
         map.Register(s_RenderableSwitch, std::move(renderer));
     }
 
