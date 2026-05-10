@@ -7,8 +7,7 @@
 
 #include "Rendering/VertexBufferObject.h"
 #include "Rendering/IWireRenderer.h"
-
-typedef unsigned int GLuint;
+#include "WireLineRendererUniforms.h"
 
 namespace xc
 {
@@ -20,10 +19,6 @@ namespace xg
     struct WireLineRenderer : public xg::IWireRenderer
     {
         WireLineRenderer(const xc::ShaderProgram& program);
-
-#define ADD_UNIFORM(TYPE, NAME, DEFAULT_VALUE) void Set##NAME(const TYPE v) { m_##NAME = std::move(v); }
-#include "WireLineRendererUniformList.h"
-#undef ADD_UNIFORM
 
         float GetHeight() const override { return m_Height; }
         void SetHeight(const float v) { m_Height = v; }
@@ -41,22 +36,14 @@ namespace xg
 
         void RemoveAll();
 
+        xg::WireLineUniforms m_Uniforms;
+
     private:
         const xc::ShaderProgram& m_Program;
         xg::VertexBufferObject m_VBO;
 
         float m_Height;
 
-#define ADD_UNIFORM(TYPE, NAME, DEFAULT_VALUE) TYPE m_##NAME = TYPE(DEFAULT_VALUE);
-#include "WireLineRendererUniformList.h"
-#undef ADD_UNIFORM
-
-#define ADD_UNIFORM(TYPE, NAME, DEFAULT_VALUE) GLint m_##NAME##Uniform = -1;
-#include "WireLineRendererUniformList.h"
-#undef ADD_UNIFORM
-
-        GLint m_WireTextureSizeUniform = -1;
-        GLint m_ViewProjectionUniform = -1;
-        GLint m_FeatherUniform = -1;
+        xg::WireLineUniformsLocations m_UniformsLocations;
     };
 }

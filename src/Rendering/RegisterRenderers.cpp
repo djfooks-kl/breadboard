@@ -140,11 +140,11 @@ void xg::RegisterWireRenderers(
 
     {
         std::unique_ptr<xg::WireLineRenderer> renderer = std::make_unique<xg::WireLineRenderer>(shaderProgramMap.at(s_ShaderWire));
-        renderer->SetColorEmpty(glm::vec3(1.f));
-        renderer->SetColorFull(settings.m_WireFullColor);
+        renderer->m_Uniforms.m_ColorEmpty = glm::vec3(1.f);
+        renderer->m_Uniforms.m_ColorFull = settings.m_WireFullColor;
         if (mode == ERenderingMode::DropPreview)
-            renderer->SetColorEmpty(settings.m_DropPreviewColor);
-        renderer->SetHasInfoTexture(mode == ERenderingMode::Normal);
+            renderer->m_Uniforms.m_ColorEmpty = settings.m_DropPreviewColor;
+        renderer->m_Uniforms.m_HasInfoTexture = mode == ERenderingMode::Normal;
         renderer->SetHeight(s_WireLineHeight);
         map.Register(s_RenderableWire, std::move(renderer));
     }

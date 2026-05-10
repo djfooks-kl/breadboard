@@ -134,6 +134,8 @@ set(rendering_files
     src/Rendering/RendererMap.h
     src/Rendering/ShaderProgramMap.h
     src/Rendering/ShaderProgramResourceId.h
+    src/Rendering/UniformHelpers.cpp
+    src/Rendering/UniformHelpers.h
     src/Rendering/VertexBufferObject.cpp
     src/Rendering/VertexBufferObject.h
 )
