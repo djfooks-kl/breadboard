@@ -17,7 +17,6 @@ namespace
         out_uniformsLocations.m_RingColor = program.GetUniformLocation("u_RingColor");
         out_uniformsLocations.m_InnerRadius = program.GetUniformLocation("u_InnerRadius");
         out_uniformsLocations.m_OuterRadius = program.GetUniformLocation("u_OuterRadius");
-        out_uniformsLocations.m_Radius = program.GetUniformLocation("u_Radius");
         out_uniformsLocations.m_ViewProjection = program.GetUniformLocation("u_ViewProjection");
         out_uniformsLocations.m_Feather = program.GetUniformLocation("u_Feather");
         out_uniformsLocations.m_WireTextureSize = program.GetUniformLocation("u_WireTextureSize");
@@ -28,7 +27,6 @@ namespace
         xg::SetUniform(uniformsLocations.m_RingColor, uniforms.m_RingColor);
         xg::SetUniform(uniformsLocations.m_InnerRadius, uniforms.m_InnerRadius);
         xg::SetUniform(uniformsLocations.m_OuterRadius, uniforms.m_OuterRadius);
-        xg::SetUniform(uniformsLocations.m_Radius, uniforms.m_Radius);
     }
     // -- [CODEGEN END]
 }

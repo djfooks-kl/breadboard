@@ -4,7 +4,7 @@ precision mediump float;
 uniform float u_Feather;
 uniform vec2 u_WireTextureSize;
 uniform mat4 u_ViewProjection;
-uniform float u_Radius;
+uniform float u_OuterRadius;
 
 uniform sampler2D wireTexture;
 
@@ -18,7 +18,7 @@ out float vWireValue;
 
 void main()
 {
-    float r = u_Radius + u_Feather;
+    float r = u_OuterRadius + u_Feather;
     vec2 p1 = vec2(position.x - r, position.y - r);
     vec2 p2 = vec2(position.x + r, position.y + r);
 

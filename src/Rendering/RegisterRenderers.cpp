@@ -73,7 +73,6 @@ void xg::RegisterCogRenderers(
     {
         std::unique_ptr<xg::CogNodeRenderer> renderer = std::make_unique<xg::CogNodeRenderer>(shaderProgramMap.at(s_ShaderCogNode));
         renderer->m_Uniforms.m_RingColor = glm::vec3(0.f, 1.f, 0.f);
-        renderer->m_Uniforms.m_Radius = settings.m_NodeSize;
         renderer->m_Uniforms.m_InnerRadius = settings.m_NodeInnerRadius;
         renderer->m_Uniforms.m_OuterRadius = settings.m_NodeOuterRadius;
         if (mode == ERenderingMode::DropPreview)
@@ -83,7 +82,6 @@ void xg::RegisterCogRenderers(
     {
         std::unique_ptr<xg::CogNodeRenderer> renderer = std::make_unique<xg::CogNodeRenderer>(shaderProgramMap.at(s_ShaderCogNode));
         renderer->m_Uniforms.m_RingColor = glm::vec3(0.f, 0.f, 0.f);
-        renderer->m_Uniforms.m_Radius = settings.m_NodeSize;
         renderer->m_Uniforms.m_InnerRadius = settings.m_NodeInnerRadius;
         renderer->m_Uniforms.m_OuterRadius = settings.m_NodeOuterRadius;
         if (mode == ERenderingMode::DropPreview)
