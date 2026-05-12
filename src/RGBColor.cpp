@@ -1,5 +1,8 @@
 #include "RGBColor.h"
 
+#include <iostream>
+#include <string>
+
 xg::RGBColor::RGBColor() = default;
 
 xg::RGBColor::RGBColor(std::string hex)
@@ -9,8 +12,9 @@ xg::RGBColor::RGBColor(std::string hex)
 		hex = hex.substr(1);
 	}
 
-	int r, g, b;
-	sscanf_s(hex.c_str(), "%02x%02x%02x", &r, &g, &b);
+	const int r = std::stoi(hex.substr(0, 2), nullptr, 16);
+	const int g = std::stoi(hex.substr(2, 2), nullptr, 16);
+	const int b = std::stoi(hex.substr(4, 2), nullptr, 16);
 
 	m_Value = glm::vec3{
 		static_cast<float>(r) / 255.f,

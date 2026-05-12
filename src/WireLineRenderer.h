@@ -23,18 +23,18 @@ namespace xg
         float GetHeight() const override { return m_Height; }
         void SetHeight(const float v) { m_Height = v; }
 
-        virtual void AddWire(
+        void AddWire(
             const glm::ivec2& p1,
             const glm::ivec2& p2,
-            const glm::ivec2& infoUV);
+            const glm::ivec2& infoUV) override;
 
         void Draw(
             const glm::mat4& viewProjection,
             const float feather,
             const glm::ivec2& infoTextureSize,
-            const GLuint infoTexture);
+            const GLuint infoTexture) override;
 
-        void RemoveAll();
+        void RemoveAll() override;
 
         xg::WireLineUniforms m_Uniforms;
 
