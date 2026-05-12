@@ -72,9 +72,6 @@ set(source_files
     src/InputSystem.cpp
     src/InputSystem.h
     src/IRenderableAdder.h
-    src/MouseTrailComponent.h
-    src/MouseTrailSystem.cpp
-    src/MouseTrailSystem.h
     src/OnStageAddedComponent.h
     src/OnStageComponent.h
     src/OnStageRemovedComponent.h

@@ -22,8 +22,6 @@
 #include "GridSizeComponent.h"
 #include "InputComponent.h"
 #include "InputSystem.h"
-#include "MouseTrailComponent.h"
-#include "MouseTrailSystem.h"
 #include "OnStageAddedComponent.h"
 #include "OnStageRemovedComponent.h"
 #include "OnStageSystem.h"
@@ -50,7 +48,6 @@ void xg::SetupWorld(flecs::world& world)
     world.emplace<xg::CogMap>();
     world.emplace<xg::GridAttachmentsComponent>();
     world.emplace<xg::InputComponent>();
-    world.emplace<xg::MouseTrailComponent>();
     world.emplace<xg::OnStageAddedComponent>();
     world.emplace<xg::OnStageRemovedComponent>();
     world.emplace<xg::RenderSettings>();
@@ -78,7 +75,6 @@ void xg::UpdateWorld(flecs::world& world, const double time, const float deltaTi
 {
     xg::CameraInputSystem::Update(world, time, deltaTime);
     xg::CameraSystem::Update(world, time, deltaTime);
-    xg::MouseTrailSystem::Update(world, time, deltaTime);
     xg::UIHoverSystem::Update(world);
     xg::UIDragDropSystem::Update(world);
     xg::UIDragPreviewSystem::Update(world);

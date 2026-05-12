@@ -15,7 +15,6 @@
 #include "Core/GLFWLib.h"
 #include "Core/ShaderProgram.h"
 #include "InputSystem.h"
-#include "MouseTrailComponent.h"
 #include "RenderSettings.h"
 #include "SettingsHelpers.h"
 #include "UI.h"
