@@ -11,7 +11,7 @@ namespace
     static const xg::CogResourceId s_ResourceId = xg::CogResourceId::Create("Relay");
     static const xg::RenderableResourceId s_RenderableSwitch = xg::RenderableResourceId::Create("Switch");
     static const xg::RenderableResourceId s_RenderableOutputCogNode = xg::RenderableResourceId::Create("OutputCogNode");
-    static const std::unordered_set<glm::ivec2> s_WireNodes{ glm::ivec2(0, 0), glm::ivec2(1, 0), glm::ivec2(2, 0) };
+    static const std::unordered_set<glm::ivec2> s_WireNodes{ glm::ivec2(0, 0), glm::ivec2(0, 1), glm::ivec2(0, 2), glm::ivec2(0, 3) };
 }
 
 xg::CogResourceId xg::cog::GetRelayResourceId()
