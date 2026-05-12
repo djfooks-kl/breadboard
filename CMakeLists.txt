@@ -9,8 +9,8 @@ set(gcc_like_cxx "$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU,LCC,Em
 set(msvc_cxx "$<COMPILE_LANG_AND_ID:CXX,MSVC>")
 
 target_compile_options(project_compiler_flags INTERFACE
-    "$<${gcc_like_cxx}:$<BUILD_INTERFACE:-Wall;-Wextra;-Wshadow;-Wformat=2;-Wunused>>"
-    "$<${msvc_cxx}:$<BUILD_INTERFACE:-W4>>"
+    "$<${gcc_like_cxx}:$<BUILD_INTERFACE:-Wall;-Wextra;-Wshadow;-Wformat=2;-Wunused;-Werror>>"
+    "$<${msvc_cxx}:$<BUILD_INTERFACE:-W4;-WX>>"
 )
 
 set(core_files
@@ -242,7 +242,7 @@ target_link_libraries(BreadProjectLib PUBLIC glm::glm-header-only)
 
 target_include_directories(BreadProjectLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/stb)
 target_include_directories(BreadProjectLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/nlohmann-json)
-target_include_directories(BreadProjectLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/toml11)
+target_include_directories(BreadProjectLib SYSTEM PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/toml11)
 
 add_subdirectory(3rdParty/imgui-1.92.1)
 target_include_directories(BreadProjectLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/imgui-1.92.1)
