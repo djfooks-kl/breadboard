@@ -9,7 +9,7 @@ namespace
     static const xg::CogResourceId s_ResourceId = xg::CogResourceId::Create("Battery");
     static const xg::RenderableResourceId s_RenderableBatteryIcon = xg::RenderableResourceId::Create("BatteryIcon");
     static const xg::RenderableResourceId s_RenderableOutputCogNode = xg::RenderableResourceId::Create("OutputCogNode");
-    static const std::unordered_set<glm::ivec2> s_WireNodes{ glm::ivec2(0, 0) };
+    static const std::unordered_set<glm::ivec2> s_WireNodes{ glm::ivec2(0, 1) };
 }
 
 xg::CogResourceId xg::cog::GetBatteryResourceId()

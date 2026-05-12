@@ -29,6 +29,7 @@ namespace xg
         void DrawDebugInfo(flecs::world& world);
         void DrawComponentMenu(flecs::world& world);
 
+        GLFWcursor* m_ArrowCursor = nullptr;
         GLFWcursor* m_CrossCursor = nullptr;
 
         ImVec2 m_PopupPosition;

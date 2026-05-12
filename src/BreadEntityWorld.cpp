@@ -33,6 +33,8 @@
 #include "UIDragPreviewSystem.h"
 #include "UIDragValidationSystem.h"
 #include "UIDragValidComponent.h"
+#include "UIHoverComponent.h"
+#include "UIHoverSystem.h"
 #include "UIPreviewAddingCogComponent.h"
 #include "UIRedoComponent.h"
 #include "UIRotateComponent.h"
@@ -54,6 +56,7 @@ void xg::SetupWorld(flecs::world& world)
     world.emplace<xg::RenderSettings>();
     world.emplace<xg::UIDraggingDropComponent>();
     world.emplace<xg::UIDragValidComponent>();
+    world.emplace<xg::UIHoverComponent>();
     world.emplace<xg::UIPreviewAddingCogComponent>();
     world.emplace<xg::UIRotateComponent>();
     world.emplace<xg::WindowSizeComponent>();
@@ -76,6 +79,7 @@ void xg::UpdateWorld(flecs::world& world, const double time, const float deltaTi
     xg::CameraInputSystem::Update(world, time, deltaTime);
     xg::CameraSystem::Update(world, time, deltaTime);
     xg::MouseTrailSystem::Update(world, time, deltaTime);
+    xg::UIHoverSystem::Update(world);
     xg::UIDragDropSystem::Update(world);
     xg::UIDragPreviewSystem::Update(world);
     xg::UIDragValidationSystem::Update(world);

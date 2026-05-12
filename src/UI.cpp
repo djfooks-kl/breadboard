@@ -10,10 +10,11 @@
 #include "Cogs/CogPrototype.h"
 #include "Core/GLFWLib.h"
 #include "InputComponent.h"
+#include "UIDraggingDropComponent.h"
+#include "UIHoverComponent.h"
 #include "UIPreviewAddingCogComponent.h"
 #include "UIRedoComponent.h"
 #include "UIRotateComponent.h"
-#include "UIDraggingDropComponent.h"
 #include "UIUndoComponent.h"
 #include "WorldMouseComponent.h"
 
@@ -28,19 +29,20 @@ namespace
 }
 
 xg::UI::UI()
-    : m_CrossCursor(glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR))
+    : m_ArrowCursor(glfwCreateStandardCursor(GLFW_ARROW_CURSOR))
+    , m_CrossCursor(glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR))
 {
 }
 
 xg::UI::~UI()
 {
+    glfwDestroyCursor(m_ArrowCursor);
     glfwDestroyCursor(m_CrossCursor);
 }
 
 void xg::UI::UpdateMouse(flecs::world& world, GLFWwindow* window)
 {
-
-    glfwSetCursor(window, m_CrossCursor);
+    glfwSetCursor(window, world.get<xg::UIHoverComponent>().m_Node ? m_CrossCursor : m_ArrowCursor);
 }
 
 void xg::UI::DrawDebugMenu(flecs::world& world)
