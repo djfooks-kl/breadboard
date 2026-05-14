@@ -1,4 +1,4 @@
-Try it out [COMING SOON](https://djfooks-kl.github.io/breadboard/pages/Breadboard.html)
+Try it out here (https://djfooks-kl.github.io/breadboard/pages/Breadboard.html)
 
 ### To build with MSVC
 
@@ -8,6 +8,12 @@ mkdir build
 cd build
 cmake ..
 cmake --build .
+```
+
+With address sanitizer
+
+```
+cmake -DENABLE_ASAN=ON ..
 ```
 
 ### To build with Emscripten (for web)

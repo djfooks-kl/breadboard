@@ -236,6 +236,12 @@ if (NOT EMSCRIPTEN)
     target_include_directories(BreadProjectLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/glad/include)
     target_include_directories(BreadProjectLib PUBLIC ${glfw_include_dir})
     target_link_libraries(BreadProjectLib PUBLIC glfw ${GLFW_LIBRARIES})
+
+    option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
+    if(ENABLE_ASAN)
+        target_compile_options(BreadProjectLib PRIVATE -fsanitize=address /FS)
+        target_link_options(BreadProjectLib PRIVATE -fsanitize=address)
+    endif()
 endif()
 
 add_subdirectory(3rdParty/glm-1.0.1)
