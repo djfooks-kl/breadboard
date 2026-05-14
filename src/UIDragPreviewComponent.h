@@ -13,6 +13,6 @@ namespace xg
         xg::CogResourceId m_CogId;
         glm::ivec2 m_Position = glm::ivec2(0, 0);
         xc::Rotation90 m_Rotation;
-        glm::vec2 m_PreviewPosition;
+        glm::vec2 m_PreviewPosition = glm::vec2(0.f);
     };
 }

@@ -3,6 +3,8 @@
 #include <glm/ext/vector_float2.hpp>
 #include <ImGui/imgui.h>
 
+class BaseApp;
+
 typedef struct GLFWcursor GLFWcursor;
 struct GLFWwindow;
 
@@ -16,11 +18,8 @@ namespace xg
     class UI
     {
     public:
-        UI();
-        ~UI();
-
         void Draw(flecs::world& world);
-        void UpdateMouse(flecs::world& world, GLFWwindow* window);
+        void UpdateMouse(flecs::world& world, BaseApp& app);
 
     private:
 
@@ -28,9 +27,6 @@ namespace xg
         void DrawDebugMenu(flecs::world& world);
         void DrawDebugInfo(flecs::world& world);
         void DrawComponentMenu(flecs::world& world);
-
-        GLFWcursor* m_ArrowCursor = nullptr;
-        GLFWcursor* m_CrossCursor = nullptr;
 
         ImVec2 m_PopupPosition;
 

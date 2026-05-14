@@ -8,8 +8,8 @@ namespace xg
 {
     struct WireEndUniforms
     {
-        glm::vec3 m_ColorEmpty;
-        glm::vec3 m_ColorFull;
+        glm::vec3 m_ColorEmpty = glm::vec3(0.f);
+        glm::vec3 m_ColorFull = glm::vec3(0.f);
         float m_Size = 1.f;
         bool m_HasInfoTexture = false;
         bool m_Expand = false;

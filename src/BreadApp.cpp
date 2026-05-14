@@ -46,7 +46,8 @@ namespace
     }
 }
 
-BreadApp::BreadApp()
+BreadApp::BreadApp(BaseApp& app)
+    : m_BaseApp(app)
 {
 }
 
@@ -99,7 +100,7 @@ void BreadApp::Update(GLFWwindow* window, const double time, const float deltaTi
     m_BreadRenderer->Update(m_World);
 
     Render(time, deltaTime);
-    m_UI->UpdateMouse(m_World, window);
+    m_UI->UpdateMouse(m_World, m_BaseApp);
     m_UI->Draw(m_World);
 
     // update input system last as it clears all the input state ready for next frame

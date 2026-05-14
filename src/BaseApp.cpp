@@ -102,7 +102,7 @@ bool BaseApp::Run()
 
     m_LastFrame = glfwGetTime();
 
-    m_GameApp = std::make_unique<BreadApp>();
+    m_GameApp = std::make_unique<BreadApp>(*this);
     m_GameApp->Init(m_Window);
 
     RunInternal(m_Window);

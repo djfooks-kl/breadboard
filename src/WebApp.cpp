@@ -4,6 +4,8 @@
 #include <emscripten/emscripten.h>
 #include <emscripten/html5.h>
 
+#include "MouseCursorEnum.h"
+
 namespace
 {
     void UpdateInternal(void* userData)
@@ -11,14 +13,25 @@ namespace
         WebApp& webApp = *static_cast<WebApp*>(userData);
         webApp.Update();
     }
-}
 
-WebApp::~WebApp()
-{
+    const char* GetCursorName(const EMouseCursor cursor)
+    {
+        switch (cursor)
+        {
+        case EMouseCursor::Arrow: return "default";
+        case EMouseCursor::Cross: return "crosshair";
+        }
+        return "default";
+    }
 }
 
 WebApp::WebApp()
     : BaseApp()
+    , m_ActiveCursor(EMouseCursor::Arrow)
+{
+}
+
+WebApp::~WebApp()
 {
 }
 
@@ -44,4 +57,18 @@ bool WebApp::RunInternal(GLFWwindow* /*window*/)
     emscripten_set_main_loop_arg(UpdateInternal, static_cast<void*>(this), 0, 1);
     emscripten_webgl_destroy_context(m_WebGLContextHandle);
     return true;
+}
+
+void WebApp::SetCursor(EMouseCursor cursor)
+{
+    if (m_ActiveCursor == cursor)
+        return;
+
+    m_ActiveCursor = cursor;
+    const char* cursorName = GetCursorName(cursor);
+    printf("set cursor: %s\n", cursorName);
+    EM_ASM({
+        var cursorName = UTF8ToString($0);
+        document.getElementById('canvas').style.cursor = cursorName;
+    }, cursorName);
 }

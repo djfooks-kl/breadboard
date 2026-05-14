@@ -20,10 +20,12 @@ typedef unsigned int GLuint;
 
 struct GLFWwindow;
 
+class BaseApp;
+
 class BreadApp
 {
 public:
-    BreadApp();
+    BreadApp(BaseApp& app);
     ~BreadApp();
 
     void Init(GLFWwindow* window);
@@ -35,6 +37,7 @@ public:
     void ProcessCursorInput(GLFWwindow* window, double xpos, double ypos);
 
 private:
+    BaseApp& m_BaseApp;
     std::unique_ptr<xg::BreadRenderer> m_BreadRenderer;
     std::unique_ptr<xg::UI> m_UI;
     flecs::world m_World;

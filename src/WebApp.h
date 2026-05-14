@@ -13,6 +13,9 @@ public:
     bool Init() override;
     bool RunInternal(GLFWwindow* window) override;
 
+    void SetCursor(EMouseCursor cursor) override;
+
 private:
     EMSCRIPTEN_WEBGL_CONTEXT_HANDLE m_WebGLContextHandle;
+    EMouseCursor m_ActiveCursor;
 };

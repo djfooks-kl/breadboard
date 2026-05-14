@@ -8,7 +8,7 @@ namespace xg
 {
     struct SwitchUniforms
     {
-        glm::vec3 m_OutlineColor;
+        glm::vec3 m_OutlineColor = glm::vec3(0.f);
         bool m_HasInfoTexture = false;
         float m_InnerRadius = 0.26f;
         float m_OuterRadius = 0.31f;

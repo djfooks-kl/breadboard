@@ -10,6 +10,6 @@ namespace xg
     {
         xg::CogResourceId m_AddCogId;
         xg::CogResourceId m_HoverCogId;
-        glm::vec2 m_PreviewPosition;
+        glm::vec2 m_PreviewPosition = glm::vec2(0.f);
     };
 }

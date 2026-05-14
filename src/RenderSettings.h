@@ -2,7 +2,7 @@
 
 #include <glm/vec3.hpp>
 
-#include "RBGColor.h"
+#include "RGBColor.h"
 
 namespace xg
 {

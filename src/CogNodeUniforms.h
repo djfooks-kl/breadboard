@@ -8,7 +8,7 @@ namespace xg
 {
     struct CogNodeUniforms
     {
-        glm::vec3 m_RingColor;
+        glm::vec3 m_RingColor = glm::vec3(0.f);
         float m_InnerRadius = 0.5f;
         float m_OuterRadius = 0.5f;
     };

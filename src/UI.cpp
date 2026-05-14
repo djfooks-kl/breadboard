@@ -4,12 +4,14 @@
 #include <ImGui/imgui.h>
 #include <ImGui/misc/cpp/imgui_stdlib.h>
 
+#include "BaseApp.h"
 #include "CameraComponent.h"
 #include "CameraHelpers.h"
 #include "Cogs/CogMap.h"
 #include "Cogs/CogPrototype.h"
 #include "Core/GLFWLib.h"
 #include "InputComponent.h"
+#include "MouseCursorEnum.h"
 #include "UIDraggingDropComponent.h"
 #include "UIHoverComponent.h"
 #include "UIPreviewAddingCogComponent.h"
@@ -28,21 +30,9 @@ namespace
     }
 }
 
-xg::UI::UI()
-    : m_ArrowCursor(glfwCreateStandardCursor(GLFW_ARROW_CURSOR))
-    , m_CrossCursor(glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR))
+void xg::UI::UpdateMouse(flecs::world& world, BaseApp& app)
 {
-}
-
-xg::UI::~UI()
-{
-    glfwDestroyCursor(m_ArrowCursor);
-    glfwDestroyCursor(m_CrossCursor);
-}
-
-void xg::UI::UpdateMouse(flecs::world& world, GLFWwindow* window)
-{
-    glfwSetCursor(window, world.get<xg::UIHoverComponent>().m_Node ? m_CrossCursor : m_ArrowCursor);
+    app.SetCursor(world.get<xg::UIHoverComponent>().m_Node ? EMouseCursor::Cross : EMouseCursor::Arrow);
 }
 
 void xg::UI::DrawDebugMenu(flecs::world& world)

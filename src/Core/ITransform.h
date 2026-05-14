@@ -23,7 +23,7 @@ namespace xc
 
 		bool operator==(const xc::ITransform& other) const = default;
 
-		glm::ivec2 m_Translation;
+		glm::ivec2 m_Translation = glm::ivec2(0);
 		xc::Rotation90 m_Rotation;
 	};
 

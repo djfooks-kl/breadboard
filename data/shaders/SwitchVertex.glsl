@@ -41,7 +41,7 @@ void main()
     float valueP1;
     float valueP2;
 
-    if (u_WireTextureSize.x == 0)
+    if (u_WireTextureSize.x == 0.0)
     {
         connected = 0.f;
         valueBase = 0.f;

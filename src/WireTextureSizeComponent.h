@@ -6,6 +6,6 @@ namespace xg
 {
 	struct WireTextureSizeComponent
 	{
-		glm::ivec2 m_Size;
+		glm::ivec2 m_Size = glm::ivec2(0);
 	};
 }

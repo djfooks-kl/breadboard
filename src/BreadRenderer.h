@@ -62,7 +62,7 @@ namespace xg
         std::unique_ptr<xc::ShaderProgram> m_CogNodeProgram;
 
         GLuint m_WireTexture = 0;
-        glm::ivec2 m_WireTextureSize;
+        glm::ivec2 m_WireTextureSize = glm::ivec2(0);
 
         float m_FontSize = 0.2f;
         glm::vec2 m_Position = glm::vec2(-0.9f, -0.9f);

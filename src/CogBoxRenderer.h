@@ -38,8 +38,8 @@ namespace xg
         const xc::ShaderProgram& m_Program;
         xg::VertexBufferObject m_VBO;
 
-        glm::vec3 m_Color;
-        glm::vec3 m_FillColor;
+        glm::vec3 m_Color = glm::vec3(0.f);
+        glm::vec3 m_FillColor = glm::vec3(0.f);
 
         GLint m_BorderUniform = -1;
         GLint m_ColorUniform = -1;

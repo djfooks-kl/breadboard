@@ -8,9 +8,9 @@ namespace xg
 {
     struct WireLineUniforms
     {
-        glm::vec3 m_ColorEmpty;
-        glm::vec3 m_ColorFull;
-        glm::vec3 m_ColorEdge;
+        glm::vec3 m_ColorEmpty = glm::vec3(0.f);
+        glm::vec3 m_ColorFull = glm::vec3(0.f);
+        glm::vec3 m_ColorEdge = glm::vec3(0.f);
         bool m_HasInfoTexture = false;
         bool m_Expand = false;
         float m_InnerWidth = 0.03f;
