@@ -7,7 +7,7 @@
 #include "UIDragPreviewComponent.h"
 #include "UIDragValidComponent.h"
 
-#define SYSTEM_TEST_CASE(description) TEST_CASE("xg::ui_drag_drop_system - " description, "[xg::ui_drag_drop_system]")
+#define SYSTEM_TEST_CASE(description) TEST_CASE("xg::UIDragDropSystem - " description, "[xg::UIDragDropSystem]")
 
 namespace
 {

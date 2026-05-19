@@ -26,7 +26,9 @@ namespace xg
         void DrawUndo(flecs::world& world);
         void DrawDebugMenu(flecs::world& world);
         void DrawDebugInfo(flecs::world& world);
-        void DrawComponentMenu(flecs::world& world);
+        void DrawComponentMenu(flecs::world& world, bool actionEaten);
+
+        bool GameConsumeInput(flecs::world& world);
 
         ImVec2 m_PopupPosition;
 

@@ -3,6 +3,7 @@
 #include <flecs/flecs.h>
 #include <ImGui/imgui.h>
 #include <ImGui/misc/cpp/imgui_stdlib.h>
+#include <iostream>
 
 #include "BaseApp.h"
 #include "CameraComponent.h"
@@ -15,6 +16,8 @@
 #include "UIDraggingDropComponent.h"
 #include "UIHoverComponent.h"
 #include "UIPreviewAddingCogComponent.h"
+#include "UIPreviewAddingWireComponent.h"
+#include "UIPreviewCreateWireComponent.h"
 #include "UIRedoComponent.h"
 #include "UIRotateComponent.h"
 #include "UIUndoComponent.h"
@@ -74,7 +77,7 @@ void xg::UI::DrawDebugInfo(flecs::world& world)
     }
 }
 
-void xg::UI::DrawComponentMenu(flecs::world& world)
+void xg::UI::DrawComponentMenu(flecs::world& world, const bool actionEaten)
 {
     const auto& cogMap = world.get<xg::CogMap>();
     const auto& input = world.get<xg::InputComponent>();
@@ -101,6 +104,7 @@ void xg::UI::DrawComponentMenu(flecs::world& world)
     bool openning = false;
     if (!ImGui::IsPopupOpen("LeftClickPopup") &&
         ImGui::IsMouseClicked(ImGuiMouseButton_Left) &&
+        !actionEaten &&
         !ImGui::IsAnyItemHovered() &&
         !ImGui::IsWindowHovered() &&
         !io.WantCaptureMouse)
@@ -173,11 +177,39 @@ void xg::UI::DrawUndo(flecs::world& world)
     }
 }
 
+bool xg::UI::GameConsumeInput(flecs::world& world)
+{
+    world.get_mut<xg::UIPreviewCreateWireComponent>().m_Create = false;
+
+    const bool doAction = ImGui::IsMouseClicked(ImGuiMouseButton_Left);
+    if (!doAction)
+        return false;
+
+    auto& previewAddingWire = world.get_mut<xg::UIPreviewAddingWireComponent>();
+    if (previewAddingWire.m_Active)
+    {
+        previewAddingWire.m_Active = false;
+        world.get_mut<xg::UIPreviewCreateWireComponent>().m_Create = true;
+        return true;
+    }
+
+    auto& hover = world.get<xg::UIHoverComponent>();
+    if (hover.m_Node)
+    {
+        previewAddingWire.m_Active = true;
+        return true;
+    }
+
+    return false;
+}
+
 void xg::UI::Draw(flecs::world& world)
 {
     DrawUndo(world);
     DrawDebugMenu(world);
     DrawDebugInfo(world);
-    DrawComponentMenu(world);
     UpdateRotate(world);
+
+    const bool actionEaten = GameConsumeInput(world);
+    DrawComponentMenu(world, actionEaten);
 }

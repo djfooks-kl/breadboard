@@ -106,6 +106,11 @@ set(source_files
     src/UIHoverSystem.cpp
     src/UIHoverSystem.h
     src/UIPreviewAddingCogComponent.h
+    src/UIPreviewAddingWireComponent.h
+    src/UIPreviewCreateWireComponent.h
+    src/UIPreviewWireComponent.h
+    src/UIPreviewWireSystem.cpp
+    src/UIPreviewWireSystem.h
     src/UIRedoComponent.h
     src/UIRotateComponent.h
     src/UIUndoComponent.h
@@ -286,6 +291,7 @@ if (NOT EMSCRIPTEN)
         src/ut/UIHoverSystemTest.cpp
         src/ut/UIDragPreviewSystemTest.cpp
         src/ut/UIDragValidationSystemTest.cpp
+        src/ut/UIPreviewWireSystemTest.cpp
     )
 
     target_link_libraries(BreadTests PRIVATE Catch2::Catch2WithMain)

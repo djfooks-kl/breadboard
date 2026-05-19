@@ -10,7 +10,7 @@
 #include "UIUndoComponent.h"
 #include "UIRedoComponent.h"
 
-#define SYSTEM_TEST_CASE(description) TEST_CASE("xg::command::list_system - " description, "[xg::command::list_system]")
+#define SYSTEM_TEST_CASE(description) TEST_CASE("xg::command::ListSystem - " description, "[xg::command::ListSystem]")
 
 namespace
 {

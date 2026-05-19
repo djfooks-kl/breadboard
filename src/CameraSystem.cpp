@@ -61,6 +61,7 @@ void xg::CameraSystem::Update(flecs::world& world, const double /*time*/, const 
         input.m_WindowMouse.y,
         windowSize.m_Width,
         windowSize.m_Height);
+    worldMouse.m_Cell = glm::vec2(std::round(worldMouse.m_Position.x), std::round(worldMouse.m_Position.y));
 
     camera.m_Feather = std::max(
         (orthoWidth) / windowSize.m_Width,

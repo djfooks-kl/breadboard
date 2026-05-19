@@ -25,7 +25,6 @@ void xg::command::CreateSystem::Update(flecs::world& world)
         xg::command::RemovedFromHistoryComponent,
         xg::command::DeleteCogComponent& deleteCog)
         {
-            printf("destruct cog\n");
             deleteCog.m_Cog.destruct();
             entity.destruct();
         });

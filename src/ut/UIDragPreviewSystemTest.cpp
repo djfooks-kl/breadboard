@@ -7,7 +7,7 @@
 #include "UIRotateComponent.h"
 #include "WorldMouseComponent.h"
 
-#define SYSTEM_TEST_CASE(description) TEST_CASE("xg::preview_system - " description, "[xg::preview_system]")
+#define SYSTEM_TEST_CASE(description) TEST_CASE("xg::UIDragPreviewSystem - " description, "[xg::UIDragPreviewSystem]")
 
 namespace
 {

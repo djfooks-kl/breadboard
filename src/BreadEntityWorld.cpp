@@ -34,6 +34,9 @@
 #include "UIHoverComponent.h"
 #include "UIHoverSystem.h"
 #include "UIPreviewAddingCogComponent.h"
+#include "UIPreviewAddingWireComponent.h"
+#include "UIPreviewCreateWireComponent.h"
+#include "UIPreviewWireSystem.h"
 #include "UIRedoComponent.h"
 #include "UIRotateComponent.h"
 #include "UIUndoComponent.h"
@@ -55,6 +58,8 @@ void xg::SetupWorld(flecs::world& world)
     world.emplace<xg::UIDragValidComponent>();
     world.emplace<xg::UIHoverComponent>();
     world.emplace<xg::UIPreviewAddingCogComponent>();
+    world.emplace<xg::UIPreviewAddingWireComponent>();
+    world.emplace<xg::UIPreviewCreateWireComponent>();
     world.emplace<xg::UIRotateComponent>();
     world.emplace<xg::WindowSizeComponent>();
     world.emplace<xg::WorldMouseComponent>();
@@ -79,6 +84,7 @@ void xg::UpdateWorld(flecs::world& world, const double time, const float deltaTi
     xg::UIDragDropSystem::Update(world);
     xg::UIDragPreviewSystem::Update(world);
     xg::UIDragValidationSystem::Update(world);
+    xg::UIPreviewWireSystem::Update(world);
     xg::command::CreateSystem::Update(world);
     xg::command::ListSystem::Update(world);
     xg::CogSystem::Update(world);
