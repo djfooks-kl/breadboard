@@ -19,6 +19,7 @@
 #include "SettingsHelpers.h"
 #include "UI.h"
 #include "UIPreviewAddingCogComponent.h"
+#include "UISettings.h"
 #include "WindowSizeSystem.h"
 
 namespace
@@ -112,7 +113,10 @@ void BreadApp::Init(GLFWwindow* window)
     xg::SetupWorld(m_World);
 
     const toml::value settings = toml::parse(std::format("{}{}", DATA_DIR, "settings.toml"));
-    xg::FillSettings(settings, m_World.get_mut<xg::RenderSettings>());
+    xg::FillSettings(
+        settings,
+        m_World.get_mut<xg::RenderSettings>(),
+        m_World.get_mut<xg::UISettings>());
 
     glfwSetWindowSizeCallback(window, WindowSizeCallback);
 

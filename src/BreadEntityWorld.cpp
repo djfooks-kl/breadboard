@@ -39,7 +39,10 @@
 #include "UIPreviewWireSystem.h"
 #include "UIRedoComponent.h"
 #include "UIRotateComponent.h"
+#include "UISettings.h"
 #include "UIUndoComponent.h"
+#include "UIWirePathfindingSystem.h"
+#include "UIWireSegmentsSystem.h"
 #include "WindowSizeComponent.h"
 #include "WireTextureSizeComponent.h"
 #include "WorldMouseComponent.h"
@@ -61,6 +64,7 @@ void xg::SetupWorld(flecs::world& world)
     world.emplace<xg::UIPreviewAddingWireComponent>();
     world.emplace<xg::UIPreviewCreateWireComponent>();
     world.emplace<xg::UIRotateComponent>();
+    world.emplace<xg::UISettings>();
     world.emplace<xg::WindowSizeComponent>();
     world.emplace<xg::WorldMouseComponent>();
 
@@ -85,6 +89,8 @@ void xg::UpdateWorld(flecs::world& world, const double time, const float deltaTi
     xg::UIDragPreviewSystem::Update(world);
     xg::UIDragValidationSystem::Update(world);
     xg::UIPreviewWireSystem::Update(world);
+    xg::UIWirePathfindingSystem::Update(world);
+    xg::UIWireSegmentsSystem::Update(world);
     xg::command::CreateSystem::Update(world);
     xg::command::ListSystem::Update(world);
     xg::CogSystem::Update(world);

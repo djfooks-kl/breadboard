@@ -20,6 +20,7 @@ set(core_files
     src/Core/GLFWLib.h
     src/Core/ITransform.cpp
     src/Core/ITransform.h
+    src/Core/MathConstants.h
     src/Core/ResourceId.h
     src/Core/Result.h
     src/Core/Rotation90.cpp
@@ -63,6 +64,8 @@ set(source_files
     src/GridAttachmentsMap.h
     src/GridAttachmentSystem.cpp
     src/GridAttachmentSystem.h
+    src/GridHelpers.cpp
+    src/GridHelpers.h
     src/GridIconRenderer.cpp
     src/GridIconRenderer.h
     src/GridRenderer.cpp
@@ -113,7 +116,15 @@ set(source_files
     src/UIPreviewWireSystem.h
     src/UIRedoComponent.h
     src/UIRotateComponent.h
+    src/UISettings.h
+    src/UISettingsList.h
     src/UIUndoComponent.h
+    src/UIWirePathComponent.h
+    src/UIWirePathfindingSystem.cpp
+    src/UIWirePathfindingSystem.h
+    src/UIWireSegmentsComponent.h
+    src/UIWireSegmentsSystem.cpp
+    src/UIWireSegmentsSystem.h
     src/VectorHashFunctions.h
     src/WindowSizeComponent.h
     src/WindowSizeSystem.cpp
@@ -292,6 +303,8 @@ if (NOT EMSCRIPTEN)
         src/ut/UIDragPreviewSystemTest.cpp
         src/ut/UIDragValidationSystemTest.cpp
         src/ut/UIPreviewWireSystemTest.cpp
+        src/ut/UIWirePathfindingSystemTest.cpp
+        src/ut/UIWireSegmentsSystemTest.cpp
     )
 
     target_link_libraries(BreadTests PRIVATE Catch2::Catch2WithMain)

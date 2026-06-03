@@ -4,6 +4,7 @@
 #include <toml11/toml.hpp>
 
 #include "RenderSettings.h"
+#include "UISettings.h"
 
 namespace
 {
@@ -20,9 +21,16 @@ namespace
 	}
 }
 
-void xg::FillSettings(const toml::value& settings, xg::RenderSettings& out_RenderSettings)
+void xg::FillSettings(
+	const toml::value& settings,
+	xg::RenderSettings& out_RenderSettings,
+	xg::UISettings& out_UISettings)
 {
 #define ADD_SETTING(TYPE, NAME, DEFAULT_VALUE) out_RenderSettings.m_##NAME = Parse<TYPE>(settings, #NAME, DEFAULT_VALUE);
 #include "RenderSettingsList.h"
+#undef ADD_SETTING
+
+#define ADD_SETTING(TYPE, NAME, DEFAULT_VALUE) out_UISettings.m_##NAME = Parse<TYPE>(settings, #NAME, DEFAULT_VALUE);
+#include "UISettingsList.h"
 #undef ADD_SETTING
 }

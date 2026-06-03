@@ -2,6 +2,7 @@
 
 #include "Core/GLFWLib.h"
 #include "Core/ShaderProgram.h"
+#include "GridHelpers.h"
 #include "Rendering/RendererHelpers.h"
 #include "Rendering/UniformHelpers.h"
 
@@ -58,14 +59,14 @@ void xg::WireLineRenderer::AddWire(
     const glm::ivec2& p2,
     const glm::ivec2& infoUV)
 {
-    const int distance = std::max(std::abs(p1.x - p2.x), std::abs(p1.y - p2.y));
+    const int cellDistance = xg::ChebyshevDistance(p1, p2);
 
     m_VBO.AddQuad();
     xg::VBOAdd(m_VBO, s_AttributeP1, p1);
     xg::VBOAdd(m_VBO, s_AttributeP2, p2);
     xg::VBOAddQuadUV(m_VBO, s_AttributeUV);
     xg::VBOAdd(m_VBO, s_AttributeWireUV1, infoUV);
-    xg::VBOAdd(m_VBO, s_AttributeWireUV2, infoUV + glm::ivec2(distance, 0));
+    xg::VBOAdd(m_VBO, s_AttributeWireUV2, infoUV + glm::ivec2(cellDistance, 0));
 }
 
 void xg::WireLineRenderer::RemoveAll()

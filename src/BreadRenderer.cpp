@@ -24,6 +24,7 @@
 #include "UIDragPreviewComponent.h"
 #include "UIDragValidComponent.h"
 #include "UIPreviewAddingCogComponent.h"
+#include "UIWireSegmentsComponent.h"
 #include "WireTextureSizeComponent.h"
 
 namespace
@@ -115,12 +116,6 @@ void xg::BreadRenderer::Load(const xg::RenderSettings& settings)
     m_CogNodeRenderer->AddNode(glm::ivec2(6, 1), glm::ivec2(5, 0));
     m_CogNodeRenderer->AddNode(glm::ivec2(7, 1), glm::ivec2(6, 0));
     m_CogNodeRenderer->AddNode(glm::ivec2(8, 1), glm::ivec2(7, 0));
-
-    m_WireRendererMap.Get(s_RenderableWireCircleTop)->AddWireEnd(glm::ivec2(1, 2), glm::ivec2(0, 0));
-    m_WireRendererMap.Get(s_RenderableWireCircleBottom)->AddWireEnd(glm::ivec2(1, 2), glm::ivec2(0, 0));
-    m_WireRendererMap.Get(s_RenderableWire)->AddWire(glm::ivec2(1, 2), glm::ivec2(8, 9), glm::ivec2(0, 0));
-    m_WireRendererMap.Get(s_RenderableWireCircleTop)->AddWireEnd(glm::ivec2(8, 9), glm::ivec2(7, 0));
-    m_WireRendererMap.Get(s_RenderableWireCircleBottom)->AddWireEnd(glm::ivec2(8, 9), glm::ivec2(7, 0));
 }
 
 void xg::BreadRenderer::Update(const flecs::world& world)
@@ -271,6 +266,32 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
         });
 
     m_CogNodeRenderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
+
+    for (xg::IWireRenderer* renderer : m_WireRendererMap.GetOrder())
+    {
+        renderer->RemoveAll();
+    }
+    world.each([&](const xg::UIWireSegmentsComponent& wire)
+        {
+            for (const glm::ivec2& checkpoint : wire.m_Checkpoints)
+            {
+                m_WireRendererMap.Get(s_RenderableWireCircleTop)->AddWireEnd(checkpoint, glm::ivec2(0, 0));
+                m_WireRendererMap.Get(s_RenderableWireCircleBottom)->AddWireEnd(checkpoint, glm::ivec2(0, 0));
+            }
+            if (wire.m_Checkpoints.empty())
+                return;
+            glm::ivec2 prev = wire.m_Checkpoints[0];
+            for (int i = 1; i < wire.m_Checkpoints.size(); ++i)
+            {
+                const glm::ivec2& current = wire.m_Checkpoints[i];
+                m_WireRendererMap.Get(s_RenderableWire)->AddWire(prev, current, glm::ivec2(0, 0));
+                prev = current;
+            }
+        });
+    for (xg::IWireRenderer* renderer : m_WireRendererMap.GetOrder())
+    {
+        renderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
+    }
 
     m_TextRenderer->Draw(camera.m_ViewProjection);
 }
