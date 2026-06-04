@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "Rendering/VertexBufferObject.h"
+#include "CogBoxUniforms.h"
 
 namespace xc
 {
@@ -18,9 +19,6 @@ namespace xg
     {
         CogBoxRenderer(const xc::ShaderProgram& program);
 
-        void SetColor(const glm::vec3 v) { m_Color = std::move(v); }
-        void SetFillColor(const glm::vec3 v) { m_FillColor = std::move(v); }
-
         void Draw(
             const glm::mat4& viewProjection,
             const float feather);
@@ -31,21 +29,12 @@ namespace xg
 
         void RemoveAll();
 
-        float m_Border;
-        float m_Expand;
+        xg::CogBoxUniforms m_Uniforms;
 
     private:
         const xc::ShaderProgram& m_Program;
         xg::VertexBufferObject m_VBO;
 
-        glm::vec3 m_Color = glm::vec3(0.f);
-        glm::vec3 m_FillColor = glm::vec3(0.f);
-
-        GLint m_BorderUniform = -1;
-        GLint m_ColorUniform = -1;
-        GLint m_ExpandUniform = -1;
-        GLint m_FeatherUniform = -1;
-        GLint m_FillColorUniform = -1;
-        GLint m_ViewProjectionUniform = -1;
+        xg::CogBoxUniformsLocations m_UniformsLocations;
     };
 }

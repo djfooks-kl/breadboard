@@ -86,23 +86,21 @@ void xg::BreadRenderer::Load(const xg::RenderSettings& settings)
 
     m_GridRenderer = std::make_unique<xg::GridRenderer>(*m_GridProgram);
 
+    xg::CogBoxUniforms cogBoxDefaultUniforms;
+    cogBoxDefaultUniforms.m_Color = glm::vec3(0.f, 0.f, 0.f);
+    cogBoxDefaultUniforms.m_FillColor = glm::vec3(1.f, 1.f, 1.f);
+    cogBoxDefaultUniforms.m_Size = settings.m_CogBoxSize;
+    cogBoxDefaultUniforms.m_Expand = 0.f;
+
     m_CogBoxRenderer = std::make_unique<xg::CogBoxRenderer>(*m_CogBoxProgram);
-    m_CogBoxRenderer->SetColor(glm::vec3(0.f, 0.f, 0.f));
-    m_CogBoxRenderer->SetFillColor(glm::vec3(1.f, 1.f, 1.f));
-    m_CogBoxRenderer->m_Border = 0.4f;
-    m_CogBoxRenderer->m_Expand = 0.f;
+    m_CogBoxRenderer->m_Uniforms = cogBoxDefaultUniforms;
 
     m_CogBoxPreviewRenderer = std::make_unique<xg::CogBoxRenderer>(*m_CogBoxProgram);
-    m_CogBoxPreviewRenderer->SetColor(glm::vec3(0.f, 0.f, 0.f));
-    m_CogBoxPreviewRenderer->SetFillColor(glm::vec3(1.f, 1.f, 1.f));
-    m_CogBoxPreviewRenderer->m_Border = 0.4f;
-    m_CogBoxPreviewRenderer->m_Expand = 0.f;
+    m_CogBoxPreviewRenderer->m_Uniforms = cogBoxDefaultUniforms;
 
     m_CogBoxPreviewDropRenderer = std::make_unique<xg::CogBoxRenderer>(*m_CogBoxProgram);
-    m_CogBoxPreviewDropRenderer->SetColor(glm::vec3(0.5f, 0.5f, 0.5f));
-    m_CogBoxPreviewDropRenderer->SetFillColor(glm::vec3(1.f, 1.f, 1.f));
-    m_CogBoxPreviewDropRenderer->m_Border = 0.4f;
-    m_CogBoxPreviewDropRenderer->m_Expand = 0.f;
+    m_CogBoxPreviewDropRenderer->m_Uniforms = cogBoxDefaultUniforms;
+    m_CogBoxPreviewDropRenderer->m_Uniforms.m_Color = glm::vec3(0.5f, 0.5f, 0.5f);
 
     m_CogNodeRenderer = std::make_unique<xg::CogNodeRenderer>(*m_CogNodeProgram);
     m_CogNodeRenderer->m_Uniforms.m_RingColor = glm::vec3(0.f, 1.f, 0.f);
@@ -224,7 +222,7 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
             });
     }
 
-    m_CogBoxPreviewRenderer->SetColor(glm::vec3(dragValid ? 0.f : 1.f, 0.f, 0.f));
+    m_CogBoxPreviewRenderer->m_Uniforms.m_Color = glm::vec3(dragValid ? 0.f : 1.f, 0.f, 0.f);
     m_CogBoxPreviewRenderer->RemoveAll();
 
     for (xg::IRenderer* renderer : m_CogPreviewRendererMap.GetOrder())
