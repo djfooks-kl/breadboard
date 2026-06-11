@@ -13,6 +13,7 @@
 #include "Core/GLFWLib.h"
 #include "InputComponent.h"
 #include "MouseCursorEnum.h"
+#include "UIDeleteCogComponent.h"
 #include "UIDraggingDropComponent.h"
 #include "UIHoverComponent.h"
 #include "UIPreviewAddingCogComponent.h"
@@ -30,6 +31,27 @@ namespace
         const auto& input = world.get<xg::InputComponent>();
         auto& rotate = world.get_mut<xg::UIRotateComponent>();
         rotate.m_RotationDirection = input.m_KeyPress.contains(GLFW_KEY_R) ? 1 : 0;
+    }
+
+    void UpdateDelete(flecs::world& world)
+    {
+        world.defer_begin();
+        world.each([](flecs::entity entity, xg::UIDeleteCogComponent)
+            {
+                entity.destruct();
+            });
+        world.defer_end();
+
+        const auto& input = world.get<xg::InputComponent>();
+        if (input.m_KeyPress.contains(GLFW_KEY_DELETE) ||
+            input.m_KeyPress.contains(GLFW_KEY_BACKSPACE))
+        {
+            auto& hover = world.get<xg::UIHoverComponent>();
+            if (hover.m_Cog)
+            {
+                world.entity().ensure<xg::UIDeleteCogComponent>().m_Cog = hover.m_Cog;
+            }
+        }
     }
 }
 
@@ -208,7 +230,9 @@ void xg::UI::Draw(flecs::world& world)
     DrawUndo(world);
     DrawDebugMenu(world);
     DrawDebugInfo(world);
+
     UpdateRotate(world);
+    UpdateDelete(world);
 
     const bool actionEaten = GameConsumeInput(world);
     DrawComponentMenu(world, actionEaten);

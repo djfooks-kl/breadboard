@@ -4,9 +4,10 @@
 #include "Command/CommandAddCogComponent.h"
 #include "Command/CommandCreateSystem.h"
 #include "Command/CommandDeleteCogComponent.h"
-#include "Command/CommandRemovedFromHistoryComponent.h"
 #include "Command/CommandEntityComponent.h"
+#include "Command/CommandRemovedFromHistoryComponent.h"
 #include "Command/CommandToQueueComponent.h"
+#include "FlecsTestHelpers.h"
 #include "UIAddCogComponent.h"
 #include "UIDeleteCogComponent.h"
 
@@ -54,11 +55,16 @@ TEST_CASE("Add a cog -> Queue for execution and add a delete cog undo command")
     TestEnv env;
     flecs::world world = env.m_World;
 
-    const flecs::entity command = world.entity();
-    auto& uiAddCog = command.ensure<xg::UIAddCogComponent>();
+    const flecs::entity uiCommand = world.entity();
+    auto& uiAddCog = uiCommand.ensure<xg::UIAddCogComponent>();
     uiAddCog.m_CogId = s_TestCog1;
     uiAddCog.m_Transform = { glm::ivec2(2, 3), xc::Rotation90(1) };
     env.Update();
+
+    std::vector<flecs::entity> entities = xc::ut::CollectEntities(world.query<xg::command::AddCogComponent>());
+    REQUIRE(entities.size() == 1);
+    flecs::entity command = entities[0];
+    CHECK(uiCommand != command);
 
     REQUIRE(command.has<xg::command::AddCogComponent>());
     CHECK(command.get<const xg::command::AddCogComponent>().m_CogId == s_TestCog1);
@@ -80,11 +86,16 @@ TEST_CASE("Delete a cog -> Queue for execution and add an add cog undo command")
     TestEnv env;
     flecs::world world = env.m_World;
 
-    flecs::entity command = world.entity();
+    flecs::entity uiCommand = world.entity();
     flecs::entity createdEntity = world.entity();
-    auto& deleteCog = command.ensure<xg::UIDeleteCogComponent>();
+    auto& deleteCog = uiCommand.ensure<xg::UIDeleteCogComponent>();
     deleteCog.m_Cog = createdEntity;
     env.Update();
+
+    std::vector<flecs::entity> entities = xc::ut::CollectEntities(world.query<xg::command::DeleteCogComponent>());
+    REQUIRE(entities.size() == 1);
+    flecs::entity command = entities[0];
+    CHECK(uiCommand != command);
 
     REQUIRE(command.has<xg::command::DeleteCogComponent>());
     CHECK(command.get<const xg::command::DeleteCogComponent>().m_Cog == createdEntity);
@@ -117,14 +128,19 @@ TEST_CASE("When a delete cog command is destructed destroy the added entity")
     TestEnv env;
     flecs::world world = env.m_World;
 
-    flecs::entity command = world.entity();
+    flecs::entity uiCommand = world.entity();
     flecs::entity createdEntity = world.entity();
-    auto& deleteCog = command.ensure<xg::UIDeleteCogComponent>();
+    auto& deleteCog = uiCommand.ensure<xg::UIDeleteCogComponent>();
     deleteCog.m_Cog = createdEntity;
     env.Update();
+
+    std::vector<flecs::entity> entities = xc::ut::CollectEntities(world.query<xg::command::DeleteCogComponent>());
+    REQUIRE(entities.size() == 1);
+    flecs::entity command = entities[0];
 
     command.add<xg::command::RemovedFromHistoryComponent>();
     env.Update();
 
     CHECK(world.is_alive(createdEntity) == false);
+    CHECK(world.is_alive(command) == false);
 }

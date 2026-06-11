@@ -6,7 +6,7 @@
 
 namespace xc
 {
-	class ITransform;
+	struct ITransform;
 }
 
 namespace xg

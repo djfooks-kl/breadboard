@@ -2,6 +2,7 @@
 
 #include <flecs/flecs.h>
 
+#include "Core/IAABB.h"
 #include "Cogs/CogMap.h"
 #include "GridAttachmentsComponent.h"
 #include "GridSizeComponent.h"
@@ -18,7 +19,9 @@ void xg::UIDragValidationSystem::Update(flecs::world& world)
     world.each([&](const xg::UIDragPreviewComponent& dragPreview)
         {
             const auto* cogPrototype = world.get<xg::CogMap>().Get(dragPreview.m_CogId);
-            xg::cog::ForEachCellUntil(dragPreview.m_Position, cogPrototype->GetSize(), dragPreview.m_Rotation,
+            xc::ITransform transform{ .m_Translation = dragPreview.m_Position, .m_Rotation = dragPreview.m_Rotation };
+            xc::IAABB aabb = xc::IAABB::FromTransformAndSize(transform, cogPrototype->GetSize());
+            aabb.ForEachCellUntil(
                 [&](const glm::ivec2& p)
                 {
                     if (attachmentsMap.contains(p) ||

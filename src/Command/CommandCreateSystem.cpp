@@ -31,8 +31,9 @@ void xg::command::CreateSystem::Update(flecs::world& world)
     world.defer_end();
 
     world.defer_begin();
-    world.each([&](flecs::entity entity, const xg::UIAddCogComponent& uiAddCog)
+    world.each([&](const xg::UIAddCogComponent& uiAddCog)
         {
+            flecs::entity entity = world.entity();
             auto& addCog = entity.ensure<xg::command::AddCogComponent>();
             addCog.m_CogId = uiAddCog.m_CogId;
             addCog.m_Transform = uiAddCog.m_Transform;
@@ -46,8 +47,9 @@ void xg::command::CreateSystem::Update(flecs::world& world)
             entity.ensure<xg::command::ToQueueComponent>().m_Undo = undo;
         });
 
-    world.each([&](flecs::entity entity, const xg::UIDeleteCogComponent& uiDeleteCog)
+    world.each([&](const xg::UIDeleteCogComponent& uiDeleteCog)
         {
+            flecs::entity entity = world.entity();
             auto& deleteCog = entity.ensure<xg::command::DeleteCogComponent>();
             deleteCog.m_Cog = uiDeleteCog.m_Cog;
 

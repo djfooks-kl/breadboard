@@ -6,9 +6,8 @@
 
 namespace xc
 {
-	class ITransform
+	struct ITransform
 	{
-	public:
 		// Apply the transform to a vector in local space
 		// Returns the world space position
 		[[nodiscard]] glm::ivec2 Apply(const glm::ivec2& localV) const;

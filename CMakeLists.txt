@@ -18,6 +18,10 @@ set(core_files
     src/Core/Font.cpp
     src/Core/Font.h
     src/Core/GLFWLib.h
+    src/Core/AABB.cpp
+    src/Core/AABB.h
+    src/Core/IAABB.cpp
+    src/Core/IAABB.h
     src/Core/ITransform.cpp
     src/Core/ITransform.h
     src/Core/MathConstants.h
@@ -273,6 +277,7 @@ target_link_libraries(BreadProjectLib PUBLIC ImGui)
 
 add_subdirectory(3rdParty/flecs-4.1.1)
 target_link_libraries(BreadProjectLib PUBLIC flecs)
+target_compile_definitions(BreadProjectLib PRIVATE FLECS_DEBUG_INFO)
 
 target_compile_definitions(BreadProjectLib PRIVATE
     "$<$<COMPILE_LANG_AND_ID:CXX,Emscripten>:EMSCRIPTEN_BUILD>"
@@ -285,23 +290,25 @@ if (NOT EMSCRIPTEN)
 
     add_executable(BreadTests
 
+        src/ut/AABBTest.cpp
         src/ut/BreadTest.h
-
         src/ut/CogSystemTest.cpp
         src/ut/CommandCreateSystemTest.cpp
         src/ut/CommandListSystemTest.cpp
+        src/ut/FlecsTestHelpers.h
         src/ut/GridAttachmentSystemTest.cpp
+        src/ut/IAABBTest.cpp
+        src/ut/ITransformTest.cpp
         src/ut/OnStageSystemTest.cpp
         src/ut/RendererMapTest.cpp
         src/ut/ResourceIdTest.cpp
         src/ut/ResultTest.cpp
         src/ut/Rotation90Test.cpp
-        src/ut/ITransformTest.cpp
         src/ut/ShadersTest.cpp
         src/ut/UIDragDropSystemTest.cpp
-        src/ut/UIHoverSystemTest.cpp
         src/ut/UIDragPreviewSystemTest.cpp
         src/ut/UIDragValidationSystemTest.cpp
+        src/ut/UIHoverSystemTest.cpp
         src/ut/UIPreviewWireSystemTest.cpp
         src/ut/UIWirePathfindingSystemTest.cpp
         src/ut/UIWireSegmentsSystemTest.cpp
