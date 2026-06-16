@@ -43,6 +43,7 @@
 #include "UIUndoComponent.h"
 #include "UIWirePathfindingSystem.h"
 #include "UIWireSegmentsSystem.h"
+#include "UIWireValidationSystem.h"
 #include "WindowSizeComponent.h"
 #include "WireTextureSizeComponent.h"
 #include "WorldMouseComponent.h"
@@ -91,6 +92,7 @@ void xg::UpdateWorld(flecs::world& world, const double time, const float deltaTi
     xg::UIPreviewWireSystem::Update(world);
     xg::UIWirePathfindingSystem::Update(world);
     xg::UIWireSegmentsSystem::Update(world);
+    xg::UIWireValidationSystem::Update(world);
     xg::command::CreateSystem::Update(world);
     xg::command::ListSystem::Update(world);
     xg::CogSystem::Update(world);

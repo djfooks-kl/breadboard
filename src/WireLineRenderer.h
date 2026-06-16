@@ -28,6 +28,8 @@ namespace xg
             const glm::ivec2& p2,
             const glm::ivec2& infoUV) override;
 
+        void SetValid(bool valid) override;
+
         void Draw(
             const glm::mat4& viewProjection,
             const float feather,
@@ -38,11 +40,15 @@ namespace xg
 
         xg::WireLineUniforms m_Uniforms;
 
+        glm::vec3 m_ColorEdge = glm::vec3(0.f);
+        glm::vec3 m_ColorInvalidEdge = glm::vec3(1.f, 0.f, 0.f);
+
     private:
         const xc::ShaderProgram& m_Program;
         xg::VertexBufferObject m_VBO;
 
-        float m_Height;
+        float m_Height = 0.f;
+        bool m_Valid = true;
 
         xg::WireLineUniformsLocations m_UniformsLocations;
     };

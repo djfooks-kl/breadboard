@@ -11,17 +11,15 @@ namespace xg
         virtual ~IWireRenderer() = default;
 
         virtual void AddWire(
-            const glm::ivec2& /*p1*/,
-            const glm::ivec2& /*p2*/,
-            const glm::ivec2& /*infoUV*/)
-        {
-        }
+            const glm::ivec2& p1,
+            const glm::ivec2& p2,
+            const glm::ivec2& infoUV);
 
         virtual void AddWireEnd(
-            const glm::ivec2& /*position*/,
-            const glm::ivec2& /*infoUV*/)
-        {
-        }
+            const glm::ivec2& position,
+            const glm::ivec2& infoUV);
+
+        virtual void SetValid(bool valid) = 0;
 
         virtual void RemoveAll() = 0;
 

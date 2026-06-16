@@ -129,6 +129,8 @@ set(source_files
     src/UIWireSegmentsComponent.h
     src/UIWireSegmentsSystem.cpp
     src/UIWireSegmentsSystem.h
+    src/UIWireValidationSystem.cpp
+    src/UIWireValidationSystem.h
     src/VectorHashFunctions.h
     src/WindowSizeComponent.h
     src/WindowSizeSystem.cpp
@@ -145,6 +147,8 @@ set(source_files
 set(rendering_files
 
     src/Rendering/IRenderer.h
+    src/Rendering/IWireRenderer.h
+    src/Rendering/IWireRenderer.cpp
     src/Rendering/RegisterRenderers.cpp
     src/Rendering/RegisterRenderers.h
     src/Rendering/RenderableAdder.cpp
@@ -312,6 +316,7 @@ if (NOT EMSCRIPTEN)
         src/ut/UIPreviewWireSystemTest.cpp
         src/ut/UIWirePathfindingSystemTest.cpp
         src/ut/UIWireSegmentsSystemTest.cpp
+        src/ut/UIWireValidationSystemTest.cpp
     )
 
     target_link_libraries(BreadTests PRIVATE Catch2::Catch2WithMain)

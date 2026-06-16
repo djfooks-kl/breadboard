@@ -25,6 +25,7 @@
 #include "UIDragValidComponent.h"
 #include "UIPreviewAddingCogComponent.h"
 #include "UIWireSegmentsComponent.h"
+#include "UIWireValidComponent.h"
 #include "WireTextureSizeComponent.h"
 
 namespace
@@ -57,6 +58,7 @@ void xg::BreadRenderer::Load(const xg::RenderSettings& settings)
     xg::RegisterCogRenderers(settings, m_CogPreviewDropRendererMap, m_ShaderProgramMap, xg::ERenderingMode::DropPreview);
 
     xg::RegisterWireRenderers(settings, m_WireRendererMap, m_ShaderProgramMap, xg::ERenderingMode::Normal);
+    xg::RegisterWireRenderers(settings, m_WirePreviewRendererMap, m_ShaderProgramMap, xg::ERenderingMode::Preview);
 
     m_TextProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
         .m_VertexPath = "shaders/BoxVertex.glsl",
@@ -176,7 +178,7 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
     {
         renderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
     }
-    for (xg::IWireRenderer* renderer : m_WireRendererMap.GetOrder())
+    for (xg::IWireRenderer* renderer : m_WirePreviewRendererMap.GetOrder())
     {
         renderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
     }
@@ -265,16 +267,17 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
 
     m_CogNodeRenderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
 
-    for (xg::IWireRenderer* renderer : m_WireRendererMap.GetOrder())
+    for (xg::IWireRenderer* renderer : m_WirePreviewRendererMap.GetOrder())
     {
         renderer->RemoveAll();
     }
-    world.each([&](const xg::UIWireSegmentsComponent& wire)
+    bool allWiresValid = true;
+    world.each([&](const xg::UIWireSegmentsComponent& wire, const xg::UIWireValidComponent& validComponent)
         {
             for (const glm::ivec2& checkpoint : wire.m_Checkpoints)
             {
-                m_WireRendererMap.Get(s_RenderableWireCircleTop)->AddWireEnd(checkpoint, glm::ivec2(0, 0));
-                m_WireRendererMap.Get(s_RenderableWireCircleBottom)->AddWireEnd(checkpoint, glm::ivec2(0, 0));
+                m_WirePreviewRendererMap.Get(s_RenderableWireCircleTop)->AddWireEnd(checkpoint, glm::ivec2(0, 0));
+                m_WirePreviewRendererMap.Get(s_RenderableWireCircleBottom)->AddWireEnd(checkpoint, glm::ivec2(0, 0));
             }
             if (wire.m_Checkpoints.empty())
                 return;
@@ -282,12 +285,15 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
             for (int i = 1; i < wire.m_Checkpoints.size(); ++i)
             {
                 const glm::ivec2& current = wire.m_Checkpoints[i];
-                m_WireRendererMap.Get(s_RenderableWire)->AddWire(prev, current, glm::ivec2(0, 0));
+                m_WirePreviewRendererMap.Get(s_RenderableWire)->AddWire(prev, current, glm::ivec2(0, 0));
                 prev = current;
             }
+
+            allWiresValid = allWiresValid && validComponent.m_Valid;
         });
-    for (xg::IWireRenderer* renderer : m_WireRendererMap.GetOrder())
+    for (xg::IWireRenderer* renderer : m_WirePreviewRendererMap.GetOrder())
     {
+        renderer->SetValid(allWiresValid);
         renderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
     }
 

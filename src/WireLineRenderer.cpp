@@ -69,6 +69,11 @@ void xg::WireLineRenderer::AddWire(
     xg::VBOAdd(m_VBO, s_AttributeWireUV2, infoUV + glm::ivec2(cellDistance, 0));
 }
 
+void xg::WireLineRenderer::SetValid(bool valid)
+{
+    m_Valid = valid;
+}
+
 void xg::WireLineRenderer::RemoveAll()
 {
     m_VBO.RemoveAllData();
@@ -91,6 +96,7 @@ void xg::WireLineRenderer::Draw(
     xg::GLEnableAlphaBlend();
     m_VBO.Bind();
 
+    m_Uniforms.m_ColorEdge = m_Valid ? m_ColorEdge : m_ColorInvalidEdge;
     const glm::vec2 fWireTextureSize = infoTextureSize;
     SetUniform(m_UniformsLocations.m_WireTextureSize, fWireTextureSize);
     SetUniform(m_UniformsLocations.m_ViewProjection, viewProjection);

@@ -57,6 +57,11 @@ void xg::WireEndRenderer::AddWireEnd(
     xg::VBOAdd(m_VBO, s_AttributeWireUV, infoUV);
 }
 
+void xg::WireEndRenderer::SetValid(bool valid)
+{
+    m_Valid = valid;
+}
+
 void xg::WireEndRenderer::RemoveAll()
 {
     m_VBO.RemoveAllData();
@@ -79,6 +84,7 @@ void xg::WireEndRenderer::Draw(
     xg::GLEnableAlphaBlend();
     m_VBO.Bind();
 
+    m_Uniforms.m_ColorEmpty = m_Valid ? m_ColorValid : m_ColorInvalid;
     const glm::vec2 fWireTextureSize = infoTextureSize;
     SetUniform(m_UniformsLocations.m_WireTextureSize, fWireTextureSize);
     SetUniform(m_UniformsLocations.m_ViewProjection, viewProjection);
