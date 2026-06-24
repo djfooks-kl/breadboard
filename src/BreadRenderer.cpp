@@ -271,7 +271,7 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
     {
         renderer->RemoveAll();
     }
-    bool allWiresValid = true;
+    bool allPreviewWiresValid = true;
     world.each([&](const xg::UIWireSegmentsComponent& wire, const xg::UIWireValidComponent& validComponent)
         {
             for (const glm::ivec2& checkpoint : wire.m_Checkpoints)
@@ -289,11 +289,11 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
                 prev = current;
             }
 
-            allWiresValid = allWiresValid && validComponent.m_Valid;
+            allPreviewWiresValid = allPreviewWiresValid && validComponent.m_Valid;
         });
     for (xg::IWireRenderer* renderer : m_WirePreviewRendererMap.GetOrder())
     {
-        renderer->SetValid(allWiresValid);
+        renderer->SetValid(allPreviewWiresValid);
         renderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
     }
 

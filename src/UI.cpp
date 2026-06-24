@@ -201,17 +201,21 @@ void xg::UI::DrawUndo(flecs::world& world)
 
 bool xg::UI::GameConsumeInput(flecs::world& world)
 {
-    world.get_mut<xg::UIPreviewCreateWireComponent>().m_Create = false;
+    auto& previewAddingWire = world.get_mut<xg::UIPreviewAddingWireComponent>();
+    auto& createWire = world.get_mut<xg::UIPreviewCreateWireComponent>();
+    if (createWire.m_Create)
+    {
+        previewAddingWire.m_Active = false;
+        createWire.m_Create = false;
+    }
 
     const bool doAction = ImGui::IsMouseClicked(ImGuiMouseButton_Left);
     if (!doAction)
         return false;
 
-    auto& previewAddingWire = world.get_mut<xg::UIPreviewAddingWireComponent>();
     if (previewAddingWire.m_Active)
     {
-        previewAddingWire.m_Active = false;
-        world.get_mut<xg::UIPreviewCreateWireComponent>().m_Create = true;
+        createWire.m_Create = true;
         return true;
     }
 

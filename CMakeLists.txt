@@ -100,6 +100,9 @@ set(source_files
     src/UI.cpp
     src/UI.h
     src/UIAddCogComponent.h
+    src/UIAddWireSystem.cpp
+    src/UIAddWireSystem.h
+    src/UIDeleteWireComponent.h
     src/UIDragDropSystem.cpp
     src/UIDragDropSystem.h
     src/UIDraggingDropComponent.h
@@ -135,12 +138,15 @@ set(source_files
     src/WindowSizeComponent.h
     src/WindowSizeSystem.cpp
     src/WindowSizeSystem.h
+    src/WireComponent.h
     src/WireEndRenderer.cpp
     src/WireEndRenderer.h
     src/WireEndUniforms.h
     src/WireLineRenderer.cpp
     src/WireLineRenderer.h
     src/WireLineUniforms.h
+    src/WireSystem.cpp
+    src/WireSystem.h
     src/WorldMouseComponent.h
 )
 
@@ -190,9 +196,11 @@ set(cog_files
 set(command_files
 
     src/Command/CommandAddCogComponent.h
+    src/Command/CommandAddWireComponent.h
     src/Command/CommandCreateSystem.cpp
     src/Command/CommandCreateSystem.h
     src/Command/CommandDeleteCogComponent.h
+    src/Command/CommandDeleteWireComponent.h
     src/Command/CommandRemovedFromHistoryComponent.h
     src/Command/CommandEntityComponent.h
     src/Command/CommandExecuteComponent.h
@@ -309,6 +317,7 @@ if (NOT EMSCRIPTEN)
         src/ut/ResultTest.cpp
         src/ut/Rotation90Test.cpp
         src/ut/ShadersTest.cpp
+        src/ut/UIAddWireSystemTest.cpp
         src/ut/UIDragDropSystemTest.cpp
         src/ut/UIDragPreviewSystemTest.cpp
         src/ut/UIDragValidationSystemTest.cpp
@@ -317,6 +326,7 @@ if (NOT EMSCRIPTEN)
         src/ut/UIWirePathfindingSystemTest.cpp
         src/ut/UIWireSegmentsSystemTest.cpp
         src/ut/UIWireValidationSystemTest.cpp
+        src/ut/WireSystemTest.cpp
     )
 
     target_link_libraries(BreadTests PRIVATE Catch2::Catch2WithMain)

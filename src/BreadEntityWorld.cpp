@@ -26,6 +26,7 @@
 #include "OnStageRemovedComponent.h"
 #include "OnStageSystem.h"
 #include "RenderSettings.h"
+#include "UIAddWireSystem.h"
 #include "UIDragDropSystem.h"
 #include "UIDraggingDropComponent.h"
 #include "UIDragPreviewSystem.h"
@@ -45,6 +46,7 @@
 #include "UIWireSegmentsSystem.h"
 #include "UIWireValidationSystem.h"
 #include "WindowSizeComponent.h"
+#include "WireSystem.h"
 #include "WireTextureSizeComponent.h"
 #include "WorldMouseComponent.h"
 
@@ -93,9 +95,11 @@ void xg::UpdateWorld(flecs::world& world, const double time, const float deltaTi
     xg::UIWirePathfindingSystem::Update(world);
     xg::UIWireSegmentsSystem::Update(world);
     xg::UIWireValidationSystem::Update(world);
+    xg::UIAddWireSystem::Update(world);
     xg::command::CreateSystem::Update(world);
     xg::command::ListSystem::Update(world);
     xg::CogSystem::Update(world);
+    xg::WireSystem::Update(world);
     xg::cog::BatterySystem::Update(world);
     xg::OnStageSystem::Update(world);
     xg::GridAttachmentSystem::Update(world);
