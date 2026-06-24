@@ -57,8 +57,6 @@ void xg::SetupWorld(flecs::world& world)
     world.emplace<xg::CogMap>();
     world.emplace<xg::GridAttachmentsComponent>();
     world.emplace<xg::InputComponent>();
-    world.emplace<xg::OnStageAddedComponent>();
-    world.emplace<xg::OnStageRemovedComponent>();
     world.emplace<xg::RenderSettings>();
     world.emplace<xg::UIDraggingDropComponent>();
     world.emplace<xg::UIDragValidComponent>();

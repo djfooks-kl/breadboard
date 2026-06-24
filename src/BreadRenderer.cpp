@@ -120,10 +120,6 @@ void xg::BreadRenderer::Load(const xg::RenderSettings& settings)
 
 void xg::BreadRenderer::Update(const flecs::world& world)
 {
-    const bool anyOnStageChanges =
-        !world.get<const xg::OnStageAddedComponent>().m_Entities.empty() ||
-        !world.get<const xg::OnStageRemovedComponent>().m_Entities.empty();
-
     const glm::ivec2& wireTextureSize = world.get<xg::WireTextureSizeComponent>().m_Size;
     if (wireTextureSize != m_WireTextureSize)
     {
@@ -140,6 +136,10 @@ void xg::BreadRenderer::Update(const flecs::world& world)
         glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, wireTextureSize.x, wireTextureSize.y, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, data.data());
         glGenerateMipmap(GL_TEXTURE_2D);
     }
+
+    const bool anyOnStageChanges =
+        world.count<const xg::OnStageAddedComponent>() != 0 ||
+        world.count<const xg::OnStageRemovedComponent>() != 0;
 
     if (anyOnStageChanges)
     {

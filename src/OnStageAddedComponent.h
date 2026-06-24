@@ -7,6 +7,5 @@ namespace xg
 {
 	struct OnStageAddedComponent
 	{
-		std::vector<flecs::entity> m_Entities;
 	};
 }

@@ -63,8 +63,6 @@ namespace
         TestEnv()
         {
             m_World.ensure<xg::GridAttachmentsComponent>();
-            m_World.ensure<xg::OnStageAddedComponent>();
-            m_World.ensure<xg::OnStageRemovedComponent>();
 
             auto& cogMap = m_World.ensure<xg::CogMap>();
             cogMap.Register<Size1Cog>();
@@ -75,8 +73,16 @@ namespace
         {
             xg::GridAttachmentSystem::Update(m_World);
 
-            m_World.get_mut<xg::OnStageAddedComponent>().m_Entities.clear();
-            m_World.get_mut<xg::OnStageRemovedComponent>().m_Entities.clear();
+            m_World.defer_begin();
+            m_World.each([](flecs::entity entity, xg::OnStageAddedComponent)
+                {
+                    entity.remove<xg::OnStageAddedComponent>();
+                });
+            m_World.each([](flecs::entity entity, xg::OnStageRemovedComponent)
+                {
+                    entity.remove<xg::OnStageRemovedComponent>();
+                });
+            m_World.defer_end();
         }
 
         flecs::world m_World;
@@ -90,11 +96,11 @@ SYSTEM_TEST_CASE("Adding on stage to a cog -> Attach it to the grid")
 
     flecs::entity entity = world.entity();
     {
+        entity.add<xg::OnStageAddedComponent>();
         auto& cog = entity.ensure<xg::CogComponent>();
         cog.m_CogId = s_Size1Cog;
         cog.m_Transform = xc::ITransform{ glm::ivec2(3, 2) };
     }
-    world.get_mut<xg::OnStageAddedComponent>().m_Entities.push_back(entity);
 
     env.Update();
 
@@ -114,14 +120,14 @@ SYSTEM_TEST_CASE("Removing on stage on a cog -> Deattach it from the grid")
 
     flecs::entity entity = world.entity();
     {
+        entity.add<xg::OnStageAddedComponent>();
         auto& cog = entity.ensure<xg::CogComponent>();
         cog.m_CogId = s_Size1Cog;
         cog.m_Transform = xc::ITransform{ glm::ivec2(3, 2) };
     }
-    world.get_mut<xg::OnStageAddedComponent>().m_Entities.push_back(entity);
     env.Update();
 
-    world.get_mut<xg::OnStageRemovedComponent>().m_Entities.push_back(entity);
+    entity.add<xg::OnStageRemovedComponent>();
     env.Update();
 
     const auto& map = world.get<xg::GridAttachmentsComponent>().m_Map;
@@ -135,21 +141,21 @@ SYSTEM_TEST_CASE("Removing on stage on 1 cog out of 2 -> Deattach only removed c
 
     flecs::entity entity1 = world.entity();
     {
+        entity1.add<xg::OnStageAddedComponent>();
         auto& cog = entity1.ensure<xg::CogComponent>();
         cog.m_CogId = s_Size1Cog;
         cog.m_Transform = xc::ITransform{ glm::ivec2(3, 2) };
     }
     flecs::entity entity2 = world.entity();
     {
+        entity2.add<xg::OnStageAddedComponent>();
         auto& cog = entity2.ensure<xg::CogComponent>();
         cog.m_CogId = s_Size1Cog;
         cog.m_Transform = xc::ITransform{ glm::ivec2(13, 12) };
     }
-    world.get_mut<xg::OnStageAddedComponent>().m_Entities.push_back(entity1);
-    world.get_mut<xg::OnStageAddedComponent>().m_Entities.push_back(entity2);
     env.Update();
 
-    world.get_mut<xg::OnStageRemovedComponent>().m_Entities.push_back(entity2);
+    entity2.add<xg::OnStageRemovedComponent>();
     env.Update();
 
     const auto& map = world.get<xg::GridAttachmentsComponent>().m_Map;
@@ -164,11 +170,11 @@ SYSTEM_TEST_CASE("Adding on stage to a long cog -> Attach it to the grid on ever
 
     flecs::entity entity = world.entity();
     {
+        entity.add<xg::OnStageAddedComponent>();
         auto& cog = entity.ensure<xg::CogComponent>();
         cog.m_CogId = s_LongCog;
         cog.m_Transform = xc::ITransform{ glm::ivec2(3, 2) };
     }
-    world.get_mut<xg::OnStageAddedComponent>().m_Entities.push_back(entity);
 
     env.Update();
 
@@ -201,14 +207,14 @@ SYSTEM_TEST_CASE("Removing on stage on a long cog -> Deattach it from the grid")
 
     flecs::entity entity = world.entity();
     {
+        entity.add<xg::OnStageAddedComponent>();
         auto& cog = entity.ensure<xg::CogComponent>();
         cog.m_CogId = s_LongCog;
         cog.m_Transform = xc::ITransform{ glm::ivec2(3, 2) };
     }
-    world.get_mut<xg::OnStageAddedComponent>().m_Entities.push_back(entity);
     env.Update();
 
-    world.get_mut<xg::OnStageRemovedComponent>().m_Entities.push_back(entity);
+    entity.add<xg::OnStageRemovedComponent>();
     env.Update();
 
     const auto& map = world.get<xg::GridAttachmentsComponent>().m_Map;
@@ -222,11 +228,11 @@ SYSTEM_TEST_CASE("Adding on stage to a rotated long cog -> Attach it to the grid
 
     flecs::entity entity = world.entity();
     {
+        entity.add<xg::OnStageAddedComponent>();
         auto& cog = entity.ensure<xg::CogComponent>();
         cog.m_CogId = s_LongCog;
         cog.m_Transform = xc::ITransform{ glm::ivec2(3, 2), xc::Rotation90(1) };
     }
-    world.get_mut<xg::OnStageAddedComponent>().m_Entities.push_back(entity);
 
     env.Update();
 
@@ -249,14 +255,14 @@ SYSTEM_TEST_CASE("Removing on stage on a rotated long cog -> Deattach it from th
 
     flecs::entity entity = world.entity();
     {
+        entity.add<xg::OnStageAddedComponent>();
         auto& cog = entity.ensure<xg::CogComponent>();
         cog.m_CogId = s_LongCog;
         cog.m_Transform = xc::ITransform{ glm::ivec2(3, 2), xc::Rotation90(1) };
     }
-    world.get_mut<xg::OnStageAddedComponent>().m_Entities.push_back(entity);
     env.Update();
 
-    world.get_mut<xg::OnStageRemovedComponent>().m_Entities.push_back(entity);
+    entity.add<xg::OnStageRemovedComponent>();
     env.Update();
 
     const auto& map = world.get<xg::GridAttachmentsComponent>().m_Map;

@@ -12,8 +12,16 @@
 
 void xg::OnStageSystem::Update(flecs::world& world)
 {
-    world.get_mut<xg::OnStageAddedComponent>().m_Entities.clear();
-    world.get_mut<xg::OnStageRemovedComponent>().m_Entities.clear();
+    world.defer_begin();
+    world.each([](flecs::entity entity, xg::OnStageAddedComponent)
+        {
+            entity.remove<xg::OnStageAddedComponent>();
+        });
+    world.each([](flecs::entity entity, xg::OnStageRemovedComponent)
+        {
+            entity.remove<xg::OnStageRemovedComponent>();
+        });
+    world.defer_end();
 
     world.defer_begin();
     world.each([&](
@@ -22,7 +30,7 @@ void xg::OnStageSystem::Update(flecs::world& world)
         const xg::command::ExecuteComponent&)
         {
             commandEntity.m_Entity.add<xg::OnStageComponent>();
-            world.get_mut<xg::OnStageAddedComponent>().m_Entities.push_back(commandEntity.m_Entity);
+            commandEntity.m_Entity.add<xg::OnStageAddedComponent>();
         });
 
     world.defer_end();
@@ -33,7 +41,7 @@ void xg::OnStageSystem::Update(flecs::world& world)
         const xg::command::ExecuteComponent&)
         {
             deleteCog.m_Cog.remove<xg::OnStageComponent>();
-            world.get_mut<xg::OnStageRemovedComponent>().m_Entities.push_back(deleteCog.m_Cog);
+            deleteCog.m_Cog.add<xg::OnStageRemovedComponent>();
         });
 
     world.defer_end();

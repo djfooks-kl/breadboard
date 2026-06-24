@@ -179,7 +179,6 @@ set(cog_files
     src/Cogs/BatteryComponent.h
     src/Cogs/BatterySystem.cpp
     src/Cogs/BatterySystem.h
-    src/Cogs/CogHelpers.h
     src/Cogs/CogMap.cpp
     src/Cogs/CogMap.h
     src/Cogs/CogPrototype.cpp
