@@ -3,7 +3,9 @@
 #include <flecs/flecs.h>
 
 #include "Command/CommandAddCogComponent.h"
+#include "Command/CommandAddWireComponent.h"
 #include "Command/CommandDeleteCogComponent.h"
+#include "Command/CommandDeleteWireComponent.h"
 #include "Command/CommandEntityComponent.h"
 #include "Command/CommandExecuteComponent.h"
 #include "OnStageAddedComponent.h"
@@ -33,6 +35,14 @@ void xg::OnStageSystem::Update(flecs::world& world)
             commandEntity.m_Entity.add<xg::OnStageAddedComponent>();
         });
 
+    world.each([&](
+        const xg::command::AddWireComponent&,
+        const xg::command::EntityComponent& commandEntity,
+        const xg::command::ExecuteComponent&)
+        {
+            commandEntity.m_Entity.add<xg::OnStageComponent>();
+            commandEntity.m_Entity.add<xg::OnStageAddedComponent>();
+        });
     world.defer_end();
 
     world.defer_begin();
@@ -44,5 +54,12 @@ void xg::OnStageSystem::Update(flecs::world& world)
             deleteCog.m_Cog.add<xg::OnStageRemovedComponent>();
         });
 
+    world.each([&](
+        const xg::command::DeleteWireComponent& deleteWire,
+        const xg::command::ExecuteComponent&)
+        {
+            deleteWire.m_Wire.remove<xg::OnStageComponent>();
+            deleteWire.m_Wire.add<xg::OnStageRemovedComponent>();
+        });
     world.defer_end();
 }

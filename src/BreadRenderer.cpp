@@ -26,6 +26,7 @@
 #include "UIPreviewAddingCogComponent.h"
 #include "UIWireSegmentsComponent.h"
 #include "UIWireValidComponent.h"
+#include "WireComponent.h"
 #include "WireTextureSizeComponent.h"
 
 namespace
@@ -143,24 +144,55 @@ void xg::BreadRenderer::Update(const flecs::world& world)
 
     if (anyOnStageChanges)
     {
-        m_CogBoxRenderer->RemoveAll();
-        for (xg::IRenderer* renderer : m_CogRendererMap.GetOrder())
+        if (world.query<xg::OnStageAddedComponent, xg::CogComponent>().is_true() ||
+            world.query<xg::OnStageRemovedComponent, xg::CogComponent>().is_true())
         {
-            renderer->RemoveAll();
+            m_CogBoxRenderer->RemoveAll();
+            for (xg::IRenderer* renderer : m_CogRendererMap.GetOrder())
+            {
+                renderer->RemoveAll();
+            }
+
+            const auto& cogMap = world.get<xg::CogMap>();
+            world.each([&](
+                const xg::OnStageComponent,
+                const xg::CogComponent& cogComponent)
+            {
+                const xg::CogPrototype* cog = cogMap.Get(cogComponent.m_CogId);
+                glm::ivec2 cogExtents = cog->GetSize() - glm::ivec2(1, 1);
+                m_CogBoxRenderer->AddBox(cogComponent.m_Transform.m_Translation, cogComponent.m_Transform.Apply(cogExtents));
+
+                xg::RenderableAdder renderableAdder("Cog", m_CogRendererMap);
+                cog->AddStaticRenderables(cogComponent.m_Transform, renderableAdder);
+            });
         }
 
-        const auto& cogMap = world.get<xg::CogMap>();
-        world.each([&](
-            const xg::OnStageComponent,
-            const xg::CogComponent& cogComponent)
+        if (world.query<xg::OnStageAddedComponent, xg::WireComponent>().is_true() ||
+            world.query<xg::OnStageRemovedComponent, xg::WireComponent>().is_true())
         {
-            const xg::CogPrototype* cog = cogMap.Get(cogComponent.m_CogId);
-            glm::ivec2 cogExtents = cog->GetSize() - glm::ivec2(1, 1);
-            m_CogBoxRenderer->AddBox(cogComponent.m_Transform.m_Translation, cogComponent.m_Transform.Apply(cogExtents));
+            for (xg::IWireRenderer* renderer : m_WireRendererMap.GetOrder())
+            {
+                renderer->RemoveAll();
+            }
+            world.each([&](const xg::WireComponent& wire)
+            {
+                for (const glm::ivec2& checkpoint : wire.m_Checkpoints)
+                {
+                    m_WireRendererMap.Get(s_RenderableWireCircleTop)->AddWireEnd(checkpoint, glm::ivec2(0, 0));
+                    m_WireRendererMap.Get(s_RenderableWireCircleBottom)->AddWireEnd(checkpoint, glm::ivec2(0, 0));
+                }
+                if (wire.m_Checkpoints.empty())
+                    return;
 
-            xg::RenderableAdder renderableAdder("Cog", m_CogRendererMap);
-            cog->AddStaticRenderables(cogComponent.m_Transform, renderableAdder);
-        });
+                glm::ivec2 prev = wire.m_Checkpoints[0];
+                for (int i = 1; i < wire.m_Checkpoints.size(); ++i)
+                {
+                    const glm::ivec2& current = wire.m_Checkpoints[i];
+                    m_WireRendererMap.Get(s_RenderableWire)->AddWire(prev, current, glm::ivec2(0, 0));
+                    prev = current;
+                }
+            });
+        }
     }
 }
 
@@ -178,7 +210,7 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
     {
         renderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
     }
-    for (xg::IWireRenderer* renderer : m_WirePreviewRendererMap.GetOrder())
+    for (xg::IWireRenderer* renderer : m_WireRendererMap.GetOrder())
     {
         renderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
     }

@@ -8,7 +8,6 @@
 #include "GridSizeComponent.h"
 #include "UIDragPreviewComponent.h"
 #include "UIDragValidComponent.h"
-#include "Cogs/CogHelpers.h"
 
 void xg::UIDragValidationSystem::Update(flecs::world& world)
 {

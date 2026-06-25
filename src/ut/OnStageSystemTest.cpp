@@ -2,7 +2,9 @@
 #include <flecs/flecs.h>
 
 #include "Command/CommandAddCogComponent.h"
+#include "Command/CommandAddWireComponent.h"
 #include "Command/CommandDeleteCogComponent.h"
+#include "Command/CommandDeleteWireComponent.h"
 #include "Command/CommandEntityComponent.h"
 #include "Command/CommandExecuteComponent.h"
 #include "OnStageAddedComponent.h"
@@ -34,7 +36,7 @@ namespace
 }
 
 SYSTEM_TEST_CASE("Executing an add cog command -> "
-    "Add the OnStageComponent and OnStageAddedComponent then next frame remove the OnStageAddedComponent")
+    "Add the OnStageComponent and OnStageAddedComponent")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -53,14 +55,10 @@ SYSTEM_TEST_CASE("Executing an add cog command -> "
 
     CHECK(addedEntity.has<xg::OnStageComponent>());
     CHECK(addedEntity.has<xg::OnStageAddedComponent>());
-    env.Update();
-
-    CHECK(addedEntity.has<xg::OnStageComponent>());
-    CHECK(addedEntity.has<xg::OnStageAddedComponent>() == false);
 }
 
-SYSTEM_TEST_CASE("Executing a delete command -> "
-    "Remove the OnStageComponent and add OnStageRemovedComponent then next frame remove the OnStageRemovedComponent")
+SYSTEM_TEST_CASE("Executing a delete cog command -> "
+    "Remove the OnStageComponent and add OnStageRemovedComponent")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -81,8 +79,86 @@ SYSTEM_TEST_CASE("Executing a delete command -> "
 
     CHECK(addedEntity.has<xg::OnStageComponent>() == false);
     CHECK(addedEntity.has<xg::OnStageRemovedComponent>());
+}
+
+SYSTEM_TEST_CASE("Executing an add wire command -> "
+    "Add the OnStageComponent and OnStageAddedComponent")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity addedEntity = world.entity();
+    flecs::entity commandAdd = world.entity();
+    commandAdd.ensure<xg::command::AddWireComponent>();
+    commandAdd.ensure<xg::command::EntityComponent>().m_Entity = addedEntity;
 
     env.Update();
     CHECK(addedEntity.has<xg::OnStageComponent>() == false);
+    CHECK(addedEntity.has<xg::OnStageAddedComponent>() == false);
+
+    commandAdd.add<xg::command::ExecuteComponent>();
+    env.Update();
+
+    CHECK(addedEntity.has<xg::OnStageComponent>());
+    CHECK(addedEntity.has<xg::OnStageAddedComponent>());
+}
+
+SYSTEM_TEST_CASE("Executing a delete wire command -> "
+    "Remove the OnStageComponent and add OnStageRemovedComponent")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity addedEntity = world.entity();
+    flecs::entity commandAdd = world.entity();
+    commandAdd.ensure<xg::command::AddWireComponent>();
+    commandAdd.ensure<xg::command::EntityComponent>().m_Entity = addedEntity;
+
+    flecs::entity commandDelete = world.entity();
+    commandDelete.ensure<xg::command::DeleteWireComponent>().m_Wire = addedEntity;
+
+    commandAdd.add<xg::command::ExecuteComponent>();
+    env.Update();
+
+    commandDelete.add<xg::command::ExecuteComponent>();
+    env.Update();
+
+    CHECK(addedEntity.has<xg::OnStageComponent>() == false);
+    CHECK(addedEntity.has<xg::OnStageRemovedComponent>());
+}
+SYSTEM_TEST_CASE("OnStageAddedComponent is removed next frame")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity addedEntity = world.entity();
+    flecs::entity commandAdd = world.entity();
+    commandAdd.ensure<xg::command::AddCogComponent>();
+    commandAdd.ensure<xg::command::EntityComponent>().m_Entity = addedEntity;
+    commandAdd.add<xg::command::ExecuteComponent>();
+    env.Update();
+    env.Update();
+    CHECK(addedEntity.has<xg::OnStageAddedComponent>() == false);
+}
+
+SYSTEM_TEST_CASE("OnStageRemovedComponent is removed next frame")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity addedEntity = world.entity();
+    flecs::entity commandAdd = world.entity();
+    commandAdd.ensure<xg::command::AddWireComponent>();
+    commandAdd.ensure<xg::command::EntityComponent>().m_Entity = addedEntity;
+
+    flecs::entity commandDelete = world.entity();
+    commandDelete.ensure<xg::command::DeleteWireComponent>().m_Wire = addedEntity;
+
+    commandAdd.add<xg::command::ExecuteComponent>();
+    env.Update();
+
+    commandDelete.add<xg::command::ExecuteComponent>();
+    env.Update();
+    env.Update();
     CHECK(addedEntity.has<xg::OnStageRemovedComponent>() == false);
 }
