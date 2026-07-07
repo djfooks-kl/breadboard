@@ -57,7 +57,9 @@ namespace
 
 void xg::UI::UpdateMouse(flecs::world& world, BaseApp& app)
 {
-    app.SetCursor(world.get<xg::UIHoverComponent>().m_Node ? EMouseCursor::Cross : EMouseCursor::Arrow);
+    auto& previewAddingCog = world.get_mut<xg::UIPreviewAddingCogComponent>();
+    bool hoverWire = previewAddingCog.m_AddCogId.IsEmpty() && world.get<xg::UIHoverComponent>().m_Node;
+    app.SetCursor(hoverWire ? EMouseCursor::Cross : EMouseCursor::Arrow);
 }
 
 void xg::UI::DrawDebugMenu(flecs::world& world)
