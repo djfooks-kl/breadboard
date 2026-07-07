@@ -2,12 +2,30 @@
 
 #include <flecs/flecs.h>
 
-#include "Core/IAABB.h"
+#include "CogComponent.h"
 #include "Cogs/CogMap.h"
+#include "Core/IAABB.h"
 #include "GridAttachmentsComponent.h"
 #include "GridSizeComponent.h"
 #include "UIDragPreviewComponent.h"
 #include "UIDragValidComponent.h"
+
+namespace
+{
+    bool GridHasCog(const xg::GridAttachmentsMap& map, const glm::ivec2& p)
+    {
+        auto itr = map.find(p);
+        if (itr == map.end())
+            return false;
+
+        for (const flecs::entity& entity : itr->second.m_Entities)
+        {
+            if (entity.has<xg::CogComponent>())
+                return true;
+        }
+        return false;
+    }
+}
 
 void xg::UIDragValidationSystem::Update(flecs::world& world)
 {
@@ -23,7 +41,7 @@ void xg::UIDragValidationSystem::Update(flecs::world& world)
             aabb.ForEachCellUntil(
                 [&](const glm::ivec2& p)
                 {
-                    if (attachmentsMap.contains(p) ||
+                    if (GridHasCog(attachmentsMap, p) ||
                         p.x < 0 ||
                         p.y < 0 ||
                         p.x > gridSize.x ||

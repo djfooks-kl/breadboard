@@ -3,6 +3,7 @@
 
 #include "Cogs/CogMap.h"
 #include "GridAttachmentsComponent.h"
+#include "CogComponent.h"
 #include "GridSizeComponent.h"
 #include "UIDragPreviewComponent.h"
 #include "UIDragValidationSystem.h"
@@ -67,7 +68,7 @@ SYSTEM_TEST_CASE("Nothing on grid -> Preview valid")
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
 }
 
-SYSTEM_TEST_CASE("Something on the grid in the same place -> Preview invalid")
+SYSTEM_TEST_CASE("A cog on the grid in the same place -> Preview invalid")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -79,13 +80,16 @@ SYSTEM_TEST_CASE("Something on the grid in the same place -> Preview invalid")
         dragPreview.m_Position = glm::ivec2(3, 5);
     }
 
-    world.get_mut<xg::GridAttachmentsComponent>().m_Map[glm::ivec2(3, 5)];
+    flecs::entity gridCog = world.entity();
+    gridCog.ensure<xg::CogComponent>();
+
+    world.get_mut<xg::GridAttachmentsComponent>().m_Map[glm::ivec2(3, 5)].m_Entities.push_back(gridCog);
 
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
 }
 
-SYSTEM_TEST_CASE("Something on the grid in a different place -> Preview valid")
+SYSTEM_TEST_CASE("Cog on the grid in a different place -> Preview valid")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -97,13 +101,36 @@ SYSTEM_TEST_CASE("Something on the grid in a different place -> Preview valid")
         dragPreview.m_Position = glm::ivec2(3, 5);
     }
 
-    world.get_mut<xg::GridAttachmentsComponent>().m_Map[glm::ivec2(10, 5)];
+    flecs::entity gridCog = world.entity();
+    gridCog.ensure<xg::CogComponent>();
+
+    world.get_mut<xg::GridAttachmentsComponent>().m_Map[glm::ivec2(10, 5)].m_Entities.push_back(gridCog);
 
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
 }
 
-SYSTEM_TEST_CASE("Something on the grid overlapping with the cog -> Preview invalid")
+SYSTEM_TEST_CASE("A non-cog on the grid in the same place -> Preview valid")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity draggingCog = world.entity();
+    {
+        auto& dragPreview = draggingCog.ensure<xg::UIDragPreviewComponent>();
+        dragPreview.m_CogId = s_Size1Cog;
+        dragPreview.m_Position = glm::ivec2(3, 5);
+    }
+
+    flecs::entity notACog = world.entity();
+
+    world.get_mut<xg::GridAttachmentsComponent>().m_Map[glm::ivec2(3, 5)].m_Entities.push_back(notACog);
+
+    env.Update();
+    CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
+}
+
+SYSTEM_TEST_CASE("Cog on the grid overlapping with the cog -> Preview invalid")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -115,38 +142,41 @@ SYSTEM_TEST_CASE("Something on the grid overlapping with the cog -> Preview inva
         dragPreview.m_Position = glm::ivec2(3, 5);
     }
 
+    flecs::entity gridCog = world.entity();
+    gridCog.ensure<xg::CogComponent>();
+
     auto& map = world.get_mut<xg::GridAttachmentsComponent>().m_Map;
-    map[glm::ivec2(3, 5)];
+    map[glm::ivec2(3, 5)].m_Entities.push_back(gridCog);
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
 
     map.clear();
-    map[glm::ivec2(4, 5)];
+    map[glm::ivec2(4, 5)].m_Entities.push_back(gridCog);
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
 
     map.clear();
-    map[glm::ivec2(3, 6)];
+    map[glm::ivec2(3, 6)].m_Entities.push_back(gridCog);
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
 
     map.clear();
-    map[glm::ivec2(4, 6)];
+    map[glm::ivec2(4, 6)].m_Entities.push_back(gridCog);
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
 
     map.clear();
-    map[glm::ivec2(3, 7)];
+    map[glm::ivec2(3, 7)].m_Entities.push_back(gridCog);
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
 
     map.clear();
-    map[glm::ivec2(4, 7)];
+    map[glm::ivec2(4, 7)].m_Entities.push_back(gridCog);
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
 }
 
-SYSTEM_TEST_CASE("Something on the grid not overlapping with the cog -> Preview valid")
+SYSTEM_TEST_CASE("Cog on the grid not overlapping with the cog -> Preview valid")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -158,28 +188,31 @@ SYSTEM_TEST_CASE("Something on the grid not overlapping with the cog -> Preview 
         dragPreview.m_Position = glm::ivec2(3, 5);
     }
 
+    flecs::entity gridCog = world.entity();
+    gridCog.ensure<xg::CogComponent>();
+
     auto& map = world.get_mut<xg::GridAttachmentsComponent>().m_Map;
-    map[glm::ivec2(2, 5)];
+    map[glm::ivec2(2, 5)].m_Entities.push_back(gridCog);
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
 
     map.clear();
-    map[glm::ivec2(5, 5)];
+    map[glm::ivec2(5, 5)].m_Entities.push_back(gridCog);
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
 
     map.clear();
-    map[glm::ivec2(3, 8)];
+    map[glm::ivec2(3, 8)].m_Entities.push_back(gridCog);
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
 
     map.clear();
-    map[glm::ivec2(3, 4)];
+    map[glm::ivec2(3, 4)].m_Entities.push_back(gridCog);
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
 }
 
-SYSTEM_TEST_CASE("Something on the grid overlapping with the rotated cog -> Preview invalid")
+SYSTEM_TEST_CASE("Cog on the grid overlapping with the rotated cog -> Preview invalid")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -192,40 +225,43 @@ SYSTEM_TEST_CASE("Something on the grid overlapping with the rotated cog -> Prev
         dragPreview.m_Rotation = xc::Rotation90(1);
     }
 
+    flecs::entity gridCog = world.entity();
+    gridCog.ensure<xg::CogComponent>();
+
     auto& map = world.get_mut<xg::GridAttachmentsComponent>().m_Map;
     map.clear();
-    map[glm::ivec2(3, 2)];
+    map[glm::ivec2(3, 2)].m_Entities.push_back(gridCog);
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
 
     map.clear();
-    map[glm::ivec2(4, 2)];
+    map[glm::ivec2(4, 2)].m_Entities.push_back(gridCog);
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
 
     map.clear();
-    map[glm::ivec2(5, 2)];
+    map[glm::ivec2(5, 2)].m_Entities.push_back(gridCog);
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
 
 
     map.clear();
-    map[glm::ivec2(3, 1)];
+    map[glm::ivec2(3, 1)].m_Entities.push_back(gridCog);
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
 
     map.clear();
-    map[glm::ivec2(4, 1)];
+    map[glm::ivec2(4, 1)].m_Entities.push_back(gridCog);
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
 
     map.clear();
-    map[glm::ivec2(5, 1)];
+    map[glm::ivec2(5, 1)].m_Entities.push_back(gridCog);
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
 }
 
-SYSTEM_TEST_CASE("Something on the grid not overlapping with the rotated cog -> Preview valid")
+SYSTEM_TEST_CASE("Cog on the grid not overlapping with the rotated cog -> Preview valid")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -238,24 +274,27 @@ SYSTEM_TEST_CASE("Something on the grid not overlapping with the rotated cog -> 
         dragPreview.m_Rotation = xc::Rotation90(1);
     }
 
+    flecs::entity gridCog = world.entity();
+    gridCog.ensure<xg::CogComponent>();
+
     auto& map = world.get_mut<xg::GridAttachmentsComponent>().m_Map;
     map.clear();
-    map[glm::ivec2(3, 0)];
+    map[glm::ivec2(3, 0)].m_Entities.push_back(gridCog);
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
 
     map.clear();
-    map[glm::ivec2(4, 3)];
+    map[glm::ivec2(4, 3)].m_Entities.push_back(gridCog);
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
 
     map.clear();
-    map[glm::ivec2(2, 1)];
+    map[glm::ivec2(2, 1)].m_Entities.push_back(gridCog);
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
 
     map.clear();
-    map[glm::ivec2(6, 1)];
+    map[glm::ivec2(6, 1)].m_Entities.push_back(gridCog);
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
 }
