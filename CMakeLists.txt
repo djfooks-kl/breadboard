@@ -15,6 +15,7 @@ target_compile_options(project_compiler_flags INTERFACE
 
 set(core_files
 
+    src/Core/EnumFlags.h
     src/Core/Font.cpp
     src/Core/Font.h
     src/Core/GLFWLib.h
@@ -25,6 +26,7 @@ set(core_files
     src/Core/ITransform.cpp
     src/Core/ITransform.h
     src/Core/MathConstants.h
+    src/Core/Range.h
     src/Core/ResourceId.h
     src/Core/Result.h
     src/Core/Rotation90.cpp
@@ -64,6 +66,7 @@ set(source_files
     src/CogNodeUniforms.h
     src/CogSystem.cpp
     src/CogSystem.h
+    src/EntityHash.h
     src/GridAttachmentsComponent.h
     src/GridAttachmentsMap.h
     src/GridAttachmentSystem.cpp
@@ -142,6 +145,9 @@ set(source_files
     src/WireEndRenderer.cpp
     src/WireEndRenderer.h
     src/WireEndUniforms.h
+    src/WireFlags.h
+    src/WireHelpers.cpp
+    src/WireHelpers.h
     src/WireLineRenderer.cpp
     src/WireLineRenderer.h
     src/WireLineUniforms.h
@@ -306,6 +312,7 @@ if (NOT EMSCRIPTEN)
         src/ut/CogSystemTest.cpp
         src/ut/CommandCreateSystemTest.cpp
         src/ut/CommandListSystemTest.cpp
+        src/ut/EnumFlagsTest.cpp
         src/ut/FlecsTestHelpers.h
         src/ut/GridAttachmentSystemTest.cpp
         src/ut/IAABBTest.cpp
