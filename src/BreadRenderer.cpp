@@ -174,7 +174,7 @@ void xg::BreadRenderer::Update(const flecs::world& world)
             {
                 renderer->RemoveAll();
             }
-            world.each([&](const xg::WireComponent& wire)
+            world.each([&](const xg::OnStageComponent, const xg::WireComponent& wire)
             {
                 for (const glm::ivec2& checkpoint : wire.m_Checkpoints)
                 {
