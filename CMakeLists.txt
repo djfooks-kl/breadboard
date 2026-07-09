@@ -67,6 +67,8 @@ set(source_files
     src/CogSystem.cpp
     src/CogSystem.h
     src/EntityHash.h
+    src/DebugUI.cpp
+    src/DebugUI.h
     src/GridAttachmentsComponent.h
     src/GridAttachmentsMap.h
     src/GridAttachmentSystem.cpp

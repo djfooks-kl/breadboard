@@ -11,6 +11,7 @@
 #include "Cogs/CogMap.h"
 #include "Cogs/CogPrototype.h"
 #include "Core/GLFWLib.h"
+#include "DebugUI.h"
 #include "InputComponent.h"
 #include "MouseCursorEnum.h"
 #include "UIDeleteCogComponent.h"
@@ -55,6 +56,13 @@ namespace
     }
 }
 
+xg::UI::UI()
+    : m_DebugUI(std::make_unique<xg::DebugUI>())
+{
+}
+
+xg::UI::~UI() = default;
+
 void xg::UI::UpdateMouse(flecs::world& world, BaseApp& app)
 {
     auto& previewAddingCog = world.get_mut<xg::UIPreviewAddingCogComponent>();
@@ -76,9 +84,13 @@ void xg::UI::DrawDebugMenu(flecs::world& world)
     {
         if (ImGui::BeginMenu("Debug"))
         {
-            if (ImGui::MenuItem("Info"))
+            if (ImGui::MenuItem("Camera"))
             {
-                m_DebugInfoOpen = true;
+                m_DebugCameraOpen = true;
+            }
+            if (ImGui::MenuItem("Grid"))
+            {
+                m_DebugGridOpen = true;
             }
             ImGui::EndMenu();
         }
@@ -86,11 +98,11 @@ void xg::UI::DrawDebugMenu(flecs::world& world)
     }
 }
 
-void xg::UI::DrawDebugInfo(flecs::world& world)
+void xg::UI::DrawDebugCamera(flecs::world& world)
 {
     // scale window to fit contents
     ImGui::SetNextWindowSize(ImVec2{ 0.f, 0.f });
-    if (m_DebugInfoOpen && ImGui::Begin("Debug Info", &m_DebugInfoOpen))
+    if (m_DebugCameraOpen && ImGui::Begin("Debug Camera", &m_DebugCameraOpen))
     {
         world.each([&](const xg::CameraComponent& camera)
                 {
@@ -101,7 +113,23 @@ void xg::UI::DrawDebugInfo(flecs::world& world)
     }
 }
 
-void xg::UI::DrawComponentMenu(flecs::world& world, const bool actionEaten)
+void xg::UI::DrawDebugGrid(flecs::world& world)
+{
+    // scale window to fit contents
+    ImGui::SetNextWindowSize(ImVec2{ 0.f, 0.f });
+    if (m_DebugGridOpen && ImGui::Begin("Debug Grid", &m_DebugGridOpen))
+    {
+        glm::ivec2 cell = world.get<const xg::WorldMouseComponent>().m_Cell;
+        world.each([&](const xg::CameraComponent& camera)
+            {
+                ImGui::Text("Zoom %.3f", camera.m_Zoom);
+                ImGui::Text("Pos %.3f %.3f", camera.m_Position.x, camera.m_Position.y);
+            });
+        ImGui::End();
+    }
+}
+
+void xg::UI::DrawCogMenu(flecs::world& world, const bool actionEaten)
 {
     const auto& cogMap = world.get<xg::CogMap>();
     const auto& input = world.get<xg::InputComponent>();
@@ -215,6 +243,11 @@ bool xg::UI::GameConsumeInput(flecs::world& world)
     if (!doAction)
         return false;
 
+    if (m_DebugUI->GameConsumeInput(world))
+    {
+        return true;
+    }
+
     if (previewAddingWire.m_Active)
     {
         createWire.m_Create = true;
@@ -234,12 +267,12 @@ bool xg::UI::GameConsumeInput(flecs::world& world)
 void xg::UI::Draw(flecs::world& world)
 {
     DrawUndo(world);
-    DrawDebugMenu(world);
-    DrawDebugInfo(world);
+
+    m_DebugUI->Draw(world);
 
     UpdateRotate(world);
     UpdateDelete(world);
 
     const bool actionEaten = GameConsumeInput(world);
-    DrawComponentMenu(world, actionEaten);
+    DrawCogMenu(world, actionEaten);
 }
