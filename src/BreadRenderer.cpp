@@ -11,6 +11,8 @@
 #include "Core/Font.h"
 #include "Core/GLFWLib.h"
 #include "Core/ShaderProgram.h"
+#include "GridAttachmentsComponent.h"
+#include "GridHelpers.h"
 #include "GridIconRenderer.h"
 #include "GridRenderer.h"
 #include "GridSizeComponent.h"
@@ -174,16 +176,10 @@ void xg::BreadRenderer::Update(const flecs::world& world)
             {
                 renderer->RemoveAll();
             }
+
+            std::unordered_set<glm::ivec2> dots;
             world.each([&](const xg::OnStageComponent, const xg::WireComponent& wire)
             {
-                for (const glm::ivec2& checkpoint : wire.m_Checkpoints)
-                {
-                    m_WireRendererMap.Get(s_RenderableWireCircleTop)->AddWireEnd(checkpoint, glm::ivec2(0, 0));
-                    m_WireRendererMap.Get(s_RenderableWireCircleBottom)->AddWireEnd(checkpoint, glm::ivec2(0, 0));
-                }
-                if (wire.m_Checkpoints.empty())
-                    return;
-
                 glm::ivec2 prev = wire.m_Checkpoints[0];
                 for (int i = 1; i < wire.m_Checkpoints.size(); ++i)
                 {
@@ -192,6 +188,29 @@ void xg::BreadRenderer::Update(const flecs::world& world)
                     prev = current;
                 }
             });
+        }
+
+        const auto& attachments = world.get<xg::GridAttachmentsComponent>().m_Map;
+
+        std::unordered_set<glm::ivec2> dots;
+        world.each([&](const xg::OnStageComponent, const xg::WireComponent& wire)
+        {
+            xg::ForEachSegmentsCellUntil(wire.m_Checkpoints, [&](const glm::ivec2& p)
+            {
+                auto itr = attachments.find(p);
+                if (itr != attachments.end() && itr->second.m_HasWireDot)
+                {
+                    dots.insert(p);
+                }
+            });
+        });
+
+        m_WireRendererMap.Get(s_RenderableWireCircleTop)->RemoveAll();
+        m_WireRendererMap.Get(s_RenderableWireCircleBottom)->RemoveAll();
+        for (const glm::ivec2& p : dots)
+        {
+            m_WireRendererMap.Get(s_RenderableWireCircleTop)->AddWireEnd(p, glm::ivec2(0, 0));
+            m_WireRendererMap.Get(s_RenderableWireCircleBottom)->AddWireEnd(p, glm::ivec2(0, 0));
         }
     }
 }

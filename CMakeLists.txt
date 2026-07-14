@@ -317,6 +317,7 @@ if (NOT EMSCRIPTEN)
         src/ut/EnumFlagsTest.cpp
         src/ut/FlecsTestHelpers.h
         src/ut/GridAttachmentSystemTest.cpp
+        src/ut/GridHelpersTest.cpp
         src/ut/IAABBTest.cpp
         src/ut/ITransformTest.cpp
         src/ut/OnStageSystemTest.cpp
