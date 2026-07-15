@@ -14,7 +14,7 @@ namespace xg
         std::vector<flecs::entity> m_Entities;
         TWireDirectionFlags m_WireDirectionFlags;
         bool m_HasNode : 1 = false;
-        bool m_HasWireDot : 1 = false;
+        bool m_HasWireCheckpoint : 1 = false;
     };
 
     using GridAttachmentsMap = std::unordered_map<glm::ivec2, GridAttachments>;

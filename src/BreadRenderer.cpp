@@ -29,6 +29,7 @@
 #include "UIWireSegmentsComponent.h"
 #include "UIWireValidComponent.h"
 #include "WireComponent.h"
+#include "WireHelpers.h"
 #include "WireTextureSizeComponent.h"
 
 namespace
@@ -198,7 +199,7 @@ void xg::BreadRenderer::Update(const flecs::world& world)
             xg::ForEachSegmentsCellUntil(wire.m_Checkpoints, [&](const glm::ivec2& p)
             {
                 auto itr = attachments.find(p);
-                if (itr != attachments.end() && itr->second.m_HasWireDot)
+                if (itr != attachments.end() && xg::HasWireDot(itr->second))
                 {
                     dots.insert(p);
                 }

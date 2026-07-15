@@ -20,7 +20,7 @@ namespace
         glm::ivec2 prev = wire.m_Checkpoints[0];
         for (glm::ivec2 next : wire.m_Checkpoints)
         {
-            inout_map[next].m_HasWireDot = true;
+            inout_map[next].m_HasWireCheckpoint = true;
 
             const glm::ivec2 dir = xg::GetIDirection(prev, next);
             const int distance = xg::ChebyshevDistance(prev, next);
@@ -119,7 +119,7 @@ void xg::GridAttachmentSystem::Update(flecs::world& world)
                         {
                             dirty.insert(otherEntity);
                         }
-                        attachments.m_HasWireDot = false;
+                        attachments.m_HasWireCheckpoint = false;
                         attachments.m_WireDirectionFlags.ClearAll();
                     }
                 }

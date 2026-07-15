@@ -77,7 +77,7 @@ namespace
         const auto& attachments = itr->second;
         bool result = true;
         result = result && flags.m_HasNode == attachments.m_HasNode;
-        result = result && flags.m_HasWireDot == attachments.m_HasWireDot;
+        result = result && flags.m_HasWireCheckpoint == attachments.m_HasWireCheckpoint;
 
         return result;
     }
@@ -373,22 +373,22 @@ SYSTEM_TEST_CASE("Adding on stage to a wire -> Attach it to the grid and set the
     CHECK(GetCellWireDirection(map, glm::ivec2(22, 38)) == (TFlags{} | EWireDir::E | EWireDir::NW));
     CHECK(GetCellWireDirection(map, glm::ivec2(21, 39)) == (TFlags{} | EWireDir::NW | EWireDir::SE));
 
-    CHECK(CellHasFlags(map, glm::ivec2(20, 40), { .m_HasWireDot = true }));
-    CHECK(CellHasFlags(map, glm::ivec2(20, 41), { .m_HasWireDot = false }));
-    CHECK(CellHasFlags(map, glm::ivec2(20, 42), { .m_HasWireDot = true }));
-    CHECK(CellHasFlags(map, glm::ivec2(21, 43), { .m_HasWireDot = false }));
-    CHECK(CellHasFlags(map, glm::ivec2(22, 44), { .m_HasWireDot = true }));
-    CHECK(CellHasFlags(map, glm::ivec2(23, 44), { .m_HasWireDot = false }));
-    CHECK(CellHasFlags(map, glm::ivec2(24, 44), { .m_HasWireDot = true }));
-    CHECK(CellHasFlags(map, glm::ivec2(25, 43), { .m_HasWireDot = false }));
-    CHECK(CellHasFlags(map, glm::ivec2(26, 42), { .m_HasWireDot = true }));
-    CHECK(CellHasFlags(map, glm::ivec2(26, 41), { .m_HasWireDot = false }));
-    CHECK(CellHasFlags(map, glm::ivec2(26, 40), { .m_HasWireDot = true }));
-    CHECK(CellHasFlags(map, glm::ivec2(25, 39), { .m_HasWireDot = false }));
-    CHECK(CellHasFlags(map, glm::ivec2(24, 38), { .m_HasWireDot = true }));
-    CHECK(CellHasFlags(map, glm::ivec2(23, 38), { .m_HasWireDot = false }));
-    CHECK(CellHasFlags(map, glm::ivec2(22, 38), { .m_HasWireDot = true }));
-    CHECK(CellHasFlags(map, glm::ivec2(21, 39), { .m_HasWireDot = false }));
+    CHECK(CellHasFlags(map, glm::ivec2(20, 40), { .m_HasWireCheckpoint = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(20, 41), { .m_HasWireCheckpoint = false }));
+    CHECK(CellHasFlags(map, glm::ivec2(20, 42), { .m_HasWireCheckpoint = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(21, 43), { .m_HasWireCheckpoint = false }));
+    CHECK(CellHasFlags(map, glm::ivec2(22, 44), { .m_HasWireCheckpoint = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(23, 44), { .m_HasWireCheckpoint = false }));
+    CHECK(CellHasFlags(map, glm::ivec2(24, 44), { .m_HasWireCheckpoint = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(25, 43), { .m_HasWireCheckpoint = false }));
+    CHECK(CellHasFlags(map, glm::ivec2(26, 42), { .m_HasWireCheckpoint = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(26, 41), { .m_HasWireCheckpoint = false }));
+    CHECK(CellHasFlags(map, glm::ivec2(26, 40), { .m_HasWireCheckpoint = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(25, 39), { .m_HasWireCheckpoint = false }));
+    CHECK(CellHasFlags(map, glm::ivec2(24, 38), { .m_HasWireCheckpoint = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(23, 38), { .m_HasWireCheckpoint = false }));
+    CHECK(CellHasFlags(map, glm::ivec2(22, 38), { .m_HasWireCheckpoint = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(21, 39), { .m_HasWireCheckpoint = false }));
 }
 
 SYSTEM_TEST_CASE("Removing on stage on a wire -> Deattach it from the grid")
@@ -447,10 +447,10 @@ SYSTEM_TEST_CASE("Add cog and wire overlapping, then remove cog from stage -> De
     CHECK(CellOnlyHas(map, glm::ivec2(3, 4), wireEntity));
     CHECK(CellOnlyHas(map, glm::ivec2(3, 5), wireEntity));
 
-    CHECK(CellHasFlags(map, glm::ivec2(3, 2), { .m_HasNode = false, .m_HasWireDot = true }));
-    CHECK(CellHasFlags(map, glm::ivec2(3, 3), { .m_HasNode = false, .m_HasWireDot = false }));
-    CHECK(CellHasFlags(map, glm::ivec2(3, 4), { .m_HasNode = false, .m_HasWireDot = false }));
-    CHECK(CellHasFlags(map, glm::ivec2(3, 5), { .m_HasNode = false, .m_HasWireDot = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(3, 2), { .m_HasNode = false, .m_HasWireCheckpoint = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(3, 3), { .m_HasNode = false, .m_HasWireCheckpoint = false }));
+    CHECK(CellHasFlags(map, glm::ivec2(3, 4), { .m_HasNode = false, .m_HasWireCheckpoint = false }));
+    CHECK(CellHasFlags(map, glm::ivec2(3, 5), { .m_HasNode = false, .m_HasWireCheckpoint = true }));
 
     using TFlags = xg::TWireDirectionFlags;
     using EWireDir = xg::EWireDirection;
@@ -498,12 +498,12 @@ SYSTEM_TEST_CASE("Add wire A,B overlapping, then remove A from stage -> Leave B 
     CHECK(CellOnlyHas(map, glm::ivec2(4, 6), wireEntityB));
     CHECK(CellOnlyHas(map, glm::ivec2(5, 7), wireEntityB));
 
-    CHECK(CellHasFlags(map, glm::ivec2(3, 2), { .m_HasNode = false, .m_HasWireDot = true }));
-    CHECK(CellHasFlags(map, glm::ivec2(3, 3), { .m_HasNode = false, .m_HasWireDot = false }));
-    CHECK(CellHasFlags(map, glm::ivec2(3, 4), { .m_HasNode = false, .m_HasWireDot = false }));
-    CHECK(CellHasFlags(map, glm::ivec2(3, 5), { .m_HasNode = false, .m_HasWireDot = true }));
-    CHECK(CellHasFlags(map, glm::ivec2(4, 6), { .m_HasNode = false, .m_HasWireDot = false }));
-    CHECK(CellHasFlags(map, glm::ivec2(5, 7), { .m_HasNode = false, .m_HasWireDot = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(3, 2), { .m_HasNode = false, .m_HasWireCheckpoint = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(3, 3), { .m_HasNode = false, .m_HasWireCheckpoint = false }));
+    CHECK(CellHasFlags(map, glm::ivec2(3, 4), { .m_HasNode = false, .m_HasWireCheckpoint = false }));
+    CHECK(CellHasFlags(map, glm::ivec2(3, 5), { .m_HasNode = false, .m_HasWireCheckpoint = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(4, 6), { .m_HasNode = false, .m_HasWireCheckpoint = false }));
+    CHECK(CellHasFlags(map, glm::ivec2(5, 7), { .m_HasNode = false, .m_HasWireCheckpoint = true }));
 
     using TFlags = xg::TWireDirectionFlags;
     using EWireDir = xg::EWireDirection;
@@ -583,15 +583,15 @@ SYSTEM_TEST_CASE("Add wire A,B,C and a cog overlapping, then remove B from stage
 
     CHECK(CellOnlyHas(map, glm::ivec2(5, 3), wireEntityC));
 
-    CHECK(CellHasFlags(map, glm::ivec2(3, 2), { .m_HasNode = true, .m_HasWireDot = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(3, 2), { .m_HasNode = true, .m_HasWireCheckpoint = true }));
     CHECK(CellHasFlags(map, glm::ivec2(4, 2), {}));
-    CHECK(CellHasFlags(map, glm::ivec2(5, 2), { .m_HasNode = true, .m_HasWireDot = true }));
-    CHECK(CellHasFlags(map, glm::ivec2(5, 3), { .m_HasWireDot = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(5, 2), { .m_HasNode = true, .m_HasWireCheckpoint = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(5, 3), { .m_HasWireCheckpoint = true }));
     CHECK(map.contains(glm::ivec2(7, 2)) == false);
 
     CHECK(CellHasFlags(map, glm::ivec2(3, 1), { .m_HasNode = true }));
     CHECK(CellHasFlags(map, glm::ivec2(4, 1), {}));
-    CHECK(CellHasFlags(map, glm::ivec2(5, 1), { .m_HasWireDot = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(5, 1), { .m_HasWireCheckpoint = true }));
 
     using TFlags = xg::TWireDirectionFlags;
     using EWireDir = xg::EWireDirection;

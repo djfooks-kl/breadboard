@@ -1,6 +1,7 @@
 #include "WireHelpers.h"
 
 #include "WireFlags.h"
+#include "GridAttachmentsMap.h"
 
 namespace
 {
@@ -33,4 +34,10 @@ xg::EWireDirection xg::WireDirectionToFlag(const glm::ivec2& v)
 			v.x < 0 ? xg::EWireDirection::W :
 			xg::EWireDirection::None;
 	}
+}
+
+bool xg::HasWireDot(const xg::GridAttachments& attachments)
+{
+	return attachments.m_HasWireCheckpoint ||
+		(attachments.m_WireDirectionFlags.HasAny() && attachments.m_HasNode);
 }

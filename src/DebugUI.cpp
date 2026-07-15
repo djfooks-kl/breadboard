@@ -125,8 +125,8 @@ void xg::DebugUI::DrawGridCell(flecs::world& world, const glm::ivec2& cell)
     {
         const auto& attachments = itr->second;
 
-        ImGui::Text("Has node: %s", attachments.m_HasNode ? "True" : "False");
-        ImGui::Text("Has dot:  %s", attachments.m_HasWireDot ? "True" : "False");
+        ImGui::Text("Has node:       %s", attachments.m_HasNode ? "True" : "False");
+        ImGui::Text("Has checkpoint: %s", attachments.m_HasWireCheckpoint ? "True" : "False");
         if (ImGui::CollapsingHeader("Entities", ImGuiTreeNodeFlags_DefaultOpen))
         {
             ImGui::Indent(10.f);
