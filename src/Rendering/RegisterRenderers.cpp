@@ -118,7 +118,7 @@ void xg::RegisterWireRenderers(
         std::unique_ptr<xg::WireEndRenderer> renderer = std::make_unique<xg::WireEndRenderer>(shaderProgramMap.at(s_ShaderWireCircle));
         renderer->m_Uniforms.m_ColorEmpty = glm::vec3(1.f);
         renderer->m_Uniforms.m_ColorFull = settings.m_WireFullColor;
-        renderer->m_Uniforms.m_Size = 0.14f;
+        renderer->m_Uniforms.m_Size = settings.m_WireDotInnerRadius;
         renderer->m_Uniforms.m_HasInfoTexture = mode == ERenderingMode::Normal;
         renderer->SetHeight(s_WireDotTopHeight);
         renderer->m_ColorValid = glm::vec3(1.f);
@@ -129,7 +129,7 @@ void xg::RegisterWireRenderers(
         std::unique_ptr<xg::WireEndRenderer> renderer = std::make_unique<xg::WireEndRenderer>(shaderProgramMap.at(s_ShaderWireCircle));
         renderer->m_Uniforms.m_ColorEmpty = glm::vec3(0.f);
         renderer->m_Uniforms.m_ColorFull = glm::vec3(0.f);
-        renderer->m_Uniforms.m_Size = 0.19f;
+        renderer->m_Uniforms.m_Size = settings.m_WireDotOuterRadius;
         renderer->m_Uniforms.m_HasInfoTexture = false;
         renderer->m_ColorValid = settings.m_WireEdgeColor;
         renderer->m_ColorInvalid = settings.m_WireEdgeInvalidColor;

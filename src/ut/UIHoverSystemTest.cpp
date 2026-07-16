@@ -56,7 +56,7 @@ namespace
     };
 }
 
-SYSTEM_TEST_CASE("While hovering a wire node -> set the node flag to true")
+SYSTEM_TEST_CASE("While hovering a cog node -> set the node flag to true")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -81,7 +81,7 @@ SYSTEM_TEST_CASE("While hovering a wire node -> set the node flag to true")
     CHECK(world.get<xg::UIHoverComponent>().m_Node);
 }
 
-SYSTEM_TEST_CASE("While not hovering a wire node cell -> set the node flag to false")
+SYSTEM_TEST_CASE("While not hovering a cog node cell -> set the node flag to false")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -98,7 +98,7 @@ SYSTEM_TEST_CASE("While not hovering a wire node cell -> set the node flag to fa
     CHECK(world.get<xg::UIHoverComponent>().m_Node == false);
 }
 
-SYSTEM_TEST_CASE("While hovering a wire node cell but not the wire node circle -> set the node flag to false")
+SYSTEM_TEST_CASE("While hovering a cog node cell but not the cog node circle -> set the node flag to false")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -113,6 +113,114 @@ SYSTEM_TEST_CASE("While hovering a wire node cell but not the wire node circle -
     env.Update();
 
     CHECK(world.get<xg::UIHoverComponent>().m_Node == false);
+}
+
+
+SYSTEM_TEST_CASE("While hovering a wire checkpoint -> set the wire flag to true")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    {
+        auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
+        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_HasWireCheckpoint = true;
+
+        world.get_mut<xg::RenderSettings>().m_WireDotOuterRadius = 100.f;
+    }
+
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 2.f);
+    env.Update();
+    CHECK(world.get<xg::UIHoverComponent>().m_Wire);
+
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(0.51f, 2.f);
+    env.Update();
+    CHECK(world.get<xg::UIHoverComponent>().m_Wire);
+
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.49f, 2.f);
+    env.Update();
+    CHECK(world.get<xg::UIHoverComponent>().m_Wire);
+}
+
+SYSTEM_TEST_CASE("While hovering a wire dot on a cog node -> set the wire flag to true")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    {
+        auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
+        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_HasNode = true;
+        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_WireDirectionFlags.Raise(xg::EWireDirection::E);
+
+        world.get_mut<xg::RenderSettings>().m_WireDotOuterRadius = 100.f;
+    }
+
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 2.f);
+    env.Update();
+    CHECK(world.get<xg::UIHoverComponent>().m_Wire);
+
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(0.51f, 2.f);
+    env.Update();
+    CHECK(world.get<xg::UIHoverComponent>().m_Wire);
+
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.49f, 2.f);
+    env.Update();
+    CHECK(world.get<xg::UIHoverComponent>().m_Wire);
+}
+
+SYSTEM_TEST_CASE("While not hovering a wire checkpoint cell -> set the wire flag to false")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    {
+        auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
+        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_HasWireCheckpoint = true;
+
+        world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(2.f, 2.f);
+    }
+
+    env.Update();
+
+    CHECK(world.get<xg::UIHoverComponent>().m_Wire == false);
+}
+
+SYSTEM_TEST_CASE("Hover a wire checkpoint cell then stop -> reset the wire flag to false")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    {
+        auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
+        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_HasWireCheckpoint = true;
+
+        world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 2.f);
+
+        world.get_mut<xg::RenderSettings>().m_WireDotOuterRadius = 100.f;
+    }
+
+    env.Update();
+
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(2.f, 2.f);
+    env.Update();
+
+    CHECK(world.get<xg::UIHoverComponent>().m_Wire == false);
+}
+
+SYSTEM_TEST_CASE("While hovering a wire checkpoint cell but not the wire checkpoint circle -> set the wire flag to false")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    {
+        auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
+        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_HasWireCheckpoint = true;
+
+        world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.26f, 2.f);
+    }
+
+    env.Update();
+
+    CHECK(world.get<xg::UIHoverComponent>().m_Wire == false);
 }
 
 SYSTEM_TEST_CASE("While hovering a cog box -> set the cog entity to the cog")

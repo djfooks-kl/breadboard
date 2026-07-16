@@ -3,15 +3,16 @@
 #include <flecs/flecs.h>
 #include <glm/geometric.hpp>
 
-#include "Core/AABB.h"
-#include "Core/IAABB.h"
 #include "CogComponent.h"
 #include "Cogs/CogMap.h"
+#include "Core/AABB.h"
+#include "Core/IAABB.h"
 #include "GridAttachmentsComponent.h"
+#include "GridHelpers.h"
 #include "RenderSettings.h"
 #include "UIHoverComponent.h"
+#include "WireHelpers.h"
 #include "WorldMouseComponent.h"
-#include "GridHelpers.h"
 
 void xg::UIHoverSystem::Update(flecs::world& world)
 {
@@ -21,6 +22,7 @@ void xg::UIHoverSystem::Update(flecs::world& world)
 
     auto& uiHoverComponent = world.get_mut<xg::UIHoverComponent>();
     uiHoverComponent.m_Node = false;
+    uiHoverComponent.m_Wire = false;
     uiHoverComponent.m_Cog = flecs::entity::null();
 
     auto itr = gridAttachmentsMap.find(mouseCell);
@@ -30,6 +32,12 @@ void xg::UIHoverSystem::Update(flecs::world& world)
         {
             const float distance = glm::distance(worldMouse, mouseCell);
             uiHoverComponent.m_Node = distance <= world.get<xg::RenderSettings>().m_NodeOuterRadius;
+        }
+
+        if (xg::HasWireDot(itr->second))
+        {
+            const float distance = glm::distance(worldMouse, mouseCell);
+            uiHoverComponent.m_Wire = distance <= world.get<xg::RenderSettings>().m_WireDotOuterRadius;
         }
 
         const auto& entities = itr->second.m_Entities;
