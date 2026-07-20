@@ -11,6 +11,7 @@
 #include "GridHelpers.h"
 #include "RenderSettings.h"
 #include "UIHoverComponent.h"
+#include "UISettings.h"
 #include "WireHelpers.h"
 #include "WorldMouseComponent.h"
 
@@ -54,7 +55,7 @@ void xg::UIHoverSystem::Update(flecs::world& world)
         const xg::TWireDirectionFlags flags = itr->second.m_WireDirectionFlags;
         if (flags.HasAny())
         {
-            const float wireWidth = world.get<xg::RenderSettings>().m_WireOuterWidth;
+            const float wireWidth = world.get<xg::UISettings>().m_WireHoverWidth;
             glm::vec2 cellPos = worldMouse - mouseCell;
             if (flags.Has(xg::EWireDirection::E))
             {

@@ -7,6 +7,7 @@
 #include "RenderSettings.h"
 #include "UIHoverComponent.h"
 #include "UIHoverSystem.h"
+#include "UISettings.h"
 #include "WorldMouseComponent.h"
 
 #define SYSTEM_TEST_CASE(description) TEST_CASE("xg::UIHoverSystem - " description, "[xg::UIHoverSystem]")
@@ -45,6 +46,9 @@ namespace
             auto& renderSettings = m_World.ensure<xg::RenderSettings>();
             renderSettings.m_NodeOuterRadius = 0.25f;
             renderSettings.m_CogBoxSize = 0.25f;
+
+            auto& uiSettings = m_World.ensure<xg::UISettings>();
+            uiSettings.m_WireHoverWidth = 0.25f;
         }
 
         void Update()
@@ -61,7 +65,7 @@ namespace
         {
             auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
             gridAttachmentsComponent.m_Map[glm::ivec2(0, 0)].m_WireDirectionFlags = flags;
-            world.get_mut<xg::RenderSettings>().m_WireOuterWidth = width;
+            world.get_mut<xg::UISettings>().m_WireHoverWidth = width;
         }
 
         world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(mouse);
@@ -248,7 +252,7 @@ SYSTEM_TEST_CASE("While hovering a wire segment line cell but not the line itsel
 
         world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 2.4f);
 
-        world.get_mut<xg::RenderSettings>().m_WireOuterWidth = 0.1f;
+        world.get_mut<xg::UISettings>().m_WireHoverWidth = 0.1f;
     }
 
     env.Update();
@@ -265,7 +269,7 @@ SYSTEM_TEST_CASE("While hovering a wire segment line -> set the wire flag to tru
         auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
         gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_WireDirectionFlags.Raise(xg::EWireDirection::E);
 
-        world.get_mut<xg::RenderSettings>().m_WireOuterWidth = 0.1f;
+        world.get_mut<xg::UISettings>().m_WireHoverWidth = 0.1f;
     }
 
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.49f, 2.09f);
