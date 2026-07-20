@@ -54,6 +54,20 @@ namespace
 
         flecs::world m_World;
     };
+
+    bool IsHoveringWire(TestEnv& env, xg::TWireDirectionFlags flags, const glm::vec2& mouse, const float width=0.25f)
+    {
+        flecs::world world = env.m_World;
+        {
+            auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
+            gridAttachmentsComponent.m_Map[glm::ivec2(0, 0)].m_WireDirectionFlags = flags;
+            world.get_mut<xg::RenderSettings>().m_WireOuterWidth = width;
+        }
+
+        world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(mouse);
+        env.Update();
+        return world.get<xg::UIHoverComponent>().m_Wire;
+    }
 }
 
 SYSTEM_TEST_CASE("While hovering a cog node -> set the node flag to true")
@@ -221,6 +235,147 @@ SYSTEM_TEST_CASE("While hovering a wire checkpoint cell but not the wire checkpo
     env.Update();
 
     CHECK(world.get<xg::UIHoverComponent>().m_Wire == false);
+}
+
+SYSTEM_TEST_CASE("While hovering a wire segment line cell but not the line itself -> set the wire flag to false")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    {
+        auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
+        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_WireDirectionFlags.Raise(xg::EWireDirection::E);
+
+        world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 2.4f);
+
+        world.get_mut<xg::RenderSettings>().m_WireOuterWidth = 0.1f;
+    }
+
+    env.Update();
+
+    CHECK(world.get<xg::UIHoverComponent>().m_Wire == false);
+}
+
+SYSTEM_TEST_CASE("While hovering a wire segment line -> set the wire flag to true")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    {
+        auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
+        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_WireDirectionFlags.Raise(xg::EWireDirection::E);
+
+        world.get_mut<xg::RenderSettings>().m_WireOuterWidth = 0.1f;
+    }
+
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.49f, 2.09f);
+    env.Update();
+    CHECK(world.get<xg::UIHoverComponent>().m_Wire == true);
+
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.49f, 1.91f);
+    env.Update();
+    CHECK(world.get<xg::UIHoverComponent>().m_Wire == true);
+}
+
+SYSTEM_TEST_CASE("Check hitbox for each wire direction")
+{
+    TestEnv env;
+    CHECK(IsHoveringWire(env, xg::EWireDirection::N, glm::vec2(-0.24f,  0.f    )) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::N, glm::vec2(0.24f,   0.f    )) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::N, glm::vec2(-0.24f,  0.49f  )) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::N, glm::vec2(0.24f,   0.49f  )) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::N, glm::vec2(0.f,     0.01f  )) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::N, glm::vec2(0.f,     -0.01f )) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::N, glm::vec2(-0.26f,  0.49f  )) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::N, glm::vec2(0.26f,   0.49f  )) == false);
+
+    CHECK(IsHoveringWire(env, xg::EWireDirection::E, glm::vec2(0.49f,   - 0.24f)) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::E, glm::vec2(0.49f,   0.24f  )) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::E, glm::vec2(0.01f,   0.f    )) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::E, glm::vec2(-0.01f,  0.f    )) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::E, glm::vec2(0.49f,   - 0.26f)) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::E, glm::vec2(0.49f,   0.26f  )) == false);
+
+    CHECK(IsHoveringWire(env, xg::EWireDirection::S, glm::vec2(-0.24f,  -0.49f  )) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::S, glm::vec2(0.24f,   -0.49f  )) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::S, glm::vec2(0.f,     -0.01f  )) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::S, glm::vec2(0.f,     0.01f )) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::S, glm::vec2(-0.26f,  -0.49f  )) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::S, glm::vec2(0.26f,   -0.49f  )) == false);
+
+    CHECK(IsHoveringWire(env, xg::EWireDirection::W, glm::vec2(-0.49f,   - 0.24f)) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::W, glm::vec2(-0.49f,   0.24f  )) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::W, glm::vec2(-0.01f,   0.f    )) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::W, glm::vec2(0.01f,    0.f    )) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::W, glm::vec2(-0.49f,   - 0.26f)) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::W, glm::vec2(-0.49f,   0.26f  )) == false);
+
+    const float insideWidthDiagonal = 0.2499f * std::sqrt(2.f);
+    const float outsideWidthDiagonal = 0.2501f * std::sqrt(2.f);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::NE, glm::vec2(0.49f, 0.49f)) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::NE, glm::vec2(-0.01f, -0.01f)) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::NE, glm::vec2(0.49f, 0.49f - insideWidthDiagonal)) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::NE, glm::vec2(0.49f, 0.49f - outsideWidthDiagonal)) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::NE, glm::vec2(0.49f - insideWidthDiagonal, 0.49f)) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::NE, glm::vec2(0.49f - outsideWidthDiagonal, 0.49f)) == false);
+
+    CHECK(IsHoveringWire(env, xg::EWireDirection::SE, glm::vec2(0.49f,                        -0.49f)) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::SE, glm::vec2(-0.01f,                       0.01f)) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::SE, glm::vec2(0.49f,                        -0.49f + insideWidthDiagonal)) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::SE, glm::vec2(0.49f,                        -0.49f + outsideWidthDiagonal)) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::SE, glm::vec2(0.49f - insideWidthDiagonal,  -0.49f)) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::SE, glm::vec2(0.49f - outsideWidthDiagonal, -0.49f)) == false);
+
+    CHECK(IsHoveringWire(env, xg::EWireDirection::SW, glm::vec2(-0.49f,                        -0.49f)) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::SW, glm::vec2(0.01f,                         0.01f)) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::SW, glm::vec2(-0.49f,                        -0.49f + insideWidthDiagonal)) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::SW, glm::vec2(-0.49f,                        -0.49f + outsideWidthDiagonal)) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::SW, glm::vec2(-0.49f + insideWidthDiagonal,  -0.49f)) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::SW, glm::vec2(-0.49f + outsideWidthDiagonal, -0.49f)) == false);
+
+    CHECK(IsHoveringWire(env, xg::EWireDirection::NW, glm::vec2(-0.49f,                        0.49f)) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::NW, glm::vec2(0.01f,                         -0.01f)) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::NW, glm::vec2(-0.49f,                        0.49f - insideWidthDiagonal)) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::NW, glm::vec2(-0.49f,                        0.49f - outsideWidthDiagonal)) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::NW, glm::vec2(-0.49f + insideWidthDiagonal,  0.49f)) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::NW, glm::vec2(-0.49f + outsideWidthDiagonal, 0.49f)) == false);
+}
+
+SYSTEM_TEST_CASE("Check hitbox for all wire directions at once")
+{
+    TestEnv env;
+
+    const float wireWidth = 0.1f;
+    const float outsideWidthDiagonal = 0.101f * std::sqrt(2.f);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::All, glm::vec2(0.49f, 0.f), wireWidth) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::All, glm::vec2(0.f, 0.49f), wireWidth) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::All, glm::vec2(-0.49f, 0.f), wireWidth) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::All, glm::vec2(0.f, -0.49f), wireWidth) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::All, glm::vec2(-0.26f, 0.49f), wireWidth) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::All, glm::vec2(0.26f, 0.49f), wireWidth) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::All, glm::vec2(0.49f, -0.26f), wireWidth) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::All, glm::vec2(0.49f, 0.26f), wireWidth) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::All, glm::vec2(-0.26f, -0.49f), wireWidth) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::All, glm::vec2(0.26f, -0.49f), wireWidth) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::All, glm::vec2(-0.49f, -0.26f), wireWidth) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::All, glm::vec2(-0.49f, 0.26f), wireWidth) == false);
+
+    CHECK(IsHoveringWire(env, xg::EWireDirection::All, glm::vec2(0.49f, 0.49f), wireWidth) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::All, glm::vec2(0.49f, -0.49f), wireWidth) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::All, glm::vec2(-0.49f, 0.49f), wireWidth) == true);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::All, glm::vec2(-0.49f, -0.49f), wireWidth) == true);
+
+    CHECK(IsHoveringWire(env, xg::EWireDirection::NE, glm::vec2(0.49f, 0.49f - outsideWidthDiagonal), wireWidth) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::NE, glm::vec2(0.49f - outsideWidthDiagonal, 0.49f), wireWidth) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::SE, glm::vec2(-0.01f, 0.01f), wireWidth) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::SE, glm::vec2(0.49f, -0.49f + outsideWidthDiagonal), wireWidth) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::SE, glm::vec2(0.49f - outsideWidthDiagonal, -0.49f), wireWidth) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::SW, glm::vec2(0.01f, 0.01f), wireWidth) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::SW, glm::vec2(-0.49f, -0.49f + outsideWidthDiagonal), wireWidth) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::SW, glm::vec2(-0.49f + outsideWidthDiagonal, -0.49f), wireWidth) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::NW, glm::vec2(0.01f, -0.01f), wireWidth) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::NW, glm::vec2(-0.49f, 0.49f - outsideWidthDiagonal), wireWidth) == false);
+    CHECK(IsHoveringWire(env, xg::EWireDirection::NW, glm::vec2(-0.49f + outsideWidthDiagonal, 0.49f), wireWidth) == false);
 }
 
 SYSTEM_TEST_CASE("While hovering a cog box -> set the cog entity to the cog")

@@ -14,6 +14,17 @@
 #include "WireHelpers.h"
 #include "WorldMouseComponent.h"
 
+namespace
+{
+    bool IsInsideWireHitbox(const glm::vec2& cell, glm::vec2 direction, const float wireWidth)
+    {
+        direction = glm::normalize(direction);
+        glm::vec2 tangent(direction.y, -direction.x);
+        float d = std::abs(glm::dot(cell, tangent));
+        return dot(cell, direction) >= 0.f && d <= wireWidth;
+    }
+}
+
 void xg::UIHoverSystem::Update(flecs::world& world)
 {
     const glm::vec2& worldMouse = world.get<xg::WorldMouseComponent>().m_Position;
@@ -37,7 +48,46 @@ void xg::UIHoverSystem::Update(flecs::world& world)
         if (xg::HasWireDot(itr->second))
         {
             const float distance = glm::distance(worldMouse, mouseCell);
-            uiHoverComponent.m_Wire = distance <= world.get<xg::RenderSettings>().m_WireDotOuterRadius;
+            uiHoverComponent.m_Wire |= distance <= world.get<xg::RenderSettings>().m_WireDotOuterRadius;
+        }
+
+        const xg::TWireDirectionFlags flags = itr->second.m_WireDirectionFlags;
+        if (flags.HasAny())
+        {
+            const float wireWidth = world.get<xg::RenderSettings>().m_WireOuterWidth;
+            glm::vec2 cellPos = worldMouse - mouseCell;
+            if (flags.Has(xg::EWireDirection::E))
+            {
+                uiHoverComponent.m_Wire |= IsInsideWireHitbox(cellPos, glm::vec2(1.f, 0.f), wireWidth);
+            }
+            if (flags.Has(xg::EWireDirection::N))
+            {
+                uiHoverComponent.m_Wire |= IsInsideWireHitbox(cellPos, glm::vec2(0.f, 1.f), wireWidth);
+            }
+            if (flags.Has(xg::EWireDirection::S))
+            {
+                uiHoverComponent.m_Wire |= IsInsideWireHitbox(cellPos, glm::vec2(0.f, -1.f), wireWidth);
+            }
+            if (flags.Has(xg::EWireDirection::W))
+            {
+                uiHoverComponent.m_Wire |= IsInsideWireHitbox(cellPos, glm::vec2(-1.f, 0.f), wireWidth);
+            }
+            if (flags.Has(xg::EWireDirection::NE))
+            {
+                uiHoverComponent.m_Wire |= IsInsideWireHitbox(cellPos, glm::vec2(1.f, 1.f), wireWidth);
+            }
+            if (flags.Has(xg::EWireDirection::SE))
+            {
+                uiHoverComponent.m_Wire |= IsInsideWireHitbox(cellPos, glm::vec2(1.f, -1.f), wireWidth);
+            }
+            if (flags.Has(xg::EWireDirection::SW))
+            {
+                uiHoverComponent.m_Wire |= IsInsideWireHitbox(cellPos, glm::vec2(-1.f, -1.f), wireWidth);
+            }
+            if (flags.Has(xg::EWireDirection::NW))
+            {
+                uiHoverComponent.m_Wire |= IsInsideWireHitbox(cellPos, glm::vec2(-1.f, 1.f), wireWidth);
+            }
         }
 
         const auto& entities = itr->second.m_Entities;

@@ -144,6 +144,8 @@ void xg::RegisterWireRenderers(
         std::unique_ptr<xg::WireLineRenderer> renderer = std::make_unique<xg::WireLineRenderer>(shaderProgramMap.at(s_ShaderWire));
         renderer->m_Uniforms.m_ColorEmpty = glm::vec3(1.f);
         renderer->m_Uniforms.m_ColorFull = settings.m_WireFullColor;
+        renderer->m_Uniforms.m_InnerWidth = settings.m_WireInnerWidth;
+        renderer->m_Uniforms.m_OuterWidth = settings.m_WireOuterWidth;
         if (mode == ERenderingMode::DropPreview)
             renderer->m_Uniforms.m_ColorEmpty = settings.m_DropPreviewColor;
         renderer->m_Uniforms.m_HasInfoTexture = mode == ERenderingMode::Normal;

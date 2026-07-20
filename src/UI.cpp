@@ -66,67 +66,9 @@ xg::UI::~UI() = default;
 void xg::UI::UpdateMouse(flecs::world& world, BaseApp& app)
 {
     auto& previewAddingCog = world.get_mut<xg::UIPreviewAddingCogComponent>();
-    bool hoverWire = previewAddingCog.m_AddCogId.IsEmpty() && world.get<xg::UIHoverComponent>().m_Node;
+    const auto& hover = world.get<xg::UIHoverComponent>();
+    bool hoverWire = previewAddingCog.m_AddCogId.IsEmpty() && (hover.m_Node || hover.m_Wire);
     app.SetCursor(hoverWire ? EMouseCursor::Cross : EMouseCursor::Arrow);
-}
-
-void xg::UI::DrawDebugMenu(flecs::world& world)
-{
-    const auto& input = world.get<xg::InputComponent>();
-    if (input.m_KeyDown.contains(GLFW_KEY_LEFT_CONTROL) &&
-        input.m_KeyDown.contains(GLFW_KEY_LEFT_SHIFT) &&
-        input.m_KeyPress.contains(GLFW_KEY_1))
-    {
-        m_ShowDebugMenuBar = !m_ShowDebugMenuBar;
-    }
-
-    if (m_ShowDebugMenuBar && ImGui::BeginMainMenuBar())
-    {
-        if (ImGui::BeginMenu("Debug"))
-        {
-            if (ImGui::MenuItem("Camera"))
-            {
-                m_DebugCameraOpen = true;
-            }
-            if (ImGui::MenuItem("Grid"))
-            {
-                m_DebugGridOpen = true;
-            }
-            ImGui::EndMenu();
-        }
-        ImGui::EndMainMenuBar();
-    }
-}
-
-void xg::UI::DrawDebugCamera(flecs::world& world)
-{
-    // scale window to fit contents
-    ImGui::SetNextWindowSize(ImVec2{ 0.f, 0.f });
-    if (m_DebugCameraOpen && ImGui::Begin("Debug Camera", &m_DebugCameraOpen))
-    {
-        world.each([&](const xg::CameraComponent& camera)
-                {
-                    ImGui::Text("Zoom %.3f", camera.m_Zoom);
-                    ImGui::Text("Pos %.3f %.3f", camera.m_Position.x, camera.m_Position.y);
-                });
-        ImGui::End();
-    }
-}
-
-void xg::UI::DrawDebugGrid(flecs::world& world)
-{
-    // scale window to fit contents
-    ImGui::SetNextWindowSize(ImVec2{ 0.f, 0.f });
-    if (m_DebugGridOpen && ImGui::Begin("Debug Grid", &m_DebugGridOpen))
-    {
-        glm::ivec2 cell = world.get<const xg::WorldMouseComponent>().m_Cell;
-        world.each([&](const xg::CameraComponent& camera)
-            {
-                ImGui::Text("Zoom %.3f", camera.m_Zoom);
-                ImGui::Text("Pos %.3f %.3f", camera.m_Position.x, camera.m_Position.y);
-            });
-        ImGui::End();
-    }
 }
 
 void xg::UI::DrawCogMenu(flecs::world& world, const bool actionEaten)
@@ -255,7 +197,7 @@ bool xg::UI::GameConsumeInput(flecs::world& world)
     }
 
     auto& hover = world.get<xg::UIHoverComponent>();
-    if (hover.m_Node)
+    if (hover.m_Node || hover.m_Wire)
     {
         previewAddingWire.m_Active = true;
         return true;

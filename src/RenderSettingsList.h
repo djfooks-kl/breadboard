@@ -1,6 +1,8 @@
 ADD_SETTING(float, CogBoxSize, 0.4f)
 ADD_SETTING(float, NodeInnerRadius, 0.26f)
 ADD_SETTING(float, NodeOuterRadius, 0.31f)
+ADD_SETTING(float, WireInnerWidth, 0.03f)
+ADD_SETTING(float, WireOuterWidth, 0.07f)
 ADD_SETTING(float, WireDotInnerRadius, 0.14f)
 ADD_SETTING(float, WireDotOuterRadius, 0.19f)
 ADD_SETTING(xg::RGBColor, DropPreviewColor, "#7f7f7f");

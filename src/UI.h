@@ -30,9 +30,6 @@ namespace xg
     private:
 
         void DrawUndo(flecs::world& world);
-        void DrawDebugMenu(flecs::world& world);
-        void DrawDebugCamera(flecs::world& world);
-        void DrawDebugGrid(flecs::world& world);
 
         void DrawCogMenu(flecs::world& world, bool actionEaten);
 

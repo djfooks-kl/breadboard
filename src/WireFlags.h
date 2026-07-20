@@ -16,7 +16,9 @@ namespace xg
         S = BIT(4),
         SW = BIT(5),
         W = BIT(6),
-        NW = BIT(7)
+        NW = BIT(7),
+
+        All = 255
     };
 
     using TWireDirectionFlags = xc::EnumFlags<EWireDirection>;
