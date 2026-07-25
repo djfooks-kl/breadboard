@@ -58,7 +58,7 @@ SYSTEM_TEST_CASE("When dropping add a new entity requesting the cog at the given
         });
 }
 
-SYSTEM_TEST_CASE("After dropping remove the UIAddCogComponent")
+SYSTEM_TEST_CASE("After dropping destroy the UIAddCogComponent entity")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -76,9 +76,11 @@ SYSTEM_TEST_CASE("After dropping remove the UIAddCogComponent")
 
     REQUIRE(world.count<xg::UIAddCogComponent>() == 1);
 
-    world.each([&](flecs::entity newEntity, const xg::UIAddCogComponent& addCog)
+    flecs::entity newEntity;
+    world.each([&](flecs::entity addCogEntity, const xg::UIAddCogComponent& addCog)
         {
-            CHECK(newEntity != entity);
+            newEntity = addCogEntity;
+            CHECK(addCogEntity != entity);
 
             CHECK(addCog.m_CogId == s_TestCog1);
             CHECK(addCog.m_Transform == xc::ITransform{ glm::ivec2(1, 2), xc::Rotation90(3) });
@@ -88,6 +90,7 @@ SYSTEM_TEST_CASE("After dropping remove the UIAddCogComponent")
     env.Update();
 
     CHECK(world.count<xg::UIAddCogComponent>() == 0);
+    CHECK(newEntity.is_alive() == false);
 }
 
 SYSTEM_TEST_CASE("When not dropping do nothing")

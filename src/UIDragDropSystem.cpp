@@ -1,7 +1,6 @@
 #include "UIDragDropSystem.h"
 
-#include <flecs/flecs.h>
-
+#include "FlecsGame.h"
 #include "UIAddCogComponent.h"
 #include "UIDraggingDropComponent.h"
 #include "UIDragPreviewComponent.h"
@@ -12,7 +11,7 @@ void xg::UIDragDropSystem::Update(flecs::world& world)
     world.defer_begin();
     world.each([&](flecs::entity entity, const xg::UIAddCogComponent&)
         {
-            entity.remove<xg::UIAddCogComponent>();
+            entity.destruct();
         });
     world.defer_end();
 
@@ -22,7 +21,7 @@ void xg::UIDragDropSystem::Update(flecs::world& world)
         world.defer_begin();
         world.each([&](const xg::UIDragPreviewComponent& dragPreview)
             {
-                flecs::entity entity = world.entity();
+                flecs::entity entity = xg::CreateEntity(world);
                 auto& addCog = entity.ensure<xg::UIAddCogComponent>();
                 addCog.m_CogId = dragPreview.m_CogId;
                 addCog.m_Transform = xc::ITransform{ dragPreview.m_Position, dragPreview.m_Rotation };

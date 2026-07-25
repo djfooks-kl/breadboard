@@ -2,9 +2,10 @@
 
 #include <flecs/flecs.h>
 
-#include "Command/CommandRemovedFromHistoryComponent.h"
 #include "Command/CommandExecuteComponent.h"
+#include "Command/CommandExpiredFromHistoryComponent.h"
 #include "Command/CommandListComponent.h"
+#include "Command/CommandSeveredFromHistoryComponent.h"
 #include "Command/CommandToQueueComponent.h"
 #include "Command/CommandUndoComponent.h"
 #include "UIRedoComponent.h"
@@ -22,7 +23,11 @@ void xg::command::ListSystem::Update(flecs::world& world)
     world.defer_end();
 
     world.defer_begin();
-    world.each([](flecs::entity entity, xg::command::RemovedFromHistoryComponent)
+    world.each([](flecs::entity entity, xg::command::ExpiredFromHistoryComponent)
+        {
+            entity.destruct();
+        });
+    world.each([](flecs::entity entity, xg::command::SeveredFromHistoryComponent)
         {
             entity.destruct();
         });
@@ -49,7 +54,14 @@ void xg::command::ListSystem::Update(flecs::world& world)
             if (oldCommand.is_alive())
             {
                 oldCommand.get<xg::command::UndoComponent>().m_Undo.destruct();
-                oldCommand.add<xg::command::RemovedFromHistoryComponent>();
+                if (list.m_Count == list.m_Commands.size())
+                {
+                    oldCommand.add<xg::command::ExpiredFromHistoryComponent>();
+                }
+                else
+                {
+                    oldCommand.add<xg::command::SeveredFromHistoryComponent>();
+                }
             }
 
             list.m_Commands[list.m_HeadIndex] = entity;

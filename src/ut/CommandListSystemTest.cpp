@@ -1,14 +1,15 @@
 #include "BreadTest.h"
 #include <flecs/flecs.h>
 
-#include "Command/CommandRemovedFromHistoryComponent.h"
 #include "Command/CommandExecuteComponent.h"
+#include "Command/CommandExpiredFromHistoryComponent.h"
 #include "Command/CommandListComponent.h"
-#include "Command/CommandUndoComponent.h"
 #include "Command/CommandListSystem.h"
+#include "Command/CommandSeveredFromHistoryComponent.h"
 #include "Command/CommandToQueueComponent.h"
-#include "UIUndoComponent.h"
+#include "Command/CommandUndoComponent.h"
 #include "UIRedoComponent.h"
+#include "UIUndoComponent.h"
 
 #define SYSTEM_TEST_CASE(description) TEST_CASE("xg::command::ListSystem - " description, "[xg::command::ListSystem]")
 
@@ -19,7 +20,8 @@ namespace
         TestEnv()
         {
             m_World.ensure<xg::command::ListComponent>().m_Commands.resize(3);
-            m_World.component<xg::command::RemovedFromHistoryComponent>();
+            m_World.component<xg::command::ExpiredFromHistoryComponent>();
+            m_World.component<xg::command::SeveredFromHistoryComponent>();
             m_World.component<xg::command::ExecuteComponent>();
             m_World.component<xg::UIUndoComponent>();
             m_World.component<xg::UIRedoComponent>();
@@ -104,7 +106,7 @@ SYSTEM_TEST_CASE("Add a 2nd command -> Put both commands in the list")
     CHECK(command2.has<xg::command::ExecuteComponent>());
 }
 
-SYSTEM_TEST_CASE("Add a 4 commands and overflow -> Wrap around and mark command1 for destruct then next frame destruct it")
+SYSTEM_TEST_CASE("Add a 4 commands and overflow -> Wrap around and mark command1 Expired (but not Severed) and then next frame destroy it")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -135,10 +137,15 @@ SYSTEM_TEST_CASE("Add a 4 commands and overflow -> Wrap around and mark command1
     CHECK(world.get<xg::command::ListComponent>().m_Commands[1] == command2);
     CHECK(world.get<xg::command::ListComponent>().m_Commands[2] == command3);
 
-    CHECK(command1.has<xg::command::RemovedFromHistoryComponent>());
-    CHECK(command2.has<xg::command::RemovedFromHistoryComponent>() == false);
-    CHECK(command3.has<xg::command::RemovedFromHistoryComponent>() == false);
-    CHECK(command4.has<xg::command::RemovedFromHistoryComponent>() == false);
+    CHECK(command1.has<xg::command::ExpiredFromHistoryComponent>());
+    CHECK(command2.has<xg::command::ExpiredFromHistoryComponent>() == false);
+    CHECK(command3.has<xg::command::ExpiredFromHistoryComponent>() == false);
+    CHECK(command4.has<xg::command::ExpiredFromHistoryComponent>() == false);
+
+    CHECK(command1.has<xg::command::SeveredFromHistoryComponent>() == false);
+    CHECK(command2.has<xg::command::SeveredFromHistoryComponent>() == false);
+    CHECK(command3.has<xg::command::SeveredFromHistoryComponent>() == false);
+    CHECK(command4.has<xg::command::SeveredFromHistoryComponent>() == false);
 
     env.Update();
     CHECK(command1.is_alive() == false);
@@ -493,7 +500,8 @@ SYSTEM_TEST_CASE("4 commands causes wrap around, undo and redo them all -> redo 
     CHECK(undo4.has<xg::command::ExecuteComponent>() == false);
 }
 
-SYSTEM_TEST_CASE("Add a command then undo once and queue a new command -> New command replaces the old command")
+SYSTEM_TEST_CASE("Add a command then undo once and queue a new command -> "
+    "New command replaces the old command, we should mark the old command as severed from the history (not Expired) and then in the new frame destroy it")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -517,8 +525,11 @@ SYSTEM_TEST_CASE("Add a command then undo once and queue a new command -> New co
     CHECK(world.get<xg::command::ListComponent>().m_UndoCount == 1);
     CHECK(world.get<xg::command::ListComponent>().m_Commands[0] == command2);
 
-    CHECK(command1.has<xg::command::RemovedFromHistoryComponent>());
-    CHECK(command2.has<xg::command::RemovedFromHistoryComponent>() == false);
+    CHECK(command1.has<xg::command::SeveredFromHistoryComponent>());
+    CHECK(command2.has<xg::command::SeveredFromHistoryComponent>() == false);
+
+    CHECK(command1.has<xg::command::ExpiredFromHistoryComponent>() == false);
+    CHECK(command2.has<xg::command::ExpiredFromHistoryComponent>() == false);
 
     CHECK(command1.has<xg::command::ExecuteComponent>() == false);
     CHECK(command2.has<xg::command::ExecuteComponent>());
@@ -527,4 +538,57 @@ SYSTEM_TEST_CASE("Add a command then undo once and queue a new command -> New co
 
     env.Update();
     CHECK(command1.is_alive() == false);
+}
+
+SYSTEM_TEST_CASE("Add 2 commands then undo twice and queue a 2 new commands -> "
+    "New command replaces the old command, we should mark the old command as severed from the history (not Expired)")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity command1 = world.entity();
+    flecs::entity undo1 = world.entity();
+    flecs::entity command2 = world.entity();
+    flecs::entity undo2 = world.entity();
+    flecs::entity command3 = world.entity();
+    flecs::entity undo3 = world.entity();
+    flecs::entity command4 = world.entity();
+    flecs::entity undo4 = world.entity();
+    flecs::entity ui = world.entity();
+
+    command1.ensure<xg::command::ToQueueComponent>().m_Undo = undo1;
+    env.Update();
+    command2.ensure<xg::command::ToQueueComponent>().m_Undo = undo2;
+    env.Update();
+    ui.add<xg::UIUndoComponent>();
+    env.Update();
+    ui.add<xg::UIUndoComponent>();
+    env.Update();
+    command3.ensure<xg::command::ToQueueComponent>().m_Undo = undo3;
+    env.Update();
+    command4.ensure<xg::command::ToQueueComponent>().m_Undo = undo4;
+    env.Update();
+
+    CHECK(world.get<xg::command::ListComponent>().m_HeadIndex == 1);
+    CHECK(world.get<xg::command::ListComponent>().m_Count == 2);
+    CHECK(world.get<xg::command::ListComponent>().m_UndoHeadIndex == 1);
+    CHECK(world.get<xg::command::ListComponent>().m_UndoCount == 2);
+    CHECK(world.get<xg::command::ListComponent>().m_Commands[0] == command3);
+    CHECK(world.get<xg::command::ListComponent>().m_Commands[1] == command4);
+
+    CHECK(command2.has<xg::command::SeveredFromHistoryComponent>() == true);
+    CHECK(command3.has<xg::command::SeveredFromHistoryComponent>() == false);
+    CHECK(command4.has<xg::command::SeveredFromHistoryComponent>() == false);
+
+    CHECK(command2.has<xg::command::ExpiredFromHistoryComponent>() == false);
+    CHECK(command3.has<xg::command::ExpiredFromHistoryComponent>() == false);
+    CHECK(command4.has<xg::command::ExpiredFromHistoryComponent>() == false);
+
+    CHECK(command2.has<xg::command::ExecuteComponent>() == false);
+    CHECK(command3.has<xg::command::ExecuteComponent>() == false);
+    CHECK(command4.has<xg::command::ExecuteComponent>() == true);
+
+    CHECK(command1.is_alive() == false);
+    CHECK(undo1.is_alive() == false);
+    CHECK(undo2.is_alive() == false);
 }

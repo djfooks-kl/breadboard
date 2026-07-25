@@ -66,9 +66,12 @@ set(source_files
     src/CogNodeUniforms.h
     src/CogSystem.cpp
     src/CogSystem.h
-    src/EntityHash.h
     src/DebugUI.cpp
     src/DebugUI.h
+    src/EntityHash.h
+    src/FlecsGame.cpp
+    src/FlecsGame.h
+    src/GameComponent.h
     src/GridAttachmentsComponent.h
     src/GridAttachmentsMap.h
     src/GridAttachmentSystem.cpp
@@ -208,12 +211,13 @@ set(command_files
     src/Command/CommandCreateSystem.h
     src/Command/CommandDeleteCogComponent.h
     src/Command/CommandDeleteWireComponent.h
-    src/Command/CommandRemovedFromHistoryComponent.h
     src/Command/CommandEntityComponent.h
     src/Command/CommandExecuteComponent.h
+    src/Command/CommandExpiredFromHistoryComponent.h
     src/Command/CommandListComponent.h
     src/Command/CommandListSystem.cpp
     src/Command/CommandListSystem.h
+    src/Command/CommandSeveredFromHistoryComponent.h
     src/Command/CommandToQueueComponent.h
     src/Command/CommandUndoComponent.h
 )

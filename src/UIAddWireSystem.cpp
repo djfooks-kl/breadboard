@@ -1,7 +1,6 @@
 #include "UIAddWireSystem.h"
 
-#include <flecs/flecs.h>
-
+#include "FlecsGame.h"
 #include "UIAddWireComponent.h"
 #include "UIPreviewCreateWireComponent.h"
 #include "UIWireSegmentsComponent.h"
@@ -23,7 +22,7 @@ void xg::UIAddWireSystem::Update(flecs::world& world)
             {
                 if (validComponent.m_Valid)
                 {
-                    flecs::entity entity = world.entity();
+                    flecs::entity entity = xg::CreateEntity(world);
                     auto& addWire = entity.ensure<xg::UIAddWireComponent>();
                     addWire.m_Checkpoints = wirePreview.m_Checkpoints;
                 }

@@ -1,7 +1,6 @@
 #include "UIDragPreviewSystem.h"
 
-#include <flecs/flecs.h>
-
+#include "FlecsGame.h"
 #include "UIDragPreviewComponent.h"
 #include "UIPreviewAddingCogComponent.h"
 #include "UIRotateComponent.h"
@@ -45,7 +44,7 @@ void xg::UIDragPreviewSystem::Update(flecs::world& world)
 
         if (!found)
         {
-            flecs::entity dragEntity = world.entity();
+            flecs::entity dragEntity = xg::CreateEntity(world);
             auto& dragPreview = dragEntity.ensure<xg::UIDragPreviewComponent>();
             UpdatePreviewAddingHover(previewAddingCog, dragPreview);
         }
@@ -65,7 +64,7 @@ void xg::UIDragPreviewSystem::Update(flecs::world& world)
 
         if (!found)
         {
-            flecs::entity dragEntity = world.entity();
+            flecs::entity dragEntity = xg::CreateEntity(world);
             auto& dragPreview = dragEntity.ensure<xg::UIDragPreviewComponent>();
             UpdatePreviewAdding(previewAddingCog, worldMouse, dragPreview);
         }

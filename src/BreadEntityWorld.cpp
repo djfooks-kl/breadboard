@@ -13,9 +13,11 @@
 #include "CogSystem.h"
 #include "Command/CommandCreateSystem.h"
 #include "Command/CommandExecuteComponent.h"
+#include "Command/CommandExpiredFromHistoryComponent.h"
 #include "Command/CommandListComponent.h"
 #include "Command/CommandListSystem.h"
-#include "Command/CommandRemovedFromHistoryComponent.h"
+#include "Command/CommandSeveredFromHistoryComponent.h"
+#include "GameComponent.h"
 #include "GlobalComponent.h"
 #include "GridAttachmentsComponent.h"
 #include "GridAttachmentSystem.h"
@@ -76,8 +78,10 @@ void xg::SetupWorld(flecs::world& world)
     xg::cog::RegisterAll(world.get_mut<xg::CogMap>());
 
     world.component<xg::CogCreatedComponent>();
-    world.component<xg::command::RemovedFromHistoryComponent>();
     world.component<xg::command::ExecuteComponent>();
+    world.component<xg::command::ExpiredFromHistoryComponent>();
+    world.component<xg::command::SeveredFromHistoryComponent>();
+    world.component<xg::GameComponent>();
     world.component<xg::UIUndoComponent>();
 }
 

@@ -12,6 +12,7 @@
 #include "Cogs/CogPrototype.h"
 #include "Core/GLFWLib.h"
 #include "DebugUI.h"
+#include "FlecsGame.h"
 #include "InputComponent.h"
 #include "MouseCursorEnum.h"
 #include "UIDeleteCogComponent.h"
@@ -50,7 +51,7 @@ namespace
             auto& hover = world.get<xg::UIHoverComponent>();
             if (hover.m_Cog)
             {
-                world.entity().ensure<xg::UIDeleteCogComponent>().m_Cog = hover.m_Cog;
+                xg::CreateEntity(world).ensure<xg::UIDeleteCogComponent>().m_Cog = hover.m_Cog;
             }
         }
     }
@@ -161,13 +162,13 @@ void xg::UI::DrawUndo(flecs::world& world)
     if (input.m_KeyDown.contains(GLFW_KEY_LEFT_CONTROL) &&
         input.m_KeyPress.contains(GLFW_KEY_Z))
     {
-        world.entity().add<xg::UIUndoComponent>();
+        xg::CreateEntity(world).add<xg::UIUndoComponent>();
     }
 
     if (input.m_KeyDown.contains(GLFW_KEY_LEFT_CONTROL) &&
         input.m_KeyPress.contains(GLFW_KEY_Y))
     {
-        world.entity().add<xg::UIRedoComponent>();
+        xg::CreateEntity(world).add<xg::UIRedoComponent>();
     }
 }
 

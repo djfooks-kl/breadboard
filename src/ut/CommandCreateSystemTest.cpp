@@ -7,7 +7,8 @@
 #include "Command/CommandDeleteCogComponent.h"
 #include "Command/CommandDeleteWireComponent.h"
 #include "Command/CommandEntityComponent.h"
-#include "Command/CommandRemovedFromHistoryComponent.h"
+#include "Command/CommandExpiredFromHistoryComponent.h"
+#include "Command/CommandSeveredFromHistoryComponent.h"
 #include "Command/CommandToQueueComponent.h"
 #include "FlecsTestHelpers.h"
 #include "UIAddCogComponent.h"
@@ -52,9 +53,9 @@ namespace
                     entity.destruct();
                 });
 
-            m_World.each([](flecs::entity entity, xg::command::RemovedFromHistoryComponent)
+            m_World.each([](flecs::entity entity, xg::command::ExpiredFromHistoryComponent)
                 {
-                    entity.remove<xg::command::RemovedFromHistoryComponent>();
+                    entity.remove<xg::command::ExpiredFromHistoryComponent>();
                 });
 
             m_World.defer_end();
@@ -122,6 +123,9 @@ TEST_CASE("Delete a cog -> Queue for execution and add an add cog undo command")
 
     REQUIRE(undo.has<xg::command::EntityComponent>());
     CHECK(undo.get<const xg::command::EntityComponent>().m_Entity == createdEntity);
+
+    env.Update();
+    CHECK(createdEntity.is_alive());
 }
 
 TEST_CASE("After a command is queued the ToQueueComponent is removed")
@@ -138,7 +142,7 @@ TEST_CASE("After a command is queued the ToQueueComponent is removed")
     CHECK(entities[0].has<xg::command::ToQueueComponent>() == false);
 }
 
-TEST_CASE("When a delete cog command is destructed destroy the added entity")
+TEST_CASE("When a delete cog command is expires from history destroy the added entity")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -153,7 +157,7 @@ TEST_CASE("When a delete cog command is destructed destroy the added entity")
     REQUIRE(entities.size() == 1);
     flecs::entity command = entities[0];
 
-    command.add<xg::command::RemovedFromHistoryComponent>();
+    command.add<xg::command::ExpiredFromHistoryComponent>();
     env.Update();
 
     CHECK(world.is_alive(createdEntity) == false);
@@ -192,7 +196,7 @@ TEST_CASE("Add a wire -> Queue for execution and add a delete wire undo command"
     CHECK(undo.get<const xg::command::DeleteWireComponent>().m_Wire == createdEntity);
 }
 
-TEST_CASE("Delete a wire -> Queue for execution and add an add wire undo command")
+TEST_CASE("Delete a wire -> Queue for execution and add an add wire undo command (do not destroy the entity yet)")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -219,9 +223,12 @@ TEST_CASE("Delete a wire -> Queue for execution and add an add wire undo command
 
     REQUIRE(undo.has<xg::command::EntityComponent>());
     CHECK(undo.get<const xg::command::EntityComponent>().m_Entity == createdEntity);
+
+    env.Update();
+    CHECK(createdEntity.is_alive());
 }
 
-TEST_CASE("When a delete wire command is destructed destroy the added entity")
+TEST_CASE("When a delete wire command expires from history destroy the added entity")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -236,9 +243,53 @@ TEST_CASE("When a delete wire command is destructed destroy the added entity")
     REQUIRE(entities.size() == 1);
     flecs::entity command = entities[0];
 
-    command.add<xg::command::RemovedFromHistoryComponent>();
+    command.add<xg::command::ExpiredFromHistoryComponent>();
     env.Update();
 
     CHECK(world.is_alive(createdEntity) == false);
+    CHECK(world.is_alive(command) == false);
+}
+
+TEST_CASE("When an add wire command is severed from history destroy the added entity")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity uiCommand = world.entity();
+    flecs::entity createdEntity = world.entity();
+    auto& uiAddWire = uiCommand.ensure<xg::UIAddWireComponent>();
+    uiAddWire.m_Checkpoints.push_back(glm::ivec2(0, 0));
+    uiAddWire.m_Checkpoints.push_back(glm::ivec2(1, 1));
+    env.Update();
+
+    std::vector<flecs::entity> entities = xc::ut::CollectEntities(world.query<xg::command::AddWireComponent>());
+    REQUIRE(entities.size() == 1);
+    flecs::entity command = entities[0];
+
+    command.add<xg::command::SeveredFromHistoryComponent>();
+    env.Update();
+
+    CHECK(world.is_alive(command) == false);
+}
+
+TEST_CASE("When an add cog command is severed from history destroy the added entity")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity uiCommand = world.entity();
+    flecs::entity createdEntity = world.entity();
+    auto& uiAddCog = uiCommand.ensure<xg::UIAddCogComponent>();
+    uiAddCog.m_CogId = s_TestCog1;
+    uiAddCog.m_Transform = { glm::ivec2(2, 3), xc::Rotation90(1) };
+    env.Update();
+
+    std::vector<flecs::entity> entities = xc::ut::CollectEntities(world.query<xg::command::AddCogComponent>());
+    REQUIRE(entities.size() == 1);
+    flecs::entity command = entities[0];
+
+    command.add<xg::command::SeveredFromHistoryComponent>();
+    env.Update();
+
     CHECK(world.is_alive(command) == false);
 }

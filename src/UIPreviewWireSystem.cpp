@@ -1,7 +1,6 @@
 #include "UIPreviewWireSystem.h"
 
-#include <flecs/flecs.h>
-
+#include "FlecsGame.h"
 #include "UIPreviewAddingWireComponent.h"
 #include "UIPreviewWireComponent.h"
 #include "WorldMouseComponent.h"
@@ -12,7 +11,7 @@ void xg::UIPreviewWireSystem::Update(flecs::world& world)
     {
         if (world.count<xg::UIPreviewWireComponent>() == 0)
         {
-            flecs::entity entity = world.entity();
+            flecs::entity entity = xg::CreateEntity(world);
             entity.ensure<xg::UIPreviewWireComponent>().m_Start = world.get<xg::WorldMouseComponent>().m_Cell;
         }
     }
