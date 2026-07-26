@@ -190,7 +190,9 @@ bool xg::UI::GameConsumeInput(flecs::world& world)
 
     const bool doAction = ImGui::IsMouseClicked(ImGuiMouseButton_Left);
     if (!doAction)
+    {
         return false;
+    }
 
     if (m_DebugUI->GameConsumeInput(world))
     {

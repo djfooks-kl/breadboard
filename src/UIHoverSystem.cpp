@@ -94,20 +94,23 @@ void xg::UIHoverSystem::Update(flecs::world& world)
         const auto& entities = itr->second.m_Entities;
         if (!entities.empty())
         {
-            if (const auto* cogComponent = entities[0].try_get<xg::CogComponent>())
+            for (flecs::entity entity : entities)
             {
-                const glm::vec2 hitSize(world.get<xg::RenderSettings>().m_CogBoxSize);
-
-                const auto& cogMap = world.get<xg::CogMap>();
-                const auto* cogPrototype = cogMap.Get(cogComponent->m_CogId);
-                xc::IAABB cellAABB = xc::IAABB::FromTransformAndSize(cogComponent->m_Transform, cogPrototype->GetSize());
-                xc::AABB hitAABB{
-                    .m_Min = glm::vec2(cellAABB.m_Min) - hitSize,
-                    .m_Max = glm::vec2(cellAABB.m_Max) + hitSize };
-
-                if (hitAABB.Contains(worldMouse))
+                if (const auto* cogComponent = entity.try_get<xg::CogComponent>())
                 {
-                    uiHoverComponent.m_Cog = entities[0];
+                    const glm::vec2 hitSize(world.get<xg::RenderSettings>().m_CogBoxSize);
+
+                    const auto& cogMap = world.get<xg::CogMap>();
+                    const auto* cogPrototype = cogMap.Get(cogComponent->m_CogId);
+                    xc::IAABB cellAABB = xc::IAABB::FromTransformAndSize(cogComponent->m_Transform, cogPrototype->GetSize());
+                    xc::AABB hitAABB{
+                        .m_Min = glm::vec2(cellAABB.m_Min) - hitSize,
+                        .m_Max = glm::vec2(cellAABB.m_Max) + hitSize };
+
+                    if (hitAABB.Contains(worldMouse))
+                    {
+                        uiHoverComponent.m_Cog = entity;
+                    }
                 }
             }
         }

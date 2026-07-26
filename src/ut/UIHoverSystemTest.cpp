@@ -512,3 +512,27 @@ SYSTEM_TEST_CASE("While hovering a cog with size>1, inside/outside of cog box ->
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Cog == flecs::entity::null());
 }
+
+SYSTEM_TEST_CASE("While hovering another entity and a cog box -> set the cog entity to the cog")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity cog = world.entity();
+
+    {
+        auto& cogComponent = cog.ensure<xg::CogComponent>();
+        cogComponent.m_CogId = s_OneCellCog;
+        cogComponent.m_Transform = xc::ITransform{ .m_Translation = glm::ivec2(1, 2) };
+
+        auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
+        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_Entities.push_back(world.entity());
+        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_Entities.push_back(cog);
+
+        world.get_mut<xg::RenderSettings>().m_CogBoxSize = 100.f;
+    }
+
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 2.f);
+    env.Update();
+    CHECK(world.get<xg::UIHoverComponent>().m_Cog == cog);
+}

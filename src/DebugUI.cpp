@@ -22,6 +22,7 @@
 #include "GameComponent.h"
 #include "GridAttachmentsComponent.h"
 #include "InputComponent.h"
+#include "UIHoverComponent.h"
 #include "WireComponent.h"
 #include "WorldMouseComponent.h"
 
@@ -169,6 +170,9 @@ void xg::DebugUI::DrawGridWindow(flecs::world& world)
     ImGui::SetNextWindowSize(ImVec2{ 300.f, 600.f }, ImGuiCond_FirstUseEver);
     if (m_GridOpen && ImGui::Begin("Debug Grid", &m_GridOpen))
     {
+        const auto& hover = world.get<const xg::UIHoverComponent>();
+        ImGui::Text("Hovered cog: %s", GetEntityHandleDetails(hover.m_Cog).c_str());
+
         ImGui::Checkbox("Select cell", &m_CaptureSelectedCell);
         if (m_SelectedCell.has_value())
         {
