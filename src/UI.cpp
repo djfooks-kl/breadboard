@@ -112,16 +112,21 @@ void xg::UI::DrawCogMenu(flecs::world& world, const bool actionEaten)
         previewAddingCog.m_PreviewPosition = worldMouse.m_Position + popupPreviewOffset;
     }
 
-    if (ImGui::BeginPopup("LeftClickPopup"))
+    m_CogPopupOpen = ImGui::BeginPopup("LeftClickPopup");
+    if (m_CogPopupOpen)
     {
         if (!openning && !ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+        {
             ImGui::CloseCurrentPopup();
+            m_CogPopupOpen = false;
+        }
 
         ImGui::SetWindowPos(m_PopupPosition, ImGuiCond_Always);
 
         if (!input.m_KeyDown.empty())
         {
             ImGui::CloseCurrentPopup();
+            m_CogPopupOpen = false;
         }
 
         for (const auto& itr : cogMap.GetMap())
@@ -129,6 +134,7 @@ void xg::UI::DrawCogMenu(flecs::world& world, const bool actionEaten)
             if (ImGui::Button(itr.first.GetName(), ImVec2(100.f, 0.f)))
             {
                 ImGui::CloseCurrentPopup();
+                m_CogPopupOpen = false;
                 addCogId = itr.first;
             }
             else if (ImGui::IsItemHovered())
@@ -189,6 +195,12 @@ bool xg::UI::GameConsumeInput(flecs::world& world)
     if (m_DebugUI->GameConsumeInput(world))
     {
         return true;
+    }
+
+    if (m_CogPopupOpen &&
+        ImGui::IsAnyItemHovered())
+    {
+        return false;
     }
 
     if (previewAddingWire.m_Active)

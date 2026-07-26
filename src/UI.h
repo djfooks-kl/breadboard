@@ -39,8 +39,7 @@ namespace xg
 
         std::unique_ptr<xg::DebugUI> m_DebugUI;
 
+        bool m_CogPopupOpen = false;
         bool m_ShowDebugMenuBar = false;
-        bool m_DebugCameraOpen = false;
-        bool m_DebugGridOpen = false;
     };
 }
