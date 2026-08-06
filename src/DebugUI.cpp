@@ -171,7 +171,8 @@ void xg::DebugUI::DrawGridWindow(flecs::world& world)
     if (m_GridOpen && ImGui::Begin("Debug Grid", &m_GridOpen))
     {
         const auto& hover = world.get<const xg::UIHoverComponent>();
-        ImGui::Text("Hovered cog: %s", GetEntityHandleDetails(hover.m_Cog).c_str());
+        ImGui::Text("Hovered cog:  %s", GetEntityHandleDetails(hover.m_Cog).c_str());
+        ImGui::Text("Hovered wire: %s", GetEntityHandleDetails(hover.m_Wire).c_str());
 
         ImGui::Checkbox("Select cell", &m_CaptureSelectedCell);
         if (m_SelectedCell.has_value())
