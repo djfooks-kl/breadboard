@@ -3,6 +3,7 @@
 
 #include "CogComponent.h"
 #include "Cogs/CogMap.h"
+#include "Core/Range.h"
 #include "GridAttachmentsComponent.h"
 #include "RenderSettings.h"
 #include "UIHoverComponent.h"
@@ -70,7 +71,7 @@ namespace
             std::vector<glm::ivec2>& checkpoints = wire.ensure<xg::WireComponent>().m_Checkpoints;
             checkpoints.push_back(glm::ivec2(0, 0));
 
-            if (flags.Has(xg::EWireDirection::All))
+            if (flags.HasAll(xg::EWireDirection::All))
             {
                 checkpoints.push_back(glm::ivec2(0, 1));
                 checkpoints.push_back(glm::ivec2(0, 0));
@@ -93,20 +94,27 @@ namespace
             {
                 switch (static_cast<xg::EWireDirection>(flags.GetValue()))
                 {
-                case xg::EWireDirection::N:  checkpoints.push_back(glm::ivec2(0, 1));
-                case xg::EWireDirection::NE: checkpoints.push_back(glm::ivec2(1, 1));
-                case xg::EWireDirection::E:  checkpoints.push_back(glm::ivec2(1, 0));
-                case xg::EWireDirection::SE: checkpoints.push_back(glm::ivec2(1, -1));
-                case xg::EWireDirection::S:  checkpoints.push_back(glm::ivec2(0, -1));
-                case xg::EWireDirection::SW: checkpoints.push_back(glm::ivec2(-1, -1));
-                case xg::EWireDirection::W:  checkpoints.push_back(glm::ivec2(-1, 0));
-                case xg::EWireDirection::NW: checkpoints.push_back(glm::ivec2(-1, 1));
+                case xg::EWireDirection::N:  checkpoints.push_back(glm::ivec2(0, 1)); break;
+                case xg::EWireDirection::NE: checkpoints.push_back(glm::ivec2(1, 1)); break;
+                case xg::EWireDirection::E:  checkpoints.push_back(glm::ivec2(1, 0)); break;
+                case xg::EWireDirection::SE: checkpoints.push_back(glm::ivec2(1, -1)); break;
+                case xg::EWireDirection::S:  checkpoints.push_back(glm::ivec2(0, -1)); break;
+                case xg::EWireDirection::SW: checkpoints.push_back(glm::ivec2(-1, -1)); break;
+                case xg::EWireDirection::W:  checkpoints.push_back(glm::ivec2(-1, 0)); break;
+                case xg::EWireDirection::NW: checkpoints.push_back(glm::ivec2(-1, 1)); break;
                 }
             }
 
             auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
             gridAttachmentsComponent.m_Map[glm::ivec2(0, 0)].m_WireDirectionFlags = flags;
-            gridAttachmentsComponent.m_Map[glm::ivec2(0, 0)].m_Entities.push_back(wire);
+            for (const glm::ivec2& checkpoint : checkpoints)
+            {
+                std::vector<flecs::entity>& entities = gridAttachmentsComponent.m_Map[checkpoint].m_Entities;
+                if (!xc::RangeContains(entities, wire))
+                {
+                    gridAttachmentsComponent.m_Map[checkpoint].m_Entities.push_back(wire);
+                }
+            }
             world.get_mut<xg::UISettings>().m_WireHoverWidth = width;
             world.get_mut<xg::RenderSettings>().m_WireDotOuterRadius = 0.f;
         }
@@ -249,7 +257,7 @@ SYSTEM_TEST_CASE("While not hovering a wire checkpoint cell -> set the wire to i
         gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_HasWireCheckpoint = true;
         gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_Entities.push_back(wire);
 
-        world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(2.f, 2.f);
+        world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(20.f, 20.f);
 
         world.get_mut<xg::RenderSettings>().m_WireDotOuterRadius = 100.f;
     }
@@ -278,7 +286,7 @@ SYSTEM_TEST_CASE("Hover a wire checkpoint cell then stop -> reset the wire flag 
 
     env.Update();
 
-    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(2.f, 2.f);
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(20.f, 20.f);
     env.Update();
 
     CHECK(world.get<xg::UIHoverComponent>().m_Wire == flecs::entity::null());
@@ -393,11 +401,11 @@ SYSTEM_TEST_CASE("Check hitbox for each wire direction")
     CHECK(IsHoveringWireSegment(env, xg::EWireDirection::N, glm::vec2(-0.26f,  0.49f  )) == false);
     CHECK(IsHoveringWireSegment(env, xg::EWireDirection::N, glm::vec2(0.26f,   0.49f  )) == false);
 
-    CHECK(IsHoveringWireSegment(env, xg::EWireDirection::E, glm::vec2(0.49f,   - 0.24f)) == true);
+    CHECK(IsHoveringWireSegment(env, xg::EWireDirection::E, glm::vec2(0.49f,   -0.24f)) == true);
     CHECK(IsHoveringWireSegment(env, xg::EWireDirection::E, glm::vec2(0.49f,   0.24f  )) == true);
     CHECK(IsHoveringWireSegment(env, xg::EWireDirection::E, glm::vec2(0.01f,   0.f    )) == true);
     CHECK(IsHoveringWireSegment(env, xg::EWireDirection::E, glm::vec2(-0.01f,  0.f    )) == false);
-    CHECK(IsHoveringWireSegment(env, xg::EWireDirection::E, glm::vec2(0.49f,   - 0.26f)) == false);
+    CHECK(IsHoveringWireSegment(env, xg::EWireDirection::E, glm::vec2(0.49f,   -0.26f)) == false);
     CHECK(IsHoveringWireSegment(env, xg::EWireDirection::E, glm::vec2(0.49f,   0.26f  )) == false);
 
     CHECK(IsHoveringWireSegment(env, xg::EWireDirection::S, glm::vec2(-0.24f,  -0.49f  )) == true);
@@ -407,11 +415,11 @@ SYSTEM_TEST_CASE("Check hitbox for each wire direction")
     CHECK(IsHoveringWireSegment(env, xg::EWireDirection::S, glm::vec2(-0.26f,  -0.49f  )) == false);
     CHECK(IsHoveringWireSegment(env, xg::EWireDirection::S, glm::vec2(0.26f,   -0.49f  )) == false);
 
-    CHECK(IsHoveringWireSegment(env, xg::EWireDirection::W, glm::vec2(-0.49f,   - 0.24f)) == true);
+    CHECK(IsHoveringWireSegment(env, xg::EWireDirection::W, glm::vec2(-0.49f,   -0.24f)) == true);
     CHECK(IsHoveringWireSegment(env, xg::EWireDirection::W, glm::vec2(-0.49f,   0.24f  )) == true);
     CHECK(IsHoveringWireSegment(env, xg::EWireDirection::W, glm::vec2(-0.01f,   0.f    )) == true);
     CHECK(IsHoveringWireSegment(env, xg::EWireDirection::W, glm::vec2(0.01f,    0.f    )) == false);
-    CHECK(IsHoveringWireSegment(env, xg::EWireDirection::W, glm::vec2(-0.49f,   - 0.26f)) == false);
+    CHECK(IsHoveringWireSegment(env, xg::EWireDirection::W, glm::vec2(-0.49f,   -0.26f)) == false);
     CHECK(IsHoveringWireSegment(env, xg::EWireDirection::W, glm::vec2(-0.49f,   0.26f  )) == false);
 
     const float insideWidthDiagonal = 0.2499f * std::sqrt(2.f);
@@ -477,6 +485,22 @@ SYSTEM_TEST_CASE("Check hitbox for all wire directions at once")
     CHECK(IsHoveringWireSegment(env, xg::EWireDirection::All, glm::vec2(-0.49f + outsideWidthDiagonal, -0.49f), wireWidth) == false);
     CHECK(IsHoveringWireSegment(env, xg::EWireDirection::All, glm::vec2(-0.49f, 0.49f - outsideWidthDiagonal), wireWidth) == false);
     CHECK(IsHoveringWireSegment(env, xg::EWireDirection::All, glm::vec2(-0.49f + outsideWidthDiagonal, 0.49f), wireWidth) == false);
+}
+
+SYSTEM_TEST_CASE("Check hitbox for wire diagonals overlapping into neighbour cells")
+{
+    TestEnv env;
+    CHECK(IsHoveringWireSegment(env, xg::EWireDirection::NE, glm::vec2(0.51f, 0.49f)) == true);
+    CHECK(IsHoveringWireSegment(env, xg::EWireDirection::NE, glm::vec2(0.49f, 0.51f)) == true);
+
+    CHECK(IsHoveringWireSegment(env, xg::EWireDirection::NW, glm::vec2(-0.51f, 0.49f)) == true);
+    CHECK(IsHoveringWireSegment(env, xg::EWireDirection::NW, glm::vec2(-0.49f, 0.51f)) == true);
+
+    CHECK(IsHoveringWireSegment(env, xg::EWireDirection::SW, glm::vec2(-0.51f, -0.49f)) == true);
+    CHECK(IsHoveringWireSegment(env, xg::EWireDirection::SW, glm::vec2(-0.49f, -0.51f)) == true);
+
+    CHECK(IsHoveringWireSegment(env, xg::EWireDirection::SE, glm::vec2(0.51f, -0.49f)) == true);
+    CHECK(IsHoveringWireSegment(env, xg::EWireDirection::SE, glm::vec2(0.49f, -0.51f)) == true);
 }
 
 SYSTEM_TEST_CASE("While hovering a cog box -> set the cog entity to the cog")

@@ -25,6 +25,68 @@ namespace
         float d = std::abs(glm::dot(relativePos, tangent));
         return dot(relativePos, direction) >= 0.f && d <= wireWidth;
     }
+
+    bool IsHoveringWireEntity(
+        flecs::world& world,
+        const flecs::entity& entity,
+        const glm::vec2& worldMouse)
+    {
+        const auto* wireComponent = entity.try_get<xg::WireComponent>();
+        if (!wireComponent)
+            return false;
+
+        if (wireComponent->m_Checkpoints.size() <= 1)
+        {
+            const float distance = glm::distance(worldMouse, glm::vec2(wireComponent->m_Checkpoints[0]));
+            if (distance <= world.get<xg::RenderSettings>().m_WireDotOuterRadius)
+            {
+                return true;
+            }
+        }
+        else
+        {
+            const float wireWidth = world.get<xg::UISettings>().m_WireHoverWidth;
+            glm::ivec2 prev = wireComponent->m_Checkpoints[0];
+            for (const glm::ivec2& next : wireComponent->m_Checkpoints)
+            {
+                const glm::ivec2 dir = xg::GetIDirection(prev, next);
+                const glm::vec2 relativePos = worldMouse - glm::vec2(prev);
+
+                const float distance = glm::length(relativePos);
+                if (distance <= world.get<xg::RenderSettings>().m_WireDotOuterRadius ||
+                    IsInsideWireHitbox(relativePos, dir, wireWidth))
+                {
+                    return true;
+                }
+                prev = next;
+            }
+        }
+        return false;
+    }
+
+    void UpdateWireEntity(
+        flecs::world& world,
+        const xg::GridAttachmentsMap& gridAttachmentsMap,
+        const glm::vec2& worldMouse,
+        const glm::vec2& cell,
+        xg::UIHoverComponent& uiHoverComponent)
+    {
+        auto itr = gridAttachmentsMap.find(cell);
+        if (itr != gridAttachmentsMap.end())
+        {
+            const auto& entities = itr->second.m_Entities;
+            for (flecs::entity entity : entities)
+            {
+                if (IsHoveringWireEntity(world, entity, worldMouse))
+                {
+                    if (entity.id() > uiHoverComponent.m_Wire.id())
+                    {
+                        uiHoverComponent.m_Wire = entity;
+                    }
+                }
+            }
+        }
+    }
 }
 
 void xg::UIHoverSystem::Update(flecs::world& world)
@@ -37,65 +99,18 @@ void xg::UIHoverSystem::Update(flecs::world& world)
     uiHoverComponent.m_Node = false;
     uiHoverComponent.m_Wire = flecs::entity::null();
     uiHoverComponent.m_Cog = flecs::entity::null();
-    bool anyWire = false;
+
+    const glm::vec2 mouseOffset = worldMouse - mouseCell;
 
     auto itr = gridAttachmentsMap.find(mouseCell);
     if (itr != gridAttachmentsMap.end())
     {
         if (itr->second.m_HasNode)
         {
-            const float distance = glm::distance(worldMouse, mouseCell);
+            const float distance = glm::length(mouseOffset);
             uiHoverComponent.m_Node = distance <= world.get<xg::RenderSettings>().m_NodeOuterRadius;
         }
-
-        if (xg::HasWireDot(itr->second))
-        {
-            const float distance = glm::distance(worldMouse, mouseCell);
-            const float radius = world.get<xg::RenderSettings>().m_WireDotOuterRadius;
-            anyWire |= distance <= radius;
-        }
-
-        const xg::TWireDirectionFlags flags = itr->second.m_WireDirectionFlags;
-        if (flags.HasAny())
-        {
-            const float wireWidth = world.get<xg::UISettings>().m_WireHoverWidth;
-            glm::vec2 cellPos = worldMouse - mouseCell;
-            if (flags.Has(xg::EWireDirection::E))
-            {
-                anyWire |= IsInsideWireHitbox(cellPos, glm::vec2(1.f, 0.f), wireWidth);
-            }
-            if (flags.Has(xg::EWireDirection::N))
-            {
-                anyWire |= IsInsideWireHitbox(cellPos, glm::vec2(0.f, 1.f), wireWidth);
-            }
-            if (flags.Has(xg::EWireDirection::S))
-            {
-                anyWire |= IsInsideWireHitbox(cellPos, glm::vec2(0.f, -1.f), wireWidth);
-            }
-            if (flags.Has(xg::EWireDirection::W))
-            {
-                anyWire |= IsInsideWireHitbox(cellPos, glm::vec2(-1.f, 0.f), wireWidth);
-            }
-            if (flags.Has(xg::EWireDirection::NE))
-            {
-                anyWire |= IsInsideWireHitbox(cellPos, glm::vec2(1.f, 1.f), wireWidth);
-            }
-            if (flags.Has(xg::EWireDirection::SE))
-            {
-                anyWire |= IsInsideWireHitbox(cellPos, glm::vec2(1.f, -1.f), wireWidth);
-            }
-            if (flags.Has(xg::EWireDirection::SW))
-            {
-                anyWire |= IsInsideWireHitbox(cellPos, glm::vec2(-1.f, -1.f), wireWidth);
-            }
-            if (flags.Has(xg::EWireDirection::NW))
-            {
-                anyWire |= IsInsideWireHitbox(cellPos, glm::vec2(-1.f, 1.f), wireWidth);
-            }
-        }
-
         const auto& entities = itr->second.m_Entities;
-        flecs::entity highestEntity;
         for (flecs::entity entity : entities)
         {
             if (const auto* cogComponent = entity.try_get<xg::CogComponent>())
@@ -114,42 +129,14 @@ void xg::UIHoverSystem::Update(flecs::world& world)
                     uiHoverComponent.m_Cog = entity;
                 }
             }
-            else if (anyWire)
-            {
-                if (const auto* wireComponent = entity.try_get<xg::WireComponent>())
-                {
-                    if (wireComponent->m_Checkpoints.size() <= 1)
-                    {
-                        const float distance = glm::distance(worldMouse, mouseCell);
-                        if (distance <= world.get<xg::RenderSettings>().m_WireDotOuterRadius &&
-                            entity.id() > uiHoverComponent.m_Wire.id())
-                        {
-                            uiHoverComponent.m_Wire = entity;
-                        }
-                    }
-                    else
-                    {
-                        const float wireWidth = world.get<xg::UISettings>().m_WireHoverWidth;
-                        glm::ivec2 prev = wireComponent->m_Checkpoints[0];
-                        for (const glm::ivec2& next : wireComponent->m_Checkpoints)
-                        {
-                            const glm::ivec2 dir = xg::GetIDirection(prev, next);
-                            const glm::vec2 relativePos = worldMouse - glm::vec2(prev);
-
-                            const float distance = glm::length(relativePos);
-                            if (distance <= world.get<xg::RenderSettings>().m_WireDotOuterRadius ||
-                                IsInsideWireHitbox(relativePos, dir, wireWidth))
-                            {
-                                if (entity.id() > uiHoverComponent.m_Wire.id())
-                                {
-                                    uiHoverComponent.m_Wire = entity;
-                                }
-                            }
-                            prev = next;
-                        }
-                    }
-                }
-            }
         }
     }
+
+    UpdateWireEntity(world, gridAttachmentsMap, worldMouse, mouseCell, uiHoverComponent);
+
+    // check the closest edge for diagonal wires that might overlap this cell
+    const glm::vec2 closestEdge = std::abs(mouseOffset.x) > std::abs(mouseOffset.y) ?
+        glm::vec2(glm::sign(mouseOffset.x), 0.f) :
+        glm::vec2(0.f, glm::sign(mouseOffset.y));
+    UpdateWireEntity(world, gridAttachmentsMap, worldMouse, mouseCell + closestEdge, uiHoverComponent);
 }
