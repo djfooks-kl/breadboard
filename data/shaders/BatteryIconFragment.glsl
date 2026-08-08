@@ -10,9 +10,12 @@ in vec3 vColor;
 out vec4 FragColor;
 
 const float thickness = 0.02;
-const float offsetX = 0.25;
+const float offsetX = 0.18;
 const float offsetY = 0.3;
 const float bump = 0.4;
+
+const float lightningTop = 0.1;
+const float lightningMid = 0.05;
 
 float lineDistance(vec2 a, vec2 b)
 {
@@ -37,6 +40,11 @@ void main(void)
     //alpha = max(alpha, line(vec2(0.0, 0.0), vec2(0.0, 0.5)));
     //alpha = max(alpha, line(vec2(0.0, 0.5), vec2(0.2, 0.3)));
     //alpha = max(alpha, line(vec2(0.0, 0.5), vec2(-0.2, 0.3)));
+
+    alpha = max(alpha, line(vec2(-lightningMid, 0.0), vec2(lightningMid, 0.0)));
+    alpha = max(alpha, line(vec2(-lightningMid, 0.0), vec2(0.0, lightningTop)));
+    alpha = max(alpha, line(vec2(lightningMid, 0.0), vec2(0.0, -lightningTop)));
+
     alpha = max(alpha, line(vec2( offsetX,        offsetY), vec2( offsetX * 0.5,  offsetY)));
     alpha = max(alpha, line(vec2( offsetX,        offsetY), vec2( offsetX,       -offsetY)));
     alpha = max(alpha, line(vec2( offsetX,       -offsetY), vec2(-offsetX,       -offsetY)));
