@@ -45,6 +45,7 @@ void main(void)
     alpha = max(alpha, line(vec2(-lightningMid, 0.0), vec2(0.0, lightningTop)));
     alpha = max(alpha, line(vec2(lightningMid, 0.0), vec2(0.0, -lightningTop)));
 
+    alpha = max(alpha, line(vec2( -offsetX,       offsetY), vec2( offsetX,        offsetY)));
     alpha = max(alpha, line(vec2( offsetX,        offsetY), vec2( offsetX * 0.5,  offsetY)));
     alpha = max(alpha, line(vec2( offsetX,        offsetY), vec2( offsetX,       -offsetY)));
     alpha = max(alpha, line(vec2( offsetX,       -offsetY), vec2(-offsetX,       -offsetY)));
