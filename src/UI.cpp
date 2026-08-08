@@ -89,6 +89,7 @@ void xg::UI::DrawCogMenu(flecs::world& world, const bool actionEaten)
     const auto& cogMap = world.get<xg::CogMap>();
     const auto& input = world.get<xg::InputComponent>();
     const auto& worldMouse = world.get<xg::WorldMouseComponent>();
+    const auto& hover = world.get<xg::UIHoverComponent>();
     auto& previewAddingCog = world.get_mut<xg::UIPreviewAddingCogComponent>();
     auto& dragDrop = world.get_mut<xg::UIDraggingDropComponent>();
 
@@ -114,7 +115,9 @@ void xg::UI::DrawCogMenu(flecs::world& world, const bool actionEaten)
         !actionEaten &&
         !ImGui::IsAnyItemHovered() &&
         !ImGui::IsWindowHovered() &&
-        !io.WantCaptureMouse)
+        !io.WantCaptureMouse &&
+        !hover.m_Cog &&
+        !hover.m_Wire)
     {
         ImGui::OpenPopup("LeftClickPopup");
         openning = true;
