@@ -16,6 +16,7 @@
 #include "InputComponent.h"
 #include "MouseCursorEnum.h"
 #include "UIDeleteCogComponent.h"
+#include "UIDeleteWireComponent.h"
 #include "UIDraggingDropComponent.h"
 #include "UIHoverComponent.h"
 #include "UIPreviewAddingCogComponent.h"
@@ -44,6 +45,13 @@ namespace
             });
         world.defer_end();
 
+        world.defer_begin();
+        world.each([](flecs::entity entity, xg::UIDeleteWireComponent)
+            {
+                entity.destruct();
+            });
+        world.defer_end();
+
         const auto& input = world.get<xg::InputComponent>();
         if (input.m_KeyPress.contains(GLFW_KEY_DELETE) ||
             input.m_KeyPress.contains(GLFW_KEY_BACKSPACE))
@@ -52,6 +60,10 @@ namespace
             if (hover.m_Cog)
             {
                 xg::CreateEntity(world).ensure<xg::UIDeleteCogComponent>().m_Cog = hover.m_Cog;
+            }
+            if (hover.m_Wire)
+            {
+                xg::CreateEntity(world).ensure<xg::UIDeleteWireComponent>().m_Wire = hover.m_Wire;
             }
         }
     }

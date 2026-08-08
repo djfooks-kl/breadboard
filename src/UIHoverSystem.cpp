@@ -21,8 +21,8 @@ namespace
     bool IsInsideWireHitbox(const glm::vec2& relativePos, glm::vec2 direction, const float wireWidth)
     {
         direction = glm::normalize(direction);
-        glm::vec2 tangent(direction.y, -direction.x);
-        float d = std::abs(glm::dot(relativePos, tangent));
+        const glm::vec2 tangent(direction.y, -direction.x);
+        const float d = std::abs(glm::dot(relativePos, tangent));
         return dot(relativePos, direction) >= 0.f && d <= wireWidth;
     }
 
@@ -119,8 +119,8 @@ void xg::UIHoverSystem::Update(flecs::world& world)
 
                 const auto& cogMap = world.get<xg::CogMap>();
                 const auto* cogPrototype = cogMap.Get(cogComponent->m_CogId);
-                xc::IAABB cellAABB = xc::IAABB::FromTransformAndSize(cogComponent->m_Transform, cogPrototype->GetSize());
-                xc::AABB hitAABB{
+                const xc::IAABB cellAABB = xc::IAABB::FromTransformAndSize(cogComponent->m_Transform, cogPrototype->GetSize());
+                const xc::AABB hitAABB{
                     .m_Min = glm::vec2(cellAABB.m_Min) - hitSize,
                     .m_Max = glm::vec2(cellAABB.m_Max) + hitSize };
 

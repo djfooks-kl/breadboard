@@ -16,6 +16,9 @@ void xg::WireSystem::Update(flecs::world& world)
         const xg::command::ExecuteComponent&)
         {
             flecs::entity wireEntity = commandEntity.m_Entity;
+            if (wireEntity.has<xg::WireComponent>())
+                return;
+
             auto& wire = wireEntity.ensure<xg::WireComponent>();
             wire.m_Checkpoints = addWire.m_Checkpoints;
         });
