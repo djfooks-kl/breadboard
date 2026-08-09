@@ -204,14 +204,17 @@ SYSTEM_TEST_CASE("While hovering a wire checkpoint -> set the wire entity")
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 2.f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Wire == wire);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == wire);
 
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(0.51f, 2.f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Wire == wire);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == wire);
 
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.49f, 2.f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Wire == wire);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == wire);
 }
 
 SYSTEM_TEST_CASE("While hovering a wire dot on a cog node -> set the wire entity")
@@ -234,14 +237,17 @@ SYSTEM_TEST_CASE("While hovering a wire dot on a cog node -> set the wire entity
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 2.f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Wire == wire);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == wire);
 
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(0.51f, 2.f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Wire == wire);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == wire);
 
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.49f, 2.f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Wire == wire);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == wire);
 }
 
 SYSTEM_TEST_CASE("While not hovering a wire checkpoint cell -> set the wire to invalid")
@@ -265,6 +271,7 @@ SYSTEM_TEST_CASE("While not hovering a wire checkpoint cell -> set the wire to i
     env.Update();
 
     CHECK(world.get<xg::UIHoverComponent>().m_Wire == flecs::entity::null());
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == flecs::entity::null());
 }
 
 SYSTEM_TEST_CASE("Hover a wire checkpoint cell then stop -> reset the wire flag to false")
@@ -290,6 +297,7 @@ SYSTEM_TEST_CASE("Hover a wire checkpoint cell then stop -> reset the wire flag 
     env.Update();
 
     CHECK(world.get<xg::UIHoverComponent>().m_Wire == flecs::entity::null());
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == flecs::entity::null());
 }
 
 SYSTEM_TEST_CASE("While hovering a wire checkpoint cell but not the wire checkpoint circle -> set the wire to null")
@@ -311,6 +319,7 @@ SYSTEM_TEST_CASE("While hovering a wire checkpoint cell but not the wire checkpo
     env.Update();
 
     CHECK(world.get<xg::UIHoverComponent>().m_Wire == flecs::entity::null());
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == flecs::entity::null());
 }
 
 SYSTEM_TEST_CASE("Wire with multiple checkpoints, hovering nearby to the checkpoint -> set the wire to null")
@@ -338,6 +347,7 @@ SYSTEM_TEST_CASE("Wire with multiple checkpoints, hovering nearby to the checkpo
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.24f, 2.f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Wire == wire);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == wire);
 }
 
 SYSTEM_TEST_CASE("While hovering a wire segment line cell but not the line itself -> set the wire to null")
@@ -361,6 +371,7 @@ SYSTEM_TEST_CASE("While hovering a wire segment line cell but not the line itsel
     env.Update();
 
     CHECK(world.get<xg::UIHoverComponent>().m_Wire == flecs::entity::null());
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == flecs::entity::null());
 }
 
 SYSTEM_TEST_CASE("While hovering a wire segment line -> set the wire flag to true")
@@ -383,10 +394,12 @@ SYSTEM_TEST_CASE("While hovering a wire segment line -> set the wire flag to tru
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.49f, 2.09f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Wire == wire);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == wire);
 
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.49f, 1.91f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Wire == wire);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == wire);
 }
 
 SYSTEM_TEST_CASE("Check hitbox for each wire direction")
@@ -524,14 +537,17 @@ SYSTEM_TEST_CASE("While hovering a cog box -> set the cog entity to the cog")
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 2.f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Cog == cog);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == cog);
 
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(0.51f, 2.f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Cog == cog);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == cog);
 
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.49f, 2.f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Cog == cog);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == cog);
 }
 
 SYSTEM_TEST_CASE("While hovering a non cog entity -> set the cog entity to null")
@@ -551,6 +567,7 @@ SYSTEM_TEST_CASE("While hovering a non cog entity -> set the cog entity to null"
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 2.f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Cog == flecs::entity::null());
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == flecs::entity::null());
 }
 
 SYSTEM_TEST_CASE("While hovering a cog entity cell, inside/outside of cog box -> set the cog entity only when inside the cog box")
@@ -573,18 +590,22 @@ SYSTEM_TEST_CASE("While hovering a cog entity cell, inside/outside of cog box ->
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.25f, 2.f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Cog == cog);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == cog);
 
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.26f, 2.f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Cog == flecs::entity::null());
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == flecs::entity::null());
 
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 1.74f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Cog == flecs::entity::null());
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == flecs::entity::null());
 
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 1.76f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Cog == cog);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == cog);
 }
 
 SYSTEM_TEST_CASE("While hovering a cog with size>1, inside/outside of cog box -> set the cog entity only when inside the cog box")
@@ -612,26 +633,32 @@ SYSTEM_TEST_CASE("While hovering a cog with size>1, inside/outside of cog box ->
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(0.75f, 3.f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Cog == cog);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == cog);
 
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(0.74f, 3.f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Cog == flecs::entity::null());
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == flecs::entity::null());
 
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(2.f, 1.75f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Cog == cog);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == cog);
 
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(2.f, 1.74f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Cog == flecs::entity::null());
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == flecs::entity::null());
 
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(2.f, 3.25f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Cog == cog);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == cog);
 
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(2.f, 3.26f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Cog == flecs::entity::null());
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == flecs::entity::null());
 }
 
 SYSTEM_TEST_CASE("While hovering another entity and a cog box -> set the cog entity to the cog")
@@ -656,6 +683,7 @@ SYSTEM_TEST_CASE("While hovering another entity and a cog box -> set the cog ent
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 2.f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Cog == cog);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == cog);
 }
 
 SYSTEM_TEST_CASE("While hovering a single wire, cell has multiple overlapping wires -> set the wire entity to the wire that is hovered")
@@ -685,10 +713,12 @@ SYSTEM_TEST_CASE("While hovering a single wire, cell has multiple overlapping wi
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.4f, 2.f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Wire == wire1);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == wire1);
 
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 2.4f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Wire == wire2);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == wire2);
 }
 
 SYSTEM_TEST_CASE("While hovering multiple wire segments -> set the wire entity to highest entity handle")
@@ -721,6 +751,7 @@ SYSTEM_TEST_CASE("While hovering multiple wire segments -> set the wire entity t
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 2.f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Wire == wire2);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == wire2);
 }
 
 SYSTEM_TEST_CASE("While hovering multiple wire checkpoints -> set the wire entity to highest entity handle")
@@ -749,6 +780,7 @@ SYSTEM_TEST_CASE("While hovering multiple wire checkpoints -> set the wire entit
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.15f, 2.f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Wire == wire1);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == wire1);
 }
 
 SYSTEM_TEST_CASE("While hovering a wire segment with a higher checkpoint in the same cell -> set the wire entity to the segment")
@@ -777,4 +809,38 @@ SYSTEM_TEST_CASE("While hovering a wire segment with a higher checkpoint in the 
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(0.85f, 2.f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Wire == wire1);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == wire1);
+}
+
+SYSTEM_TEST_CASE("While hovering a cog box and a wire -> set the cog, wire and entity=wire")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity wire1 = world.entity();
+    flecs::entity cog = world.entity();
+
+    {
+        wire1.ensure<xg::WireComponent>().m_Checkpoints.push_back(glm::ivec2(0, 2));
+        wire1.ensure<xg::WireComponent>().m_Checkpoints.push_back(glm::ivec2(1, 2));
+
+        auto& cogComponent = cog.ensure<xg::CogComponent>();
+        cogComponent.m_CogId = s_OneCellCog;
+        cogComponent.m_Transform = xc::ITransform{ .m_Translation = glm::ivec2(1, 2) };
+
+        auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
+        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_HasWireCheckpoint = true;
+        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_WireDirectionFlags.Raise(xg::EWireDirection::S);
+        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_Entities.push_back(wire1);
+        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_Entities.push_back(cog);
+
+        world.get_mut<xg::RenderSettings>().m_WireDotOuterRadius = 0.1f;
+        world.get_mut<xg::RenderSettings>().m_CogBoxSize = 0.5f;
+    }
+
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 2.f);
+    env.Update();
+    CHECK(world.get<xg::UIHoverComponent>().m_Cog == cog);
+    CHECK(world.get<xg::UIHoverComponent>().m_Wire == wire1);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == wire1);
 }

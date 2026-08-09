@@ -16,6 +16,7 @@
 #include "GridIconRenderer.h"
 #include "GridRenderer.h"
 #include "GridSizeComponent.h"
+#include "HoverVFXComponent.h"
 #include "OnStageAddedComponent.h"
 #include "OnStageComponent.h"
 #include "OnStageRemovedComponent.h"
@@ -108,6 +109,11 @@ void xg::BreadRenderer::Load(const xg::RenderSettings& settings)
     m_CogBoxPreviewDropRenderer->m_Uniforms = cogBoxDefaultUniforms;
     m_CogBoxPreviewDropRenderer->m_Uniforms.m_Color = glm::vec3(0.5f, 0.5f, 0.5f);
 
+    m_CogBoxHoverRenderer = std::make_unique<xg::CogBoxRenderer>(*m_CogBoxProgram);
+    m_CogBoxHoverRenderer->m_Uniforms = cogBoxDefaultUniforms;
+    m_CogBoxHoverRenderer->m_Uniforms.m_Expand = settings.m_HoverVFXExpand;
+    m_CogBoxHoverRenderer->m_Uniforms.m_Color = settings.m_HoverVFXColor;
+
     m_CogNodeRenderer = std::make_unique<xg::CogNodeRenderer>(*m_CogNodeProgram);
     m_CogNodeRenderer->m_Uniforms.m_RingColor = glm::vec3(0.f, 1.f, 0.f);
     m_CogNodeRenderer->m_Uniforms.m_InnerRadius = settings.m_NodeInnerRadius;
@@ -141,6 +147,7 @@ void xg::BreadRenderer::Update(const flecs::world& world)
         glGenerateMipmap(GL_TEXTURE_2D);
     }
 
+    const auto& cogMap = world.get<xg::CogMap>();
     const bool anyOnStageChanges =
         world.count<const xg::OnStageAddedComponent>() != 0 ||
         world.count<const xg::OnStageRemovedComponent>() != 0;
@@ -156,7 +163,6 @@ void xg::BreadRenderer::Update(const flecs::world& world)
                 renderer->RemoveAll();
             }
 
-            const auto& cogMap = world.get<xg::CogMap>();
             world.each([&](
                 const xg::OnStageComponent,
                 const xg::CogComponent& cogComponent)
@@ -214,6 +220,17 @@ void xg::BreadRenderer::Update(const flecs::world& world)
             m_WireRendererMap.Get(s_RenderableWireCircleBottom)->AddWireEnd(p, glm::ivec2(0, 0));
         }
     }
+
+    m_CogBoxHoverRenderer->RemoveAll();
+    world.each([&](
+        const xg::OnStageComponent,
+        const xg::HoverVFXComponent,
+        const xg::CogComponent& cogComponent)
+        {
+            const xg::CogPrototype* cog = cogMap.Get(cogComponent.m_CogId);
+            glm::ivec2 cogExtents = cog->GetSize() - glm::ivec2(1, 1);
+            m_CogBoxHoverRenderer->AddBox(cogComponent.m_Transform.m_Translation, cogComponent.m_Transform.Apply(cogExtents));
+        });
 }
 
 void xg::BreadRenderer::Draw(const flecs::world& world)
@@ -225,6 +242,7 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
 
     m_GridRenderer->Draw(camera.m_ViewProjection, camera.m_InvViewProjection, gridSize, camera.m_Feather);
 
+    m_CogBoxHoverRenderer->Draw(camera.m_ViewProjection, camera.m_Feather);
     m_CogBoxRenderer->Draw(camera.m_ViewProjection, camera.m_Feather);
     for (xg::IRenderer* renderer : m_CogRendererMap.GetOrder())
     {

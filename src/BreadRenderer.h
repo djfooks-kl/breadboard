@@ -55,6 +55,7 @@ namespace xg
         std::unique_ptr<xg::CogBoxRenderer> m_CogBoxRenderer;
         std::unique_ptr<xg::CogBoxRenderer> m_CogBoxPreviewRenderer;
         std::unique_ptr<xg::CogBoxRenderer> m_CogBoxPreviewDropRenderer;
+        std::unique_ptr<xg::CogBoxRenderer> m_CogBoxHoverRenderer;
         std::unique_ptr<xg::CogNodeRenderer> m_CogNodeRenderer;
 
         std::unique_ptr<xc::ShaderProgram> m_TextProgram;

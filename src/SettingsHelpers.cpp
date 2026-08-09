@@ -14,6 +14,24 @@ namespace
 		return toml::find_or<T>(settings, name, defaultValue);
 	}
 
+	template<>
+	float Parse<float>(const toml::value& settings, const char* name, const float& defaultValue)
+	{
+		if (settings.contains(name))
+		{
+			const auto& v = toml::find(settings, name);
+			if (v.is_integer())
+			{
+				return static_cast<float>(v.as_integer());
+			}
+			else if (v.is_floating())
+			{
+				return static_cast<float>(v.as_floating());
+			}
+		}
+		return defaultValue;
+	}
+
 	template<typename T>
 	T Parse(const toml::value& settings, const char* name, std::string defaultValue)
 	{

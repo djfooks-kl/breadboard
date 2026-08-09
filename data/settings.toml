@@ -1,5 +1,6 @@
 NodeSize = 0.7
 NodeInnerRadius = 0.26
 NodeOuterRadius = 0.31
+HoverDuration = 0.2
 
 WireFullColor = "#ff0000"

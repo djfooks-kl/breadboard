@@ -6,11 +6,12 @@ typedef unsigned int GLuint;
 
 namespace xg
 {
-    struct CogBoxUniforms
+    struct CogBoxVFXUniforms
     {
         glm::vec3 m_Color = glm::vec3(0.f);
         glm::vec3 m_FillColor = glm::vec3(0.f);
         float m_Size = 0.f;
+        float m_Expand = 0.f;
     };
     // -- [CODEGEN START] UniformsHeader(viewProjection, feather)
     struct CogBoxUniformsLocations

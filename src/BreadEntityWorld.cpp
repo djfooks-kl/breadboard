@@ -22,6 +22,7 @@
 #include "GridAttachmentsComponent.h"
 #include "GridAttachmentSystem.h"
 #include "GridSizeComponent.h"
+#include "HoverVFXSystem.h"
 #include "InputComponent.h"
 #include "InputSystem.h"
 #include "OnStageAddedComponent.h"
@@ -98,6 +99,7 @@ void xg::UpdateWorld(flecs::world& world, const double time, const float deltaTi
     xg::UIWireSegmentsSystem::Update(world);
     xg::UIWireValidationSystem::Update(world);
     xg::UIAddWireSystem::Update(world);
+    xg::HoverVFXSystem::Update(world, deltaTime);
     xg::command::CreateSystem::Update(world);
     xg::command::ListSystem::Update(world);
     xg::CogSystem::Update(world);

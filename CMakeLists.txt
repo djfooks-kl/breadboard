@@ -83,6 +83,9 @@ set(source_files
     src/GridRenderer.cpp
     src/GridRenderer.h
     src/GridSizeComponent.h
+    src/HoverVFXComponent.h
+    src/HoverVFXSystem.cpp
+    src/HoverVFXSystem.h
     src/InputComponent.h
     src/InputSystem.cpp
     src/InputSystem.h
@@ -94,6 +97,7 @@ set(source_files
     src/OnStageSystem.cpp
     src/OnStageSystem.h
     src/RenderSettings.h
+    src/RenderSettingsList.h
     src/RGBColor.cpp
     src/RGBColor.h
     src/SettingsHelpers.cpp
@@ -322,6 +326,7 @@ if (NOT EMSCRIPTEN)
         src/ut/FlecsTestHelpers.h
         src/ut/GridAttachmentSystemTest.cpp
         src/ut/GridHelpersTest.cpp
+        src/ut/HoverVFXSystemTest.cpp
         src/ut/IAABBTest.cpp
         src/ut/ITransformTest.cpp
         src/ut/OnStageSystemTest.cpp

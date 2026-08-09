@@ -139,4 +139,6 @@ void xg::UIHoverSystem::Update(flecs::world& world)
         glm::vec2(glm::sign(mouseOffset.x), 0.f) :
         glm::vec2(0.f, glm::sign(mouseOffset.y));
     UpdateWireEntity(world, gridAttachmentsMap, worldMouse, mouseCell + closestEdge, uiHoverComponent);
+
+    uiHoverComponent.m_Entity = uiHoverComponent.m_Wire.is_valid() ? uiHoverComponent.m_Wire : uiHoverComponent.m_Cog;
 }

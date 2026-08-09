@@ -217,7 +217,14 @@ void xg::DebugUI::DrawGridCell(flecs::world& world, const glm::ivec2& cell)
             ImGui::Indent(10.f);
             for (const flecs::entity& entity : attachments.m_Entities)
             {
-                ImGui::Text("%-5d %s", entity.id(), GetEntityHandleDetails(entity).c_str());
+                if (ImGui::CollapsingHeader(std::format("{:<5} {}", entity.id(), GetEntityHandleDetails(entity)).c_str()))
+                {
+                    ImGui::Indent(10.f);
+                    entity.each([](flecs::id id) {
+                            ImGui::Text(id.str());
+                        });
+                    ImGui::Unindent(10.f);
+                }
             }
             ImGui::Unindent(10.f);
         }
