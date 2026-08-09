@@ -59,9 +59,6 @@ set(source_files
     src/CogBoxRenderer.cpp
     src/CogBoxRenderer.h
     src/CogBoxUniforms.h
-    src/CogBoxVFXRenderer.cpp
-    src/CogBoxVFXRenderer.h
-    src/CogBoxVFXUniforms.h
     src/CogComponent.h
     src/CogCreatedComponent.h
     src/CogNodeRenderer.cpp
@@ -87,9 +84,6 @@ set(source_files
     src/GridRenderer.cpp
     src/GridRenderer.h
     src/GridSizeComponent.h
-    src/HoverVFXComponent.h
-    src/HoverVFXSystem.cpp
-    src/HoverVFXSystem.h
     src/InputComponent.h
     src/InputSystem.cpp
     src/InputSystem.h
@@ -330,7 +324,6 @@ if (NOT EMSCRIPTEN)
         src/ut/FlecsTestHelpers.h
         src/ut/GridAttachmentSystemTest.cpp
         src/ut/GridHelpersTest.cpp
-        src/ut/HoverVFXSystemTest.cpp
         src/ut/IAABBTest.cpp
         src/ut/ITransformTest.cpp
         src/ut/OnStageSystemTest.cpp
