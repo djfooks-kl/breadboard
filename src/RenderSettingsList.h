@@ -10,6 +10,7 @@ ADD_SETTING(xg::RGBColor, WireFullColor, "#ff7f7f");
 ADD_SETTING(xg::RGBColor, WireEmptyColor, "#ffffff");
 ADD_SETTING(xg::RGBColor, WireEdgeColor, "#000000");
 ADD_SETTING(xg::RGBColor, WireEdgeInvalidColor, "#ff0000");
+ADD_SETTING(xg::RGBColor, WireHoverColor, "#00ff00");
 
 ADD_SETTING(float, HoverVFXExpand, 1.f)
 ADD_SETTING(xg::RGBColor, HoverVFXColor, "#00ff00");

@@ -18,13 +18,16 @@
 
 namespace
 {
-    bool IsInsideWireHitbox(const glm::vec2& relativePos, glm::vec2 direction, const float wireWidth)
+    bool IsInsideWireSegmentHitbox(const glm::vec2& prev, const glm::vec2& next, glm::vec2 mousePos, const float wireWidth)
     {
-        const glm::vec2 euclideanDirection = glm::normalize(direction);
-        const glm::vec2 tangent(euclideanDirection.y, -euclideanDirection.x);
-        const float widthDistance = std::abs(glm::dot(relativePos, tangent));
-        const float distance = dot(relativePos, direction);
-        return distance >= 0.f && distance <= 1.f && widthDistance <= wireWidth;
+        const glm::vec2 localEnd = next - prev;
+        const glm::vec2 localMousePos = mousePos - prev;
+        const float wireLength = glm::length(localEnd);
+        const glm::vec2 direction = localEnd / wireLength;
+        const glm::vec2 tangent(direction.y, -direction.x);
+        const float widthDistance = std::abs(glm::dot(localMousePos, tangent));
+        const float distance = dot(localMousePos, direction);
+        return distance >= 0.f && distance <= wireLength && widthDistance <= wireWidth;
     }
 
     bool IsHoveringWireEntity(
@@ -46,16 +49,18 @@ namespace
         }
         else
         {
+            const float wireDotRadius = world.get<xg::RenderSettings>().m_WireDotOuterRadius;
             const float wireWidth = world.get<xg::UISettings>().m_WireHoverWidth;
-            glm::ivec2 prev = wireComponent->m_Checkpoints[0];
-            for (const glm::ivec2& next : wireComponent->m_Checkpoints)
+            const std::vector<glm::ivec2>& checkpoints = wireComponent->m_Checkpoints;
+            glm::vec2 prev = checkpoints[0];
+            if (glm::distance(prev, worldMouse) <= wireDotRadius)
+                return true;
+            for (int i = 0; i < checkpoints.size(); ++i)
             {
-                const glm::ivec2 dir = xg::GetIDirection(prev, next);
-                const glm::vec2 relativePos = worldMouse - glm::vec2(prev);
-
-                const float distance = glm::length(relativePos);
-                if (distance <= world.get<xg::RenderSettings>().m_WireDotOuterRadius ||
-                    IsInsideWireHitbox(relativePos, dir, wireWidth))
+                const glm::vec2 next = checkpoints[i];
+                if (glm::distance(next, worldMouse) <= wireDotRadius)
+                    return true;
+                if (IsInsideWireSegmentHitbox(prev, next, worldMouse, wireWidth))
                 {
                     return true;
                 }

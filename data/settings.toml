@@ -3,6 +3,7 @@ NodeInnerRadius = 0.26
 NodeOuterRadius = 0.31
 
 HoverVFXExpand = 2
-HoverVFXColor = "#ffef00"
+HoverVFXColor = "#00ff00"
 
 WireFullColor = "#ff0000"
+WireHoverColor = "#00ff00"

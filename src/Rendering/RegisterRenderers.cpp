@@ -131,7 +131,8 @@ void xg::RegisterWireRenderers(
         renderer->m_Uniforms.m_ColorFull = glm::vec3(0.f);
         renderer->m_Uniforms.m_Size = settings.m_WireDotOuterRadius;
         renderer->m_Uniforms.m_HasInfoTexture = false;
-        renderer->m_ColorValid = settings.m_WireEdgeColor;
+        renderer->m_Uniforms.m_Expand = mode == ERenderingMode::Hover;
+        renderer->m_ColorValid = mode == ERenderingMode::Hover ? settings.m_WireHoverColor : settings.m_WireEdgeColor;
         renderer->m_ColorInvalid = settings.m_WireEdgeInvalidColor;
         map.Register(s_RenderableWireCircleBottom, std::move(renderer));
     }
@@ -142,15 +143,14 @@ void xg::RegisterWireRenderers(
 
     {
         std::unique_ptr<xg::WireLineRenderer> renderer = std::make_unique<xg::WireLineRenderer>(shaderProgramMap.at(s_ShaderWire));
-        renderer->m_Uniforms.m_ColorEmpty = glm::vec3(1.f);
+        renderer->m_Uniforms.m_ColorEmpty = mode == ERenderingMode::DropPreview ? settings.m_DropPreviewColor : glm::vec3(1.f);
         renderer->m_Uniforms.m_ColorFull = settings.m_WireFullColor;
         renderer->m_Uniforms.m_InnerWidth = settings.m_WireInnerWidth;
         renderer->m_Uniforms.m_OuterWidth = settings.m_WireOuterWidth;
-        if (mode == ERenderingMode::DropPreview)
-            renderer->m_Uniforms.m_ColorEmpty = settings.m_DropPreviewColor;
+        renderer->m_Uniforms.m_Expand = mode == ERenderingMode::Hover;
         renderer->m_Uniforms.m_HasInfoTexture = mode == ERenderingMode::Normal;
         renderer->SetHeight(s_WireLineHeight);
-        renderer->m_ColorEdge = settings.m_WireEdgeColor;
+        renderer->m_ColorEdge = mode == ERenderingMode::Hover ? settings.m_WireHoverColor : settings.m_WireEdgeColor;
         renderer->m_ColorInvalidEdge = settings.m_WireEdgeInvalidColor;
         map.Register(s_RenderableWire, std::move(renderer));
     }

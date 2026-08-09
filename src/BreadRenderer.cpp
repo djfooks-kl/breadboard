@@ -61,6 +61,7 @@ void xg::BreadRenderer::Load(const xg::RenderSettings& settings)
 
     xg::RegisterWireRenderers(settings, m_WireRendererMap, m_ShaderProgramMap, xg::ERenderingMode::Normal);
     xg::RegisterWireRenderers(settings, m_WirePreviewRendererMap, m_ShaderProgramMap, xg::ERenderingMode::Preview);
+    xg::RegisterWireRenderers(settings, m_WireHoverRendererMap, m_ShaderProgramMap, xg::ERenderingMode::Hover);
 
     m_TextProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
         .m_VertexPath = "shaders/BoxVertex.glsl",
@@ -181,7 +182,6 @@ void xg::BreadRenderer::Update(const flecs::world& world)
                 renderer->RemoveAll();
             }
 
-            std::unordered_set<glm::ivec2> dots;
             world.each([&](const xg::OnStageComponent, const xg::WireComponent& wire)
             {
                 glm::ivec2 prev = wire.m_Checkpoints[0];
@@ -220,6 +220,10 @@ void xg::BreadRenderer::Update(const flecs::world& world)
 
     auto& uiHoverComponent = world.get_mut<xg::UIHoverComponent>();
     m_CogBoxHoverRenderer->RemoveAll();
+    for (xg::IWireRenderer* renderer : m_WireHoverRendererMap.GetOrder())
+    {
+        renderer->RemoveAll();
+    }
     if (uiHoverComponent.m_Entity)
     {
         if (const auto* cogComponent = uiHoverComponent.m_Entity.try_get<xg::CogComponent>())
@@ -227,6 +231,22 @@ void xg::BreadRenderer::Update(const flecs::world& world)
             const xg::CogPrototype* cog = cogMap.Get(cogComponent->m_CogId);
             glm::ivec2 cogExtents = cog->GetSize() - glm::ivec2(1, 1);
             m_CogBoxHoverRenderer->AddBox(cogComponent->m_Transform.m_Translation, cogComponent->m_Transform.Apply(cogExtents));
+        }
+        if (const auto* wireComponent = uiHoverComponent.m_Entity.try_get<xg::WireComponent>())
+        {
+            for (xg::IWireRenderer* renderer : m_WireHoverRendererMap.GetOrder())
+            {
+                const std::vector<glm::ivec2>& checkpoints = wireComponent->m_Checkpoints;
+                glm::ivec2 prev = checkpoints[0];
+                renderer->AddWireEnd(prev, glm::ivec2(0, 0));
+                for (int i = 1; i < checkpoints.size(); ++i)
+                {
+                    const glm::ivec2& current = checkpoints[i];
+                    renderer->AddWire(prev, current, glm::ivec2(0, 0));
+                    renderer->AddWireEnd(current, glm::ivec2(0, 0));
+                    prev = current;
+                }
+            }
         }
     }
 }
@@ -243,6 +263,10 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
     m_CogBoxHoverRenderer->Draw(camera.m_ViewProjection, camera.m_Feather);
     m_CogBoxRenderer->Draw(camera.m_ViewProjection, camera.m_Feather);
     for (xg::IRenderer* renderer : m_CogRendererMap.GetOrder())
+    {
+        renderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
+    }
+    for (xg::IWireRenderer* renderer : m_WireHoverRendererMap.GetOrder())
     {
         renderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
     }

@@ -106,7 +106,6 @@ namespace
             }
 
             auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
-            gridAttachmentsComponent.m_Map[glm::ivec2(0, 0)].m_WireDirectionFlags = flags;
             for (const glm::ivec2& checkpoint : checkpoints)
             {
                 std::vector<flecs::entity>& entities = gridAttachmentsComponent.m_Map[checkpoint].m_Entities;
@@ -228,7 +227,6 @@ SYSTEM_TEST_CASE("While hovering a wire dot on a cog node -> set the wire entity
 
         auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
         gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_HasNode = true;
-        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_WireDirectionFlags.Raise(xg::EWireDirection::E);
         gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_Entities.push_back(wire);
 
         world.get_mut<xg::RenderSettings>().m_WireDotOuterRadius = 100.f;
@@ -333,7 +331,6 @@ SYSTEM_TEST_CASE("Wire with multiple checkpoints, hovering nearby to the checkpo
         wire.ensure<xg::WireComponent>().m_Checkpoints.push_back(glm::ivec2(1, 3));
         auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
         gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_HasWireCheckpoint = true;
-        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_WireDirectionFlags = xg::EWireDirection::N;
         gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_Entities.push_back(wire);
 
         world.get_mut<xg::RenderSettings>().m_WireDotOuterRadius = 0.25f;
@@ -359,7 +356,6 @@ SYSTEM_TEST_CASE("While hovering a wire segment line cell but not the line itsel
     {
         wire.ensure<xg::WireComponent>().m_Checkpoints.push_back(glm::ivec2(1, 2));
         auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
-        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_WireDirectionFlags.Raise(xg::EWireDirection::E);
         gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_Entities.push_back(wire);
 
         world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 2.4f);
@@ -384,7 +380,6 @@ SYSTEM_TEST_CASE("While hovering a wire segment line -> set the wire flag to tru
         wire.ensure<xg::WireComponent>().m_Checkpoints.push_back(glm::ivec2(1, 2));
         wire.ensure<xg::WireComponent>().m_Checkpoints.push_back(glm::ivec2(2, 2));
         auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
-        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_WireDirectionFlags.Raise(xg::EWireDirection::E);
         gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_Entities.push_back(wire);
 
         world.get_mut<xg::RenderSettings>().m_WireDotOuterRadius = 0.f;
@@ -397,6 +392,74 @@ SYSTEM_TEST_CASE("While hovering a wire segment line -> set the wire flag to tru
     CHECK(world.get<xg::UIHoverComponent>().m_Entity == wire);
 
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.49f, 1.91f);
+    env.Update();
+    CHECK(world.get<xg::UIHoverComponent>().m_Wire == wire);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == wire);
+}
+
+SYSTEM_TEST_CASE("While hovering a wire segment line multiple cells long -> set the wire flag to true")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity wire = world.entity();
+    {
+        wire.ensure<xg::WireComponent>().m_Checkpoints.push_back(glm::ivec2(1, 2));
+        wire.ensure<xg::WireComponent>().m_Checkpoints.push_back(glm::ivec2(3, 2));
+        auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
+        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_Entities.push_back(wire);
+        gridAttachmentsComponent.m_Map[glm::ivec2(2, 2)].m_Entities.push_back(wire);
+        gridAttachmentsComponent.m_Map[glm::ivec2(3, 2)].m_Entities.push_back(wire);
+
+        world.get_mut<xg::RenderSettings>().m_WireDotOuterRadius = 0.f;
+        world.get_mut<xg::UISettings>().m_WireHoverWidth = 0.1f;
+    }
+
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(2.1f, 2.09f);
+    env.Update();
+    CHECK(world.get<xg::UIHoverComponent>().m_Wire == wire);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == wire);
+
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(2.1f, 1.91f);
+    env.Update();
+    CHECK(world.get<xg::UIHoverComponent>().m_Wire == wire);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == wire);
+
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(2.99f, 2.09f);
+    env.Update();
+    CHECK(world.get<xg::UIHoverComponent>().m_Wire == wire);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == wire);
+
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(2.99f, 1.91f);
+    env.Update();
+    CHECK(world.get<xg::UIHoverComponent>().m_Wire == wire);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == wire);
+}
+
+SYSTEM_TEST_CASE("While hovering a wire end multiple cells long -> set the wire flag to true")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity wire = world.entity();
+    {
+        wire.ensure<xg::WireComponent>().m_Checkpoints.push_back(glm::ivec2(1, 2));
+        wire.ensure<xg::WireComponent>().m_Checkpoints.push_back(glm::ivec2(3, 2));
+        auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
+        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_Entities.push_back(wire);
+        gridAttachmentsComponent.m_Map[glm::ivec2(2, 2)].m_Entities.push_back(wire);
+        gridAttachmentsComponent.m_Map[glm::ivec2(3, 2)].m_Entities.push_back(wire);
+
+        world.get_mut<xg::RenderSettings>().m_WireDotOuterRadius = 0.1f;
+        world.get_mut<xg::UISettings>().m_WireHoverWidth = 0.f;
+    }
+
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(3.f, 2.09f);
+    env.Update();
+    CHECK(world.get<xg::UIHoverComponent>().m_Wire == wire);
+    CHECK(world.get<xg::UIHoverComponent>().m_Entity == wire);
+
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(3.f, 1.91f);
     env.Update();
     CHECK(world.get<xg::UIHoverComponent>().m_Wire == wire);
     CHECK(world.get<xg::UIHoverComponent>().m_Entity == wire);
@@ -715,8 +778,6 @@ SYSTEM_TEST_CASE("While hovering a single wire, cell has multiple overlapping wi
         wire2.ensure<xg::WireComponent>().m_Checkpoints.push_back(glm::ivec2(1, 3));
 
         auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
-        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_WireDirectionFlags.Raise(xg::EWireDirection::E);
-        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_WireDirectionFlags.Raise(xg::EWireDirection::N);
         gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_Entities.push_back(wire1);
         gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_Entities.push_back(wire2);
 
@@ -751,10 +812,6 @@ SYSTEM_TEST_CASE("While hovering multiple wire segments -> set the wire entity t
         wire2.ensure<xg::WireComponent>().m_Checkpoints.push_back(glm::ivec2(1, 3));
 
         auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
-        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_WireDirectionFlags.Raise(xg::EWireDirection::E);
-        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_WireDirectionFlags.Raise(xg::EWireDirection::W);
-        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_WireDirectionFlags.Raise(xg::EWireDirection::N);
-        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_WireDirectionFlags.Raise(xg::EWireDirection::S);
         gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_Entities.push_back(wire2);
         gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_Entities.push_back(wire1);
 
@@ -783,7 +840,6 @@ SYSTEM_TEST_CASE("While hovering multiple wire checkpoints -> set the wire entit
 
         auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
         gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_HasWireCheckpoint = true;
-        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_WireDirectionFlags.Raise(xg::EWireDirection::S);
         gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_Entities.push_back(wire1);
         gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_Entities.push_back(wire2);
 
@@ -812,7 +868,6 @@ SYSTEM_TEST_CASE("While hovering a wire segment with a higher checkpoint in the 
 
         auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
         gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_HasWireCheckpoint = true;
-        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_WireDirectionFlags.Raise(xg::EWireDirection::S);
         gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_Entities.push_back(wire1);
         gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_Entities.push_back(wire2);
 
@@ -844,7 +899,6 @@ SYSTEM_TEST_CASE("While hovering a cog box and a wire -> set the cog, wire and e
 
         auto& gridAttachmentsComponent = world.get_mut<xg::GridAttachmentsComponent>();
         gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_HasWireCheckpoint = true;
-        gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_WireDirectionFlags.Raise(xg::EWireDirection::S);
         gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_Entities.push_back(wire1);
         gridAttachmentsComponent.m_Map[glm::ivec2(1, 2)].m_Entities.push_back(cog);
 
