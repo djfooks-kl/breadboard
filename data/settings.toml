@@ -1,6 +1,9 @@
 NodeSize = 0.7
 NodeInnerRadius = 0.26
 NodeOuterRadius = 0.31
-HoverDuration = 0.2
+
+HoverDuration = 0.6
+HoverVFXExpand = 2
+HoverVFXColor = "#ffef00"
 
 WireFullColor = "#ff0000"

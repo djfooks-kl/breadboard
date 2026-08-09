@@ -20,10 +20,11 @@ namespace
 {
     bool IsInsideWireHitbox(const glm::vec2& relativePos, glm::vec2 direction, const float wireWidth)
     {
-        direction = glm::normalize(direction);
-        const glm::vec2 tangent(direction.y, -direction.x);
-        const float d = std::abs(glm::dot(relativePos, tangent));
-        return dot(relativePos, direction) >= 0.f && d <= wireWidth;
+        const glm::vec2 euclideanDirection = glm::normalize(direction);
+        const glm::vec2 tangent(euclideanDirection.y, -euclideanDirection.x);
+        const float widthDistance = std::abs(glm::dot(relativePos, tangent));
+        const float distance = dot(relativePos, direction);
+        return distance >= 0.f && distance <= 1.f && widthDistance <= wireWidth;
     }
 
     bool IsHoveringWireEntity(

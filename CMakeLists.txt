@@ -58,6 +58,10 @@ set(source_files
     src/CameraSystem.h
     src/CogBoxRenderer.cpp
     src/CogBoxRenderer.h
+    src/CogBoxUniforms.h
+    src/CogBoxVFXRenderer.cpp
+    src/CogBoxVFXRenderer.h
+    src/CogBoxVFXUniforms.h
     src/CogComponent.h
     src/CogCreatedComponent.h
     src/CogNodeRenderer.cpp

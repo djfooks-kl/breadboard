@@ -25,7 +25,11 @@ namespace xg
 
         void AddBox(
             const glm::ivec2& p1,
-            const glm::ivec2& p2);
+            const glm::ivec2& p2,
+            const glm::vec2& vfxP1,
+            const glm::vec2& vfxP2,
+            const float vfxF1,
+            const float vfxF2);
 
         void RemoveAll();
 

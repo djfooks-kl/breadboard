@@ -18,7 +18,6 @@ namespace xg
         GLint m_Color = -1;
         GLint m_FillColor = -1;
         GLint m_Size = -1;
-        GLint m_Expand = -1;
         GLint m_ViewProjection = -1;
         GLint m_Feather = -1;
     };

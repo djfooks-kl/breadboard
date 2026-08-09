@@ -19,7 +19,6 @@ namespace
         out_uniformsLocations.m_Color = program.GetUniformLocation("u_Color");
         out_uniformsLocations.m_FillColor = program.GetUniformLocation("u_FillColor");
         out_uniformsLocations.m_Size = program.GetUniformLocation("u_Size");
-        out_uniformsLocations.m_Expand = program.GetUniformLocation("u_Expand");
         out_uniformsLocations.m_ViewProjection = program.GetUniformLocation("u_ViewProjection");
         out_uniformsLocations.m_Feather = program.GetUniformLocation("u_Feather");
     }
@@ -29,7 +28,6 @@ namespace
         xg::SetUniform(uniformsLocations.m_Color, uniforms.m_Color);
         xg::SetUniform(uniformsLocations.m_FillColor, uniforms.m_FillColor);
         xg::SetUniform(uniformsLocations.m_Size, uniforms.m_Size);
-        xg::SetUniform(uniformsLocations.m_Expand, uniforms.m_Expand);
     }
     // -- [CODEGEN END]
 }

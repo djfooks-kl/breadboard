@@ -516,6 +516,20 @@ SYSTEM_TEST_CASE("Check hitbox for wire diagonals overlapping into neighbour cel
     CHECK(IsHoveringWireSegment(env, xg::EWireDirection::SE, glm::vec2(0.49f, -0.51f)) == true);
 }
 
+SYSTEM_TEST_CASE("Check hitbox for wire directions does not overlap into neighbour cells")
+{
+    TestEnv env;
+    CHECK(IsHoveringWireSegment(env, xg::EWireDirection::N, glm::vec2(0.f, 1.01f)) == false);
+    CHECK(IsHoveringWireSegment(env, xg::EWireDirection::E, glm::vec2(1.01f, 0.f)) == false);
+    CHECK(IsHoveringWireSegment(env, xg::EWireDirection::S, glm::vec2(0.f, -1.01f)) == false);
+    CHECK(IsHoveringWireSegment(env, xg::EWireDirection::W, glm::vec2(-1.01f, 0.f)) == false);
+
+    CHECK(IsHoveringWireSegment(env, xg::EWireDirection::NE, glm::vec2(1.01f, 1.01f)) == false);
+    CHECK(IsHoveringWireSegment(env, xg::EWireDirection::SE, glm::vec2(1.01f, -1.01f)) == false);
+    CHECK(IsHoveringWireSegment(env, xg::EWireDirection::SW, glm::vec2(-1.01f, -1.01f)) == false);
+    CHECK(IsHoveringWireSegment(env, xg::EWireDirection::NW, glm::vec2(-1.01f, 1.01f)) == false);
+}
+
 SYSTEM_TEST_CASE("While hovering a cog box -> set the cog entity to the cog")
 {
     TestEnv env;
@@ -762,8 +776,8 @@ SYSTEM_TEST_CASE("While hovering multiple wire checkpoints -> set the wire entit
     flecs::entity wire2 = world.entity();
     flecs::entity wire1 = world.entity();
     {
-        wire1.ensure<xg::WireComponent>().m_Checkpoints.push_back(glm::ivec2(0, 2));
         wire1.ensure<xg::WireComponent>().m_Checkpoints.push_back(glm::ivec2(1, 2));
+        wire1.ensure<xg::WireComponent>().m_Checkpoints.push_back(glm::ivec2(2, 2));
 
         wire2.ensure<xg::WireComponent>().m_Checkpoints.push_back(glm::ivec2(1, 2));
 

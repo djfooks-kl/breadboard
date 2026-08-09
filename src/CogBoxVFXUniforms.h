@@ -14,7 +14,7 @@ namespace xg
         float m_Expand = 0.f;
     };
     // -- [CODEGEN START] UniformsHeader(viewProjection, feather)
-    struct CogBoxUniformsLocations
+    struct CogBoxVFXUniformsLocations
     {
         GLint m_Color = -1;
         GLint m_FillColor = -1;

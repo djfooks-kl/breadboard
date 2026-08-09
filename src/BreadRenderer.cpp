@@ -5,6 +5,7 @@
 
 #include "CameraComponent.h"
 #include "CogBoxRenderer.h"
+#include "CogBoxVFXRenderer.h"
 #include "CogComponent.h"
 #include "CogNodeRenderer.h"
 #include "Cogs/CogMap.h"
@@ -27,6 +28,7 @@
 #include "UIDragPreviewComponent.h"
 #include "UIDragValidComponent.h"
 #include "UIPreviewAddingCogComponent.h"
+#include "UISettings.h"
 #include "UIWireSegmentsComponent.h"
 #include "UIWireValidComponent.h"
 #include "WireComponent.h"
@@ -80,6 +82,11 @@ void xg::BreadRenderer::Load(const xg::RenderSettings& settings)
         .m_FragmentPath = "shaders/CogBoxFragment.glsl" });
     m_CogBoxProgram->TryLoadAndOutputError();
 
+    m_CogBoxHoverProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
+        .m_VertexPath = "shaders/CogBoxVFXVertex.glsl",
+        .m_FragmentPath = "shaders/CogBoxHoverFragment.glsl" });
+    m_CogBoxHoverProgram->TryLoadAndOutputError();
+
     m_CogNodeProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
         .m_VertexPath = "shaders/CogNodeVertex.glsl",
         .m_FragmentPath = "shaders/CogNodeFragment.glsl" });
@@ -97,7 +104,6 @@ void xg::BreadRenderer::Load(const xg::RenderSettings& settings)
     cogBoxDefaultUniforms.m_Color = glm::vec3(0.f, 0.f, 0.f);
     cogBoxDefaultUniforms.m_FillColor = glm::vec3(1.f, 1.f, 1.f);
     cogBoxDefaultUniforms.m_Size = settings.m_CogBoxSize;
-    cogBoxDefaultUniforms.m_Expand = 0.f;
 
     m_CogBoxRenderer = std::make_unique<xg::CogBoxRenderer>(*m_CogBoxProgram);
     m_CogBoxRenderer->m_Uniforms = cogBoxDefaultUniforms;
@@ -109,8 +115,9 @@ void xg::BreadRenderer::Load(const xg::RenderSettings& settings)
     m_CogBoxPreviewDropRenderer->m_Uniforms = cogBoxDefaultUniforms;
     m_CogBoxPreviewDropRenderer->m_Uniforms.m_Color = glm::vec3(0.5f, 0.5f, 0.5f);
 
-    m_CogBoxHoverRenderer = std::make_unique<xg::CogBoxRenderer>(*m_CogBoxProgram);
-    m_CogBoxHoverRenderer->m_Uniforms = cogBoxDefaultUniforms;
+    m_CogBoxHoverRenderer = std::make_unique<xg::CogBoxVFXRenderer>(*m_CogBoxHoverProgram);
+    m_CogBoxHoverRenderer->m_Uniforms.m_FillColor = glm::vec3(1.f, 1.f, 1.f);
+    m_CogBoxHoverRenderer->m_Uniforms.m_Size = settings.m_CogBoxSize;
     m_CogBoxHoverRenderer->m_Uniforms.m_Expand = settings.m_HoverVFXExpand;
     m_CogBoxHoverRenderer->m_Uniforms.m_Color = settings.m_HoverVFXColor;
 
@@ -224,12 +231,18 @@ void xg::BreadRenderer::Update(const flecs::world& world)
     m_CogBoxHoverRenderer->RemoveAll();
     world.each([&](
         const xg::OnStageComponent,
-        const xg::HoverVFXComponent,
+        const xg::HoverVFXComponent hoverVFX,
         const xg::CogComponent& cogComponent)
         {
             const xg::CogPrototype* cog = cogMap.Get(cogComponent.m_CogId);
             glm::ivec2 cogExtents = cog->GetSize() - glm::ivec2(1, 1);
-            m_CogBoxHoverRenderer->AddBox(cogComponent.m_Transform.m_Translation, cogComponent.m_Transform.Apply(cogExtents));
+            m_CogBoxHoverRenderer->AddBox(
+                cogComponent.m_Transform.m_Translation,
+                cogComponent.m_Transform.Apply(cogExtents),
+                hoverVFX.m_InPosition,
+                hoverVFX.m_OutPosition,
+                hoverVFX.m_InDuration / world.get<xg::UISettings>().m_HoverDuration,
+                hoverVFX.m_OutDuration / world.get<xg::UISettings>().m_HoverDuration);
         });
 }
 
