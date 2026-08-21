@@ -22,10 +22,11 @@
 #include "Rendering/RegisterRenderers.h"
 #include "Rendering/RenderableAdder.h"
 #include "RenderSettings.h"
+#include "SelectedComponent.h"
+#include "SelectionChangedComponent.h"
 #include "TextRenderer.h"
 #include "UIDragPreviewComponent.h"
 #include "UIDragValidComponent.h"
-#include "UIHoverComponent.h"
 #include "UIPreviewAddingCogComponent.h"
 #include "UISettings.h"
 #include "UIWireSegmentsComponent.h"
@@ -61,7 +62,7 @@ void xg::BreadRenderer::Load(const xg::RenderSettings& settings)
 
     xg::RegisterWireRenderers(settings, m_WireRendererMap, m_ShaderProgramMap, xg::ERenderingMode::Normal);
     xg::RegisterWireRenderers(settings, m_WirePreviewRendererMap, m_ShaderProgramMap, xg::ERenderingMode::Preview);
-    xg::RegisterWireRenderers(settings, m_WireHoverRendererMap, m_ShaderProgramMap, xg::ERenderingMode::Hover);
+    xg::RegisterWireRenderers(settings, m_WireSelectedRendererMap, m_ShaderProgramMap, xg::ERenderingMode::Selected);
 
     m_TextProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
         .m_VertexPath = "shaders/BoxVertex.glsl",
@@ -106,11 +107,11 @@ void xg::BreadRenderer::Load(const xg::RenderSettings& settings)
     m_CogBoxPreviewDropRenderer->m_Uniforms = cogBoxDefaultUniforms;
     m_CogBoxPreviewDropRenderer->m_Uniforms.m_Color = glm::vec3(0.5f, 0.5f, 0.5f);
 
-    m_CogBoxHoverRenderer = std::make_unique<xg::CogBoxRenderer>(*m_CogBoxProgram);
-    m_CogBoxHoverRenderer->m_Uniforms.m_FillColor = glm::vec3(1.f, 1.f, 1.f);
-    m_CogBoxHoverRenderer->m_Uniforms.m_Size = settings.m_CogBoxSize;
-    m_CogBoxHoverRenderer->m_Uniforms.m_Expand = settings.m_HoverVFXExpand;
-    m_CogBoxHoverRenderer->m_Uniforms.m_Color = settings.m_HoverVFXColor;
+    m_CogBoxSelectedRenderer = std::make_unique<xg::CogBoxRenderer>(*m_CogBoxProgram);
+    m_CogBoxSelectedRenderer->m_Uniforms.m_FillColor = glm::vec3(1.f, 1.f, 1.f);
+    m_CogBoxSelectedRenderer->m_Uniforms.m_Size = settings.m_CogBoxSize;
+    m_CogBoxSelectedRenderer->m_Uniforms.m_Expand = settings.m_SelectedVFXExpand;
+    m_CogBoxSelectedRenderer->m_Uniforms.m_Color = settings.m_SelectedVFXColor;
 
     m_CogNodeRenderer = std::make_unique<xg::CogNodeRenderer>(*m_CogNodeProgram);
     m_CogNodeRenderer->m_Uniforms.m_RingColor = glm::vec3(0.f, 1.f, 0.f);
@@ -218,25 +219,26 @@ void xg::BreadRenderer::Update(const flecs::world& world)
         }
     }
 
-    auto& uiHoverComponent = world.get_mut<xg::UIHoverComponent>();
-    m_CogBoxHoverRenderer->RemoveAll();
-    for (xg::IWireRenderer* renderer : m_WireHoverRendererMap.GetOrder())
+    if (world.has<xg::SelectionChangedComponent>())
     {
-        renderer->RemoveAll();
-    }
-    if (uiHoverComponent.m_Entity)
-    {
-        if (const auto* cogComponent = uiHoverComponent.m_Entity.try_get<xg::CogComponent>())
+        m_CogBoxSelectedRenderer->RemoveAll();
+        for (xg::IWireRenderer* renderer : m_WireSelectedRendererMap.GetOrder())
         {
-            const xg::CogPrototype* cog = cogMap.Get(cogComponent->m_CogId);
-            glm::ivec2 cogExtents = cog->GetSize() - glm::ivec2(1, 1);
-            m_CogBoxHoverRenderer->AddBox(cogComponent->m_Transform.m_Translation, cogComponent->m_Transform.Apply(cogExtents));
+            renderer->RemoveAll();
         }
-        if (const auto* wireComponent = uiHoverComponent.m_Entity.try_get<xg::WireComponent>())
+
+        world.each([&](const xg::SelectedComponent, const xg::CogComponent& cogComponent)
         {
-            for (xg::IWireRenderer* renderer : m_WireHoverRendererMap.GetOrder())
+            const xg::CogPrototype* cog = cogMap.Get(cogComponent.m_CogId);
+            glm::ivec2 cogExtents = cog->GetSize() - glm::ivec2(1, 1);
+            m_CogBoxSelectedRenderer->AddBox(cogComponent.m_Transform.m_Translation, cogComponent.m_Transform.Apply(cogExtents));
+        });
+
+        world.each([&](const xg::SelectedComponent, const xg::WireComponent& wireComponent)
+        {
+            for (xg::IWireRenderer* renderer : m_WireSelectedRendererMap.GetOrder())
             {
-                const std::vector<glm::ivec2>& checkpoints = wireComponent->m_Checkpoints;
+                const std::vector<glm::ivec2>& checkpoints = wireComponent.m_Checkpoints;
                 glm::ivec2 prev = checkpoints[0];
                 renderer->AddWireEnd(prev, glm::ivec2(0, 0));
                 for (int i = 1; i < checkpoints.size(); ++i)
@@ -247,7 +249,7 @@ void xg::BreadRenderer::Update(const flecs::world& world)
                     prev = current;
                 }
             }
-        }
+        });
     }
 }
 
@@ -260,13 +262,13 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
 
     m_GridRenderer->Draw(camera.m_ViewProjection, camera.m_InvViewProjection, gridSize, camera.m_Feather);
 
-    m_CogBoxHoverRenderer->Draw(camera.m_ViewProjection, camera.m_Feather);
+    m_CogBoxSelectedRenderer->Draw(camera.m_ViewProjection, camera.m_Feather);
     m_CogBoxRenderer->Draw(camera.m_ViewProjection, camera.m_Feather);
     for (xg::IRenderer* renderer : m_CogRendererMap.GetOrder())
     {
         renderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
     }
-    for (xg::IWireRenderer* renderer : m_WireHoverRendererMap.GetOrder())
+    for (xg::IWireRenderer* renderer : m_WireSelectedRendererMap.GetOrder())
     {
         renderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
     }

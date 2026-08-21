@@ -88,6 +88,14 @@ set(source_files
     src/InputSystem.cpp
     src/InputSystem.h
     src/IRenderableAdder.h
+    src/KeybindingHelpers.cpp
+    src/KeybindingHelpers.h
+    src/KeybindingSettings.h
+    src/MappedInputComponent.h
+    src/MappedInputEnum.cpp
+    src/MappedInputEnum.h
+    src/MappedInputSystem.cpp
+    src/MappedInputSystem.h
     src/MouseCursorEnum.h
     src/OnStageAddedComponent.h
     src/OnStageComponent.h
@@ -98,6 +106,10 @@ set(source_files
     src/RenderSettingsList.h
     src/RGBColor.cpp
     src/RGBColor.h
+    src/SelectedComponent.h
+    src/SelectionChangedComponent.h
+    src/SelectionSystem.cpp
+    src/SelectionSystem.h
     src/SettingsHelpers.cpp
     src/SettingsHelpers.h
     src/STDStreamFunctions.cpp
@@ -133,6 +145,7 @@ set(source_files
     src/UIPreviewWireSystem.h
     src/UIRedoComponent.h
     src/UIRotateComponent.h
+    src/UISelectComponent.h
     src/UISettings.h
     src/UISettingsList.h
     src/UIUndoComponent.h
@@ -326,11 +339,14 @@ if (NOT EMSCRIPTEN)
         src/ut/GridHelpersTest.cpp
         src/ut/IAABBTest.cpp
         src/ut/ITransformTest.cpp
+        src/ut/KeybindingHelpersTest.cpp
+        src/ut/MappedInputSystemTest.cpp
         src/ut/OnStageSystemTest.cpp
         src/ut/RendererMapTest.cpp
         src/ut/ResourceIdTest.cpp
         src/ut/ResultTest.cpp
         src/ut/Rotation90Test.cpp
+        src/ut/SelectionSystemTest.cpp
         src/ut/ShadersTest.cpp
         src/ut/UIAddWireSystemTest.cpp
         src/ut/UIDragDropSystemTest.cpp

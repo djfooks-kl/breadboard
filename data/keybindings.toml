@@ -1,0 +1,11 @@
+bindings = [
+	{ key = "w", binding="MoveUp" },
+	{ key = "a", binding="MoveLeft" },
+	{ key = "s", binding="MoveDown" },
+	{ key = "d", binding="MoveRight" },
+	{ key = "e", binding="ZoomIn" },
+	{ key = "q", binding="ZoomOut" },
+	{ key = "r", binding="Rotate" },
+	{ key = "delete", binding="Delete" },
+	{ key = "shift", binding="Multiselect" },
+]

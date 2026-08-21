@@ -15,6 +15,8 @@
 #include "Core/GLFWLib.h"
 #include "Core/ShaderProgram.h"
 #include "InputSystem.h"
+#include "KeybindingHelpers.h"
+#include "KeybindingSettings.h"
 #include "RenderSettings.h"
 #include "SettingsHelpers.h"
 #include "UI.h"
@@ -117,6 +119,9 @@ void BreadApp::Init(GLFWwindow* window)
         settings,
         m_World.get_mut<xg::RenderSettings>(),
         m_World.get_mut<xg::UISettings>());
+
+    const toml::value keybindings = toml::parse(std::format("{}{}", DATA_DIR, "keybindings.toml"));
+    xg::FillKeybindings(keybindings, m_World.get_mut<xg::KeybindingSettings>());
 
     glfwSetWindowSizeCallback(window, WindowSizeCallback);
 

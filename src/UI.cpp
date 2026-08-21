@@ -14,7 +14,9 @@
 #include "DebugUI.h"
 #include "FlecsGame.h"
 #include "InputComponent.h"
+#include "MappedInputComponent.h"
 #include "MouseCursorEnum.h"
+#include "SelectedComponent.h"
 #include "UIDeleteCogComponent.h"
 #include "UIDeleteWireComponent.h"
 #include "UIDraggingDropComponent.h"
@@ -24,6 +26,7 @@
 #include "UIPreviewCreateWireComponent.h"
 #include "UIRedoComponent.h"
 #include "UIRotateComponent.h"
+#include "UISelectComponent.h"
 #include "UIUndoComponent.h"
 #include "WorldMouseComponent.h"
 
@@ -31,9 +34,9 @@ namespace
 {
     void UpdateRotate(flecs::world& world)
     {
-        const auto& input = world.get<xg::InputComponent>();
+        const auto& input = world.get<xg::MappedInputComponent>();
         auto& rotate = world.get_mut<xg::UIRotateComponent>();
-        rotate.m_RotationDirection = input.m_KeyPress.contains(GLFW_KEY_R) ? 1 : 0;
+        rotate.m_RotationDirection = input.m_KeyPress.contains(xg::EMappedInput::Rotate) ? 1 : 0;
     }
 
     void UpdateDelete(flecs::world& world)
@@ -52,9 +55,8 @@ namespace
             });
         world.defer_end();
 
-        const auto& input = world.get<xg::InputComponent>();
-        if (input.m_KeyPress.contains(GLFW_KEY_DELETE) ||
-            input.m_KeyPress.contains(GLFW_KEY_BACKSPACE))
+        const auto& input = world.get<xg::MappedInputComponent>();
+        if (input.m_KeyPress.contains(xg::EMappedInput::Delete))
         {
             auto& hover = world.get<xg::UIHoverComponent>();
             if (hover.m_Cog)
@@ -87,7 +89,7 @@ void xg::UI::UpdateMouse(flecs::world& world, BaseApp& app)
 void xg::UI::DrawCogMenu(flecs::world& world, const bool actionEaten)
 {
     const auto& cogMap = world.get<xg::CogMap>();
-    const auto& input = world.get<xg::InputComponent>();
+    const auto& input = world.get<xg::MappedInputComponent>();
     const auto& worldMouse = world.get<xg::WorldMouseComponent>();
     const auto& hover = world.get<xg::UIHoverComponent>();
     auto& previewAddingCog = world.get_mut<xg::UIPreviewAddingCogComponent>();
@@ -96,7 +98,7 @@ void xg::UI::DrawCogMenu(flecs::world& world, const bool actionEaten)
     if (previewAddingCog.m_AddCogId)
     {
         dragDrop.m_Drop = ImGui::IsMouseClicked(ImGuiMouseButton_Left);
-        if (dragDrop.m_Drop || input.m_KeyDown.contains(GLFW_KEY_DELETE))
+        if (dragDrop.m_Drop || input.m_KeyDown.contains(xg::EMappedInput::Delete))
         {
             previewAddingCog.m_AddCogId = xg::CogResourceId();
         }
@@ -197,6 +199,9 @@ bool xg::UI::GameConsumeInput(flecs::world& world)
 {
     auto& previewAddingWire = world.get_mut<xg::UIPreviewAddingWireComponent>();
     auto& createWire = world.get_mut<xg::UIPreviewCreateWireComponent>();
+    auto& select = world.get_mut<xg::UISelectComponent>();
+    select.m_Clear = false;
+    select.m_SelectEntity = flecs::entity::null();
     if (createWire.m_Create)
     {
         previewAddingWire.m_Active = false;
@@ -230,6 +235,18 @@ bool xg::UI::GameConsumeInput(flecs::world& world)
     if (hover.m_Node || hover.m_Wire)
     {
         previewAddingWire.m_Active = true;
+        return true;
+    }
+
+    if (hover.m_Entity && hover.m_Entity == hover.m_Cog)
+    {
+        select.m_SelectEntity = hover.m_Cog;
+        return true;
+    }
+
+    if (world.count<xg::SelectedComponent>() > 0)
+    {
+        select.m_Clear = true;
         return true;
     }
 

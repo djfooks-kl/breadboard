@@ -13,7 +13,7 @@ namespace xg
 		Preview,
 		PreviewInvalid,
 		DropPreview,
-		Hover,
+		Selected,
 	};
 
 	void RegisterCogRenderers(

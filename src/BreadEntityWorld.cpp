@@ -24,10 +24,14 @@
 #include "GridSizeComponent.h"
 #include "InputComponent.h"
 #include "InputSystem.h"
+#include "KeybindingSettings.h"
+#include "MappedInputComponent.h"
+#include "MappedInputSystem.h"
 #include "OnStageAddedComponent.h"
 #include "OnStageRemovedComponent.h"
 #include "OnStageSystem.h"
 #include "RenderSettings.h"
+#include "SelectionSystem.h"
 #include "UIAddWireSystem.h"
 #include "UIDragDropSystem.h"
 #include "UIDraggingDropComponent.h"
@@ -42,6 +46,7 @@
 #include "UIPreviewWireSystem.h"
 #include "UIRedoComponent.h"
 #include "UIRotateComponent.h"
+#include "UISelectComponent.h"
 #include "UISettings.h"
 #include "UIUndoComponent.h"
 #include "UIWirePathfindingSystem.h"
@@ -59,6 +64,8 @@ void xg::SetupWorld(flecs::world& world)
     world.emplace<xg::CogMap>();
     world.emplace<xg::GridAttachmentsComponent>();
     world.emplace<xg::InputComponent>();
+    world.emplace<xg::KeybindingSettings>();
+    world.emplace<xg::MappedInputComponent>();
     world.emplace<xg::RenderSettings>();
     world.emplace<xg::UIDraggingDropComponent>();
     world.emplace<xg::UIDragValidComponent>();
@@ -67,6 +74,7 @@ void xg::SetupWorld(flecs::world& world)
     world.emplace<xg::UIPreviewAddingWireComponent>();
     world.emplace<xg::UIPreviewCreateWireComponent>();
     world.emplace<xg::UIRotateComponent>();
+    world.emplace<xg::UISelectComponent>();
     world.emplace<xg::UISettings>();
     world.emplace<xg::WindowSizeComponent>();
     world.emplace<xg::WorldMouseComponent>();
@@ -87,6 +95,7 @@ void xg::SetupWorld(flecs::world& world)
 
 void xg::UpdateWorld(flecs::world& world, const double time, const float deltaTime)
 {
+    xg::MappedInputSystem::Update(world);
     xg::CameraInputSystem::Update(world, time, deltaTime);
     xg::CameraSystem::Update(world, time, deltaTime);
     xg::UIHoverSystem::Update(world);
@@ -105,4 +114,5 @@ void xg::UpdateWorld(flecs::world& world, const double time, const float deltaTi
     xg::cog::BatterySystem::Update(world);
     xg::OnStageSystem::Update(world);
     xg::GridAttachmentSystem::Update(world);
+    xg::SelectionSystem::Update(world);
 }
