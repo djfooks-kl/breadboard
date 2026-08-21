@@ -8,10 +8,10 @@
 
 namespace xg
 {
-	struct GridAttachments;
+    struct GridAttachments;
 
-	/// \brief Convert a vector to a wire direction flag
-	xg::EWireDirection WireDirectionToFlag(const glm::ivec2& v);
+    /// \brief Convert a vector to a wire direction flag
+    xg::EWireDirection WireDirectionToFlag(const glm::ivec2& v);
 
-	bool HasWireDot(const xg::GridAttachments& attachments);
+    bool HasWireDot(const xg::GridAttachments& attachments);
 }

@@ -1,7 +1,7 @@
 #include "Relay.h"
 
-#include <glm/ext/vector_int2.hpp>
 #include <flecs/flecs.h>
+#include <glm/ext/vector_int2.hpp>
 
 #include "IRenderableAdder.h"
 #include "Rendering/RenderingFlags.h"

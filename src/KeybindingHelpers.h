@@ -6,14 +6,14 @@
 
 namespace xg
 {
-	struct KeybindingSettings;
+    struct KeybindingSettings;
 
-	void FillKeybindings(
-		const toml::value& settings,
-		xg::KeybindingSettings& out_KeybindingSettings,
-		std::vector<std::string>& out_errors);
+    void FillKeybindings(
+        const toml::value& settings,
+        xg::KeybindingSettings& out_KeybindingSettings,
+        std::vector<std::string>& out_errors);
 
-	void FillKeybindings(
-		const toml::value& settings,
-		xg::KeybindingSettings& out_KeybindingSettings);
+    void FillKeybindings(
+        const toml::value& settings,
+        xg::KeybindingSettings& out_KeybindingSettings);
 }

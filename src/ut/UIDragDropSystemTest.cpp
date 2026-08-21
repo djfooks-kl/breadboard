@@ -3,9 +3,9 @@
 
 #include "UIAddCogComponent.h"
 #include "UIDragDropSystem.h"
-#include "UIDraggingDropComponent.h"
 #include "UIDragPreviewComponent.h"
 #include "UIDragValidComponent.h"
+#include "UIDraggingDropComponent.h"
 
 #define SYSTEM_TEST_CASE(description) TEST_CASE("xg::UIDragDropSystem - " description, "[xg::UIDragDropSystem]")
 

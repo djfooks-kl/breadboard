@@ -2,7 +2,7 @@
 
 namespace xg
 {
-	struct GlobalComponent
-	{
-	};
+    struct GlobalComponent
+    {
+    };
 }

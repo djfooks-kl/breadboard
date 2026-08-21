@@ -4,8 +4,8 @@
 
 #include "Core/GLFWLib.h"
 #include "InputComponent.h"
-#include "MappedInputComponent.h"
 #include "KeybindingSettings.h"
+#include "MappedInputComponent.h"
 
 namespace
 {

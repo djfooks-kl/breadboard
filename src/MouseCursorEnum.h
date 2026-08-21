@@ -2,6 +2,6 @@
 
 enum class EMouseCursor : uint8_t
 {
-	Arrow,
-	Cross
+    Arrow,
+    Cross
 };

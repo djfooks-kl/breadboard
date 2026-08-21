@@ -2,7 +2,7 @@
 
 namespace xg
 {
-	struct SelectedComponent
-	{
-	};
+    struct SelectedComponent
+    {
+    };
 }

@@ -2,8 +2,8 @@
 
 #include "Core/GLFWLib.h"
 #include "Core/ShaderProgram.h"
-#include "Rendering/RenderingFlags.h"
 #include "Rendering/RendererHelpers.h"
+#include "Rendering/RenderingFlags.h"
 #include "Rendering/UniformHelpers.h"
 
 namespace

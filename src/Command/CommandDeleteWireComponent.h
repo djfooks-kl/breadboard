@@ -2,8 +2,8 @@
 
 namespace xg::command
 {
-	struct DeleteWireComponent
-	{
-		flecs::entity m_Wire;
-	};
+    struct DeleteWireComponent
+    {
+        flecs::entity m_Wire;
+    };
 }

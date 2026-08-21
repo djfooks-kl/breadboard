@@ -1,11 +1,11 @@
 #include "BreadTest.h"
 #include <flecs/flecs.h>
 
-#include "UIWirePathfindingSystem.h"
 #include "UIPreviewWireComponent.h"
-#include "UIWirePathComponent.h"
-#include "WorldMouseComponent.h"
 #include "UISettings.h"
+#include "UIWirePathComponent.h"
+#include "UIWirePathfindingSystem.h"
+#include "WorldMouseComponent.h"
 
 #define SYSTEM_TEST_CASE(description) TEST_CASE("xg::UIWirePathfindingSystem - " description, "[xg::UIWirePathfindingSystem]")
 

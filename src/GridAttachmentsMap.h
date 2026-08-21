@@ -1,8 +1,8 @@
 #pragma once
 
+#include <flecs/flecs.h>
 #include <unordered_map>
 #include <vector>
-#include <flecs/flecs.h>
 
 #include "VectorHashFunctions.h"
 #include "WireFlags.h"

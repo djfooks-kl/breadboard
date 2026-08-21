@@ -9,7 +9,7 @@ xg::CogPrototype::~CogPrototype() = default;
 
 const std::unordered_set<glm::ivec2>& xg::CogPrototype::GetWireNodes() const
 {
-	return s_EmptyWireNodes;
+    return s_EmptyWireNodes;
 }
 
 void xg::CogPrototype::AddStaticRenderables(

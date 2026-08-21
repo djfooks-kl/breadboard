@@ -1,8 +1,8 @@
 #pragma once
 
+#include "CogNodeUniforms.h"
 #include "Rendering/IRenderer.h"
 #include "Rendering/VertexBufferObject.h"
-#include "CogNodeUniforms.h"
 
 #include <glm/fwd.hpp>
 

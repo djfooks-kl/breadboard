@@ -9,5 +9,5 @@ typedef unsigned int GLenum;
 
 namespace xc
 {
-	xc::Result<GLuint> CompileShader(const GLenum type, const std::string& path);
+    xc::Result<GLuint> CompileShader(const GLenum type, const std::string& path);
 }

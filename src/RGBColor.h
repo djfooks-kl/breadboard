@@ -5,16 +5,16 @@
 
 namespace xg
 {
-	struct RGBColor
-	{
-		RGBColor();
-		RGBColor(std::string v);
+    struct RGBColor
+    {
+        RGBColor();
+        RGBColor(std::string v);
 
-		glm::vec3 m_Value = glm::vec3(0.f);
+        glm::vec3 m_Value = glm::vec3(0.f);
 
-		operator glm::vec3() const
-		{
-			return m_Value;
-		}
-	};
+        operator glm::vec3() const
+        {
+            return m_Value;
+        }
+    };
 }

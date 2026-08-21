@@ -6,8 +6,8 @@
 
 namespace xg
 {
-	struct KeybindingSettings
-	{
-		std::unordered_map<int, xg::EMappedInput> m_Bindings;
-	};
+    struct KeybindingSettings
+    {
+        std::unordered_map<int, xg::EMappedInput> m_Bindings;
+    };
 }

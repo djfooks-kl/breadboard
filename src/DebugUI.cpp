@@ -1,11 +1,11 @@
 #include "DebugUI.h"
 
-#include <flecs/flecs.h>
 #include <ImGui/imgui.h>
 #include <ImGui/misc/cpp/imgui_stdlib.h>
+#include <flecs/flecs.h>
 #include <format>
-#include <sstream>
 #include <set>
+#include <sstream>
 
 #include "CameraComponent.h"
 #include "CameraHelpers.h"

@@ -12,8 +12,8 @@
 #include "Command/CommandToQueueComponent.h"
 #include "FlecsTestHelpers.h"
 #include "UIAddCogComponent.h"
-#include "UIDeleteCogComponent.h"
 #include "UIAddWireComponent.h"
+#include "UIDeleteCogComponent.h"
 #include "UIDeleteWireComponent.h"
 
 #define SYSTEM_TEST_CASE(description) TEST_CASE("xg::command::CreateSystem - " description, "[xg::command::CreateSystem]")

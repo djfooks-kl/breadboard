@@ -4,8 +4,8 @@
 
 namespace xg
 {
-	struct GridAttachmentsComponent
-	{
-		xg::GridAttachmentsMap m_Map;
-	};
+    struct GridAttachmentsComponent
+    {
+        xg::GridAttachmentsMap m_Map;
+    };
 }

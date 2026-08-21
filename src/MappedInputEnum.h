@@ -4,23 +4,23 @@
 
 namespace xg
 {
-	enum class EMappedInput : uint8_t
-	{
-		Invalid,
+    enum class EMappedInput : uint8_t
+    {
+        Invalid,
 
-		MoveUp,
-		MoveLeft,
-		MoveDown,
-		MoveRight,
-		ZoomIn,
-		ZoomOut,
-		Rotate,
-		Delete,
-		Multiselect,
+        MoveUp,
+        MoveLeft,
+        MoveDown,
+        MoveRight,
+        ZoomIn,
+        ZoomOut,
+        Rotate,
+        Delete,
+        Multiselect,
 
-		MAX
-	};
+        MAX
+    };
 
-	const char* ToString(xg::EMappedInput v);
-	xg::EMappedInput MappedInputFromString(const std::string& s);
+    const char* ToString(xg::EMappedInput v);
+    xg::EMappedInput MappedInputFromString(const std::string& s);
 }

@@ -1,7 +1,7 @@
 #include "BreadRenderer.h"
 
-#include <glm/gtc/type_ptr.hpp>
 #include <array>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "CameraComponent.h"
 #include "CogBoxRenderer.h"
@@ -19,9 +19,9 @@
 #include "OnStageAddedComponent.h"
 #include "OnStageComponent.h"
 #include "OnStageRemovedComponent.h"
+#include "RenderSettings.h"
 #include "Rendering/RegisterRenderers.h"
 #include "Rendering/RenderableAdder.h"
-#include "RenderSettings.h"
 #include "SelectedComponent.h"
 #include "SelectionChangedComponent.h"
 #include "TextRenderer.h"

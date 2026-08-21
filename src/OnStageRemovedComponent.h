@@ -1,11 +1,11 @@
 #pragma once
 
-#include <vector>
 #include <flecs/flecs.h>
+#include <vector>
 
 namespace xg
 {
-	struct OnStageRemovedComponent
-	{
-	};
+    struct OnStageRemovedComponent
+    {
+    };
 }

@@ -8,41 +8,41 @@
 
 namespace
 {
-	template<typename T>
-	T Parse(const toml::value& settings, const char* name, const T& defaultValue)
-	{
-		return toml::find_or<T>(settings, name, defaultValue);
-	}
+    template<typename T>
+    T Parse(const toml::value& settings, const char* name, const T& defaultValue)
+    {
+        return toml::find_or<T>(settings, name, defaultValue);
+    }
 
-	template<>
-	float Parse<float>(const toml::value& settings, const char* name, const float& defaultValue)
-	{
-		if (settings.contains(name))
-		{
-			const auto& v = toml::find(settings, name);
-			if (v.is_integer())
-			{
-				return static_cast<float>(v.as_integer());
-			}
-			else if (v.is_floating())
-			{
-				return static_cast<float>(v.as_floating());
-			}
-		}
-		return defaultValue;
-	}
+    template<>
+    float Parse<float>(const toml::value& settings, const char* name, const float& defaultValue)
+    {
+        if (settings.contains(name))
+        {
+            const auto& v = toml::find(settings, name);
+            if (v.is_integer())
+            {
+                return static_cast<float>(v.as_integer());
+            }
+            else if (v.is_floating())
+            {
+                return static_cast<float>(v.as_floating());
+            }
+        }
+        return defaultValue;
+    }
 
-	template<typename T>
-	T Parse(const toml::value& settings, const char* name, std::string defaultValue)
-	{
-		return T(toml::find_or<std::string>(settings, name, defaultValue));
-	}
+    template<typename T>
+    T Parse(const toml::value& settings, const char* name, std::string defaultValue)
+    {
+        return T(toml::find_or<std::string>(settings, name, defaultValue));
+    }
 }
 
 void xg::FillSettings(
-	const toml::value& settings,
-	xg::RenderSettings& out_RenderSettings,
-	xg::UISettings& out_UISettings)
+    const toml::value& settings,
+    xg::RenderSettings& out_RenderSettings,
+    xg::UISettings& out_UISettings)
 {
 #define ADD_SETTING(TYPE, NAME, DEFAULT_VALUE) out_RenderSettings.m_##NAME = Parse<TYPE>(settings, #NAME, DEFAULT_VALUE);
 #include "RenderSettingsList.h"

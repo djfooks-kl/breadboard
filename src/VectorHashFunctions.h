@@ -1,7 +1,7 @@
 #pragma once
 
-#include <unordered_map>
 #include <glm/ext/vector_int2.hpp>
+#include <unordered_map>
 
 template<>
 struct std::hash<glm::ivec2>

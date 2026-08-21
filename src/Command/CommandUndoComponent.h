@@ -4,8 +4,8 @@
 
 namespace xg::command
 {
-	struct UndoComponent
-	{
-		flecs::entity m_Undo;
-	};
+    struct UndoComponent
+    {
+        flecs::entity m_Undo;
+    };
 }

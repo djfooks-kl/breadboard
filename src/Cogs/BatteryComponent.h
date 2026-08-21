@@ -2,7 +2,7 @@
 
 namespace xg::cog
 {
-	struct BatteryComponent
-	{
-	};
+    struct BatteryComponent
+    {
+    };
 }

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vector>
 #include <variant>
+#include <vector>
 
 typedef int GLint;
 typedef unsigned int GLuint;

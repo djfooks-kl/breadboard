@@ -4,9 +4,9 @@
 
 namespace xg
 {
-	struct UISelectComponent
-	{
-		flecs::entity m_SelectEntity;
-		bool m_Clear = false;
-	};
+    struct UISelectComponent
+    {
+        flecs::entity m_SelectEntity;
+        bool m_Clear = false;
+    };
 }

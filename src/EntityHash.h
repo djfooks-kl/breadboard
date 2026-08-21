@@ -1,7 +1,7 @@
 #pragma once
 
-#include <functional>
 #include <flecs/flecs.h>
+#include <functional>
 
 namespace std
 {

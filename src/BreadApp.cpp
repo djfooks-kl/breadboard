@@ -1,11 +1,11 @@
 #include "BreadApp.h"
 
 #include <array>
-#include <iostream>
 #include <fstream>
-#include <sstream>
-#include <glm/vec2.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/vec2.hpp>
+#include <iostream>
+#include <sstream>
 #include <toml11/toml.hpp>
 
 #include "BreadEntityWorld.h"

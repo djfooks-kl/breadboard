@@ -55,5 +55,5 @@ void xg::UIDragValidationSystem::Update(flecs::world& world)
             return valid;
         });
 
-	world.get_mut<xg::UIDragValidComponent>().m_Valid = valid;
+    world.get_mut<xg::UIDragValidComponent>().m_Valid = valid;
 }

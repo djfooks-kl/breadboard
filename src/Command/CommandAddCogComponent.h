@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Core/ITransform.h"
 #include "Cogs/CogResourceId.h"
+#include "Core/ITransform.h"
 
 namespace xg::command
 {
-	struct AddCogComponent
-	{
-		xg::CogResourceId m_CogId;
-		xc::ITransform m_Transform;
-	};
+    struct AddCogComponent
+    {
+        xg::CogResourceId m_CogId;
+        xc::ITransform m_Transform;
+    };
 }

@@ -3,12 +3,12 @@
 #include <algorithm>
 #include <cmath>
 #include <flecs/flecs.h>
-#include <glm/vec4.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
+#include <glm/vec4.hpp>
 
-#include "CameraHelpers.h"
 #include "CameraComponent.h"
+#include "CameraHelpers.h"
 #include "CameraInputComponent.h"
 #include "GridHelpers.h"
 #include "InputComponent.h"

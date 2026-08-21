@@ -5,7 +5,7 @@
 
 namespace xg
 {
-	flecs::entity CreateEntity(
-		flecs::world& world,
-		const std::source_location location = std::source_location::current());
+    flecs::entity CreateEntity(
+        flecs::world& world,
+        const std::source_location location = std::source_location::current());
 }

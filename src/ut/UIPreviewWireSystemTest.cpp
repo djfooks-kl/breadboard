@@ -1,9 +1,9 @@
 #include "BreadTest.h"
 #include <flecs/flecs.h>
 
-#include "UIPreviewWireSystem.h"
 #include "UIPreviewAddingWireComponent.h"
 #include "UIPreviewWireComponent.h"
+#include "UIPreviewWireSystem.h"
 #include "WorldMouseComponent.h"
 
 #define SYSTEM_TEST_CASE(description) TEST_CASE("xg::UIPreviewWireSystem - " description, "[xg::UIPreviewWireSystem]")

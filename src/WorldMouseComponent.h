@@ -5,9 +5,9 @@
 
 namespace xg
 {
-	struct WorldMouseComponent
-	{
-		glm::vec2 m_Position = { 0.f, 0.f };
-		glm::ivec2 m_Cell = { 0, 0 };
-	};
+    struct WorldMouseComponent
+    {
+        glm::vec2 m_Position = { 0.f, 0.f };
+        glm::ivec2 m_Cell = { 0, 0 };
+    };
 }

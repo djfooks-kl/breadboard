@@ -1,9 +1,9 @@
 #pragma once
 
 #include <flecs/flecs.h>
-#include <memory>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
+#include <memory>
 #include <string>
 
 #include "Core/Rotation90.h"

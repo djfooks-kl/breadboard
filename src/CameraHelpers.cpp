@@ -1,11 +1,11 @@
 #include "CameraHelpers.h"
 
 glm::vec2 xg::WindowToWorldPosition(
-	const glm::mat4& invViewProjection,
-	float windowX,
-	float windowY,
-	int windowWidth,
-	int windowHeight)
+    const glm::mat4& invViewProjection,
+    float windowX,
+    float windowY,
+    int windowWidth,
+    int windowHeight)
 {
     const glm::vec4 viewMouse(
         (windowX * 2.f) / windowWidth - 1.f,

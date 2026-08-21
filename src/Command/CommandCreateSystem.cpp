@@ -10,10 +10,10 @@
 #include "Command/CommandToQueueComponent.h"
 #include "FlecsGame.h"
 #include "UIAddCogComponent.h"
-#include "UIDeleteCogComponent.h"
-#include "UIPreviewCreateWireComponent.h"
 #include "UIAddWireComponent.h"
+#include "UIDeleteCogComponent.h"
 #include "UIDeleteWireComponent.h"
+#include "UIPreviewCreateWireComponent.h"
 
 void xg::command::CreateSystem::Update(flecs::world& world)
 {

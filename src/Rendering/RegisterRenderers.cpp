@@ -4,9 +4,9 @@
 
 #include "CogNodeRenderer.h"
 #include "GridIconRenderer.h"
+#include "RenderSettings.h"
 #include "RenderableResourceId.h"
 #include "RendererMap.h"
-#include "RenderSettings.h"
 #include "ShaderProgramMap.h"
 #include "SwitchRenderer.h"
 #include "WireEndRenderer.h"

@@ -4,8 +4,8 @@
 
 namespace xg::command
 {
-	struct ListMaxSizeComponent
-	{
-		int m_Size = 500;
-	};
+    struct ListMaxSizeComponent
+    {
+        int m_Size = 500;
+    };
 }

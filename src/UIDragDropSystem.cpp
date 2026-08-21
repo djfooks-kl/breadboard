@@ -2,9 +2,9 @@
 
 #include "FlecsGame.h"
 #include "UIAddCogComponent.h"
-#include "UIDraggingDropComponent.h"
 #include "UIDragPreviewComponent.h"
 #include "UIDragValidComponent.h"
+#include "UIDraggingDropComponent.h"
 
 void xg::UIDragDropSystem::Update(flecs::world& world)
 {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <glm/ext/vector_int2.hpp>
 #include <glm/ext/vector_float2.hpp>
+#include <glm/ext/vector_int2.hpp>
 
 #include "Cogs/CogResourceId.h"
 #include "Core/Rotation90.h"

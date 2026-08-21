@@ -2,8 +2,8 @@
 #include <flecs/flecs.h>
 
 #include "UIAddWireComponent.h"
-#include "UIPreviewCreateWireComponent.h"
 #include "UIAddWireSystem.h"
+#include "UIPreviewCreateWireComponent.h"
 #include "UIWireSegmentsComponent.h"
 #include "UIWireValidComponent.h"
 

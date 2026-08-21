@@ -1,12 +1,12 @@
 #pragma once
 
-#include <vector>
 #include <glm/ext/vector_int2.hpp>
+#include <vector>
 
 namespace xg
 {
-	struct CogNodesComponent
-	{
-		std::vector<glm::ivec2> m_Nodes;
-	};
+    struct CogNodesComponent
+    {
+        std::vector<glm::ivec2> m_Nodes;
+    };
 }

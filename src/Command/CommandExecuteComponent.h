@@ -2,7 +2,7 @@
 
 namespace xg::command
 {
-	struct ExecuteComponent
-	{
-	};
+    struct ExecuteComponent
+    {
+    };
 }

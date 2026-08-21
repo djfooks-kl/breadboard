@@ -2,10 +2,10 @@
 
 #include <flecs/flecs.h>
 
-#include "WireComponent.h"
 #include "Command/CommandAddWireComponent.h"
 #include "Command/CommandEntityComponent.h"
 #include "Command/CommandExecuteComponent.h"
+#include "WireComponent.h"
 
 void xg::WireSystem::Update(flecs::world& world)
 {

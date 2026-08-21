@@ -4,8 +4,8 @@
 
 namespace xg::command
 {
-	struct DeleteCogComponent
-	{
-		flecs::entity m_Cog;
-	};
+    struct DeleteCogComponent
+    {
+        flecs::entity m_Cog;
+    };
 }

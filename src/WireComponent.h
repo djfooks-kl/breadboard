@@ -5,8 +5,8 @@
 
 namespace xg
 {
-	struct WireComponent
-	{
-		std::vector<glm::ivec2> m_Checkpoints;
-	};
+    struct WireComponent
+    {
+        std::vector<glm::ivec2> m_Checkpoints;
+    };
 }

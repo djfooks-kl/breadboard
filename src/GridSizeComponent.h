@@ -4,8 +4,8 @@
 
 namespace xg
 {
-	struct GridSizeComponent
-	{
-		glm::ivec2 m_Size = glm::ivec2(0);
-	};
+    struct GridSizeComponent
+    {
+        glm::ivec2 m_Size = glm::ivec2(0);
+    };
 }

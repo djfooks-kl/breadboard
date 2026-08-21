@@ -1,7 +1,7 @@
 #pragma once
 
-#include <optional>
 #include <glm/ext/vector_int2.hpp>
+#include <optional>
 
 namespace flecs
 {

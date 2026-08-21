@@ -5,8 +5,8 @@
 
 namespace xg::command
 {
-	struct AddWireComponent
-	{
-		std::vector<glm::ivec2> m_Checkpoints;
-	};
+    struct AddWireComponent
+    {
+        std::vector<glm::ivec2> m_Checkpoints;
+    };
 }

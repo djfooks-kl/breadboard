@@ -5,8 +5,8 @@
 #include <glm/vec3.hpp>
 #include <vector>
 
-#include "Rendering/VertexBufferObject.h"
 #include "Rendering/IWireRenderer.h"
+#include "Rendering/VertexBufferObject.h"
 #include "WireEndUniforms.h"
 
 namespace xc

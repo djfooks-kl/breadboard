@@ -1,11 +1,11 @@
 #include "BreadTest.h"
 #include <flecs/flecs.h>
 
-#include "WireComponent.h"
-#include "WireSystem.h"
 #include "Command/CommandAddWireComponent.h"
 #include "Command/CommandEntityComponent.h"
 #include "Command/CommandExecuteComponent.h"
+#include "WireComponent.h"
+#include "WireSystem.h"
 
 #define SYSTEM_TEST_CASE(description) TEST_CASE("xg::WireSystem - " description, "[xg::WireSystem]")
 

@@ -6,10 +6,10 @@
 
 namespace xg
 {
-	struct RenderSettings
-	{
+    struct RenderSettings
+    {
 #define ADD_SETTING(TYPE, NAME, DEFAULT_VALUE) TYPE m_##NAME;
 #include "RenderSettingsList.h"
 #undef ADD_SETTING
-	};
+    };
 }

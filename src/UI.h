@@ -1,7 +1,7 @@
 #pragma once
 
-#include <glm/ext/vector_float2.hpp>
 #include <ImGui/imgui.h>
+#include <glm/ext/vector_float2.hpp>
 #include <memory>
 
 class BaseApp;

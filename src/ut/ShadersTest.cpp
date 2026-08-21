@@ -1,7 +1,7 @@
 #include "BreadTest.h"
 
-#include "Core/ShaderProgram.h"
 #include "Core/GLFWLib.h"
+#include "Core/ShaderProgram.h"
 
 namespace
 {

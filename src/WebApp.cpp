@@ -1,8 +1,8 @@
 #include "WebApp.h"
 
-#include <iostream>
 #include <emscripten/emscripten.h>
 #include <emscripten/html5.h>
+#include <iostream>
 
 #include "MouseCursorEnum.h"
 

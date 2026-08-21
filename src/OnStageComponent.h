@@ -2,7 +2,7 @@
 
 namespace xg
 {
-	struct OnStageComponent
-	{
-	};
+    struct OnStageComponent
+    {
+    };
 }

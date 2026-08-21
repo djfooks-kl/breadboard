@@ -2,8 +2,8 @@
 #include <flecs/flecs.h>
 
 #include "Command/CommandAddCogComponent.h"
-#include "Command/CommandExecuteComponent.h"
 #include "Command/CommandEntitySystemTest.h"
+#include "Command/CommandExecuteComponent.h"
 
 #define SYSTEM_TEST_CASE(description) TEST_CASE("xg::command::EntitySystem - " description, "[xg::command::EntitySystem]")
 

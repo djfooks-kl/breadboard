@@ -8,8 +8,8 @@
 #include <ImGui/backends/imgui_impl_opengl3.h>
 #include <ImGui/imgui.h>
 
-#include "Core/GLFWLib.h"
 #include "BreadApp.h"
+#include "Core/GLFWLib.h"
 
 namespace
 {

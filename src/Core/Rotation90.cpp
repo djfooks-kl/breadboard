@@ -5,101 +5,101 @@
 
 namespace
 {
-	const std::array<glm::imat2x2, 4> s_IMatrices = {
-		glm::imat2x2(1, 0, 0, 1),
-		glm::imat2x2(0, -1, 1, 0),
-		glm::imat2x2(-1, 0, 0, -1),
-		glm::imat2x2(0, 1, -1, 0)
-	};
+    const std::array<glm::imat2x2, 4> s_IMatrices = {
+        glm::imat2x2(1, 0, 0, 1),
+        glm::imat2x2(0, -1, 1, 0),
+        glm::imat2x2(-1, 0, 0, -1),
+        glm::imat2x2(0, 1, -1, 0)
+    };
 
-	const std::array<glm::mat2x2, 4> s_FMatrices = {
-		glm::mat2x2(1.f, 0.f, 0.f, 1.f),
-		glm::mat2x2(0.f, -1.f, 1.f, 0.f),
-		glm::mat2x2(-1.f, 0.f, 0.f, -1.f),
-		glm::mat2x2(0.f, 1.f, -1.f, 0.f)
-	};
+    const std::array<glm::mat2x2, 4> s_FMatrices = {
+        glm::mat2x2(1.f, 0.f, 0.f, 1.f),
+        glm::mat2x2(0.f, -1.f, 1.f, 0.f),
+        glm::mat2x2(-1.f, 0.f, 0.f, -1.f),
+        glm::mat2x2(0.f, 1.f, -1.f, 0.f)
+    };
 
-	// Winding used
-	//   2---3
-	//   | \ |
-	//   0---1
-	//
-	// to rotate 2->3, 3->1, 1->0, 0->2
-	const std::array<std::array<int, 8>, 4> s_UVs = {
-		//                  0    |1    |2    |3   |
-		std::array<int, 8>{ 0, 0, 1, 0, 0, 1, 1, 1},
-		std::array<int, 8>{ 1, 0, 1, 1, 0, 0, 0, 1},
-		std::array<int, 8>{ 1, 1, 0, 1, 1, 0, 0, 0},
-		std::array<int, 8>{ 0, 1, 0, 0, 1, 1, 1, 0},
-	};
+    // Winding used
+    //   2---3
+    //   | \ |
+    //   0---1
+    //
+    // to rotate 2->3, 3->1, 1->0, 0->2
+    const std::array<std::array<int, 8>, 4> s_UVs = {
+        //                  0    |1    |2    |3   |
+        std::array<int, 8>{ 0, 0, 1, 0, 0, 1, 1, 1},
+        std::array<int, 8>{ 1, 0, 1, 1, 0, 0, 0, 1},
+        std::array<int, 8>{ 1, 1, 0, 1, 1, 0, 0, 0},
+        std::array<int, 8>{ 0, 1, 0, 0, 1, 1, 1, 0},
+    };
 
-	int WrapIndex(const int v)
-	{
-		return (v % 4 + 4) % 4;
-	}
+    int WrapIndex(const int v)
+    {
+        return (v % 4 + 4) % 4;
+    }
 }
 
 xc::Rotation90::Rotation90(int rotationIndex)
-	: m_Index(WrapIndex(rotationIndex))
+    : m_Index(WrapIndex(rotationIndex))
 {
 }
 
 void xc::Rotation90::RotateClockwise(int rotationIndexOffset)
 {
-	m_Index = WrapIndex(m_Index + rotationIndexOffset);
+    m_Index = WrapIndex(m_Index + rotationIndexOffset);
 }
 
 int xc::Rotation90::GetRotationIndex() const
 {
-	return m_Index;
+    return m_Index;
 }
 
 const glm::imat2x2& xc::Rotation90::GetIMatrix() const
 {
-	return s_IMatrices[m_Index];
+    return s_IMatrices[m_Index];
 }
 
 const glm::mat2x2& xc::Rotation90::GetFMatrix() const
 {
-	return s_FMatrices[m_Index];
+    return s_FMatrices[m_Index];
 }
 
 const xc::Rotation90UVs& xc::Rotation90::GetUVs() const
 {
-	return s_UVs[m_Index];
+    return s_UVs[m_Index];
 }
 
 glm::vec2 xc::Rotation90::Apply(const glm::vec2& v) const
 {
-	return GetFMatrix() * v;
+    return GetFMatrix() * v;
 }
 
 glm::ivec2 xc::Rotation90::Apply(const glm::ivec2& v) const
 {
-	return GetIMatrix() * v;
+    return GetIMatrix() * v;
 }
 
 glm::vec2 xc::Rotation90::ApplyInverse(const glm::vec2& v) const
 {
-	return v * GetFMatrix();
+    return v * GetFMatrix();
 }
 
 glm::ivec2 xc::Rotation90::ApplyInverse(const glm::ivec2& v) const
 {
-	return v * GetIMatrix();
+    return v * GetIMatrix();
 }
 
 xc::Rotation90 xc::Rotation90::operator+(const xc::Rotation90& other) const
 {
-	return xc::Rotation90(WrapIndex(m_Index + other.m_Index));
+    return xc::Rotation90(WrapIndex(m_Index + other.m_Index));
 }
 
 void xc::Rotation90::operator+=(const xc::Rotation90& other)
 {
-	RotateClockwise(other.m_Index);
+    RotateClockwise(other.m_Index);
 }
 
 std::ostream& xc::operator<<(std::ostream& os, const xc::Rotation90& obj)
 {
-	return os << "Rotation90(" << obj.GetRotationIndex() << ")";
+    return os << "Rotation90(" << obj.GetRotationIndex() << ")";
 }

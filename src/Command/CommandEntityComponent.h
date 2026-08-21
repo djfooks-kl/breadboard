@@ -2,8 +2,8 @@
 
 namespace xg::command
 {
-	struct EntityComponent
-	{
-		flecs::entity m_Entity;
-	};
+    struct EntityComponent
+    {
+        flecs::entity m_Entity;
+    };
 }

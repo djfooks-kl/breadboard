@@ -1,13 +1,13 @@
 #include "BreadTest.h"
 #include <flecs/flecs.h>
 
+#include "CogComponent.h"
 #include "Cogs/CogMap.h"
 #include "GridAttachmentsComponent.h"
-#include "CogComponent.h"
 #include "GridSizeComponent.h"
 #include "UIDragPreviewComponent.h"
-#include "UIDragValidationSystem.h"
 #include "UIDragValidComponent.h"
+#include "UIDragValidationSystem.h"
 
 #define SYSTEM_TEST_CASE(description) TEST_CASE("xg::UIDragValidationSystem - " description, "[xg::UIDragValidationSystem]")
 
