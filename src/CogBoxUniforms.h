@@ -2,7 +2,7 @@
 
 #include <glm/vec3.hpp>
 
-typedef unsigned int GLuint;
+typedef int GLint;
 
 namespace xg
 {
