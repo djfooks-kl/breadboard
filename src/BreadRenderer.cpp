@@ -19,21 +19,24 @@
 #include "OnStageAddedComponent.h"
 #include "OnStageComponent.h"
 #include "OnStageRemovedComponent.h"
-#include "RenderSettings.h"
 #include "Rendering/RegisterRenderers.h"
 #include "Rendering/RenderableAdder.h"
+#include "RenderSettings.h"
 #include "SelectedComponent.h"
+#include "SelectionBoxRenderer.h"
 #include "SelectionChangedComponent.h"
 #include "TextRenderer.h"
 #include "UIDragPreviewComponent.h"
 #include "UIDragValidComponent.h"
 #include "UIPreviewAddingCogComponent.h"
+#include "UISelectComponent.h"
 #include "UISettings.h"
 #include "UIWireSegmentsComponent.h"
 #include "UIWireValidComponent.h"
 #include "WireComponent.h"
 #include "WireHelpers.h"
 #include "WireTextureSizeComponent.h"
+#include "WorldMouseComponent.h"
 
 namespace
 {
@@ -84,6 +87,11 @@ void xg::BreadRenderer::Load(const xg::RenderSettings& settings)
         .m_FragmentPath = "shaders/CogNodeFragment.glsl" });
     m_CogNodeProgram->TryLoadAndOutputError();
 
+    m_SelectionBoxProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
+        .m_VertexPath = "shaders/SelectionBoxVertex.glsl",
+        .m_FragmentPath = "shaders/SelectionBoxFragment.glsl" });
+    m_SelectionBoxProgram->TryLoadAndOutputError();
+
     m_Font = std::make_unique<xc::Font>();
     m_Font->Load(DATA_DIR "/sourcecodepro-medium.png", DATA_DIR "/sourcecodepro-medium.json");
 
@@ -125,6 +133,12 @@ void xg::BreadRenderer::Load(const xg::RenderSettings& settings)
     m_CogNodeRenderer->AddNode(glm::ivec2(6, 1), glm::ivec2(5, 0));
     m_CogNodeRenderer->AddNode(glm::ivec2(7, 1), glm::ivec2(6, 0));
     m_CogNodeRenderer->AddNode(glm::ivec2(8, 1), glm::ivec2(7, 0));
+
+    m_SelectionBoxRenderer = std::make_unique<xg::SelectionBoxRenderer>(*m_SelectionBoxProgram);
+    m_SelectionBoxRenderer->m_Uniforms.m_EdgeColor = settings.m_SelectionBoxEdgeColor;
+    m_SelectionBoxRenderer->m_Uniforms.m_FillColor = settings.m_SelectionBoxFillColor;
+    m_SelectionBoxRenderer->m_Uniforms.m_FillAlpha = settings.m_SelectionBoxFillAlpha;
+    m_SelectionBoxRenderer->m_Uniforms.m_EdgeWidth = settings.m_SelectionBoxEdgeWidth;
 }
 
 void xg::BreadRenderer::Update(const flecs::world& world)
@@ -250,6 +264,19 @@ void xg::BreadRenderer::Update(const flecs::world& world)
                 }
             }
         });
+    }
+
+    const auto& uiSelect = world.get<xg::UISelectComponent>();
+    if (uiSelect.m_BoxStart.has_value() != m_SelectionBoxRenderer->HasBox())
+    {
+        if (uiSelect.m_BoxStart.has_value())
+        {
+            m_SelectionBoxRenderer->AddBox();
+        }
+        else
+        {
+            m_SelectionBoxRenderer->RemoveAll();
+        }
     }
 }
 
@@ -389,6 +416,13 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
     {
         renderer->SetValid(allPreviewWiresValid);
         renderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
+    }
+
+    const auto& uiSelect = world.get<xg::UISelectComponent>();
+    if (uiSelect.m_BoxStart.has_value())
+    {
+        const auto& worldMouse = world.get<xg::WorldMouseComponent>().m_Position;
+        m_SelectionBoxRenderer->Draw(camera.m_ViewProjection, camera.m_Feather, uiSelect.m_BoxStart.value(), worldMouse);
     }
 
     m_TextRenderer->Draw(camera.m_ViewProjection);

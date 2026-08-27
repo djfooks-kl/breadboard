@@ -86,7 +86,7 @@ void xg::UI::UpdateMouse(flecs::world& world, BaseApp& app)
     app.SetCursor(hoverWire ? EMouseCursor::Cross : EMouseCursor::Arrow);
 }
 
-void xg::UI::DrawCogMenu(flecs::world& world, const bool actionEaten)
+void xg::UI::DrawCogMenu(flecs::world& world, const bool eatenRelease)
 {
     const auto& cogMap = world.get<xg::CogMap>();
     const auto& input = world.get<xg::MappedInputComponent>();
@@ -113,8 +113,8 @@ void xg::UI::DrawCogMenu(flecs::world& world, const bool actionEaten)
 
     bool openning = false;
     if (!ImGui::IsPopupOpen("LeftClickPopup") &&
-        ImGui::IsMouseClicked(ImGuiMouseButton_Left) &&
-        !actionEaten &&
+        ImGui::IsMouseReleased(ImGuiMouseButton_Left) &&
+        !eatenRelease &&
         !ImGui::IsAnyItemHovered() &&
         !ImGui::IsWindowHovered() &&
         !io.WantCaptureMouse &&
@@ -195,12 +195,32 @@ void xg::UI::DrawUndo(flecs::world& world)
     }
 }
 
-bool xg::UI::GameConsumeInput(flecs::world& world)
+bool xg::UI::GameConsumeMouseRelease(flecs::world& world)
+{
+    auto& select = world.get_mut<xg::UISelectComponent>();
+    if (select.m_SelectBox)
+    {
+        select.m_SelectBox = false;
+        select.m_BoxStart.reset();
+    }
+
+    const bool doAction = ImGui::IsMouseReleased(ImGuiMouseButton_Left);
+    if (!doAction)
+        return false;
+
+    if (select.m_BoxStart.has_value() && select.m_BoxStart != world.get<xg::WorldMouseComponent>().m_Position)
+    {
+        select.m_SelectBox = true;
+        return true;
+    }
+    return false;
+}
+
+bool xg::UI::GameConsumeMouseClick(flecs::world& world)
 {
     auto& previewAddingWire = world.get_mut<xg::UIPreviewAddingWireComponent>();
     auto& createWire = world.get_mut<xg::UIPreviewCreateWireComponent>();
     auto& select = world.get_mut<xg::UISelectComponent>();
-    select.m_Clear = false;
     select.m_SelectEntity = flecs::entity::null();
     if (createWire.m_Create)
     {
@@ -244,9 +264,9 @@ bool xg::UI::GameConsumeInput(flecs::world& world)
         return true;
     }
 
-    if (world.count<xg::SelectedComponent>() > 0)
+    if (!select.m_BoxStart.has_value())
     {
-        select.m_Clear = true;
+        select.m_BoxStart = world.get<xg::WorldMouseComponent>().m_Position;
         return true;
     }
 
@@ -262,6 +282,7 @@ void xg::UI::Draw(flecs::world& world)
     UpdateRotate(world);
     UpdateDelete(world);
 
-    const bool actionEaten = GameConsumeInput(world);
-    DrawCogMenu(world, actionEaten);
+    GameConsumeMouseClick(world);
+    const bool eatenRelease = GameConsumeMouseRelease(world);
+    DrawCogMenu(world, eatenRelease);
 }

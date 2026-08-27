@@ -107,6 +107,9 @@ set(source_files
     src/RGBColor.cpp
     src/RGBColor.h
     src/SelectedComponent.h
+    src/SelectionBoxRenderer.h
+    src/SelectionBoxRenderer.cpp
+    src/SelectionBoxUniforms.h
     src/SelectionChangedComponent.h
     src/SelectionSystem.cpp
     src/SelectionSystem.h

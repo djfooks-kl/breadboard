@@ -7,3 +7,8 @@ HoverVFXColor = "#00ff00"
 
 WireFullColor = "#ff0000"
 WireHoverColor = "#00ff00"
+
+SelectionBoxEdgeWidth = 2
+SelectionBoxEdgeColor = "#0000ff"
+SelectionBoxFillColor = "#0000ff"
+SelectionBoxFillAlpha = 0.05

@@ -12,5 +12,10 @@ ADD_SETTING(xg::RGBColor, WireEdgeColor, "#000000");
 ADD_SETTING(xg::RGBColor, WireEdgeInvalidColor, "#ff0000");
 ADD_SETTING(xg::RGBColor, WireSelectedColor, "#00ff00");
 
+ADD_SETTING(float, SelectionBoxEdgeWidth, 2.f);
+ADD_SETTING(xg::RGBColor, SelectionBoxEdgeColor, "#0000ff");
+ADD_SETTING(xg::RGBColor, SelectionBoxFillColor, "#0000ff");
+ADD_SETTING(float, SelectionBoxFillAlpha, 0.5f);
+
 ADD_SETTING(float, SelectedVFXExpand, 1.f)
 ADD_SETTING(xg::RGBColor, SelectedVFXColor, "#00ff00");

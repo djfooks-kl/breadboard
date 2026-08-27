@@ -56,7 +56,7 @@ namespace
         {
             xg::SelectionSystem::Update(m_World);
             m_World.get_mut<xg::UISelectComponent>().m_SelectEntity = flecs::entity::null();
-            m_World.get_mut<xg::UISelectComponent>().m_Clear = false;
+            m_World.get_mut<xg::UISelectComponent>().m_SelectBox = false;
         }
 
         flecs::world m_World;
@@ -181,7 +181,7 @@ SYSTEM_TEST_CASE("RIGHT_SHIFT selection toggles selection -> "
     CHECK(world.has<xg::SelectionChangedComponent>() == true);
 }
 
-SYSTEM_TEST_CASE("Select multiple entities, then set Clear=true -> "
+SYSTEM_TEST_CASE("Select multiple entities, then set m_SelectBox=true -> "
     "Remove SelectedComponent from all entities")
 {
     TestEnv env;
@@ -196,7 +196,7 @@ SYSTEM_TEST_CASE("Select multiple entities, then set Clear=true -> "
     world.get_mut<xg::UISelectComponent>().m_SelectEntity = entityB;
 
     env.Update();
-    world.get_mut<xg::UISelectComponent>().m_Clear = true;
+    world.get_mut<xg::UISelectComponent>().m_SelectBox = true;
 
     env.Update();
     CHECK(entityA.has<xg::SelectedComponent>() == false);
@@ -204,26 +204,26 @@ SYSTEM_TEST_CASE("Select multiple entities, then set Clear=true -> "
     CHECK(world.has<xg::SelectionChangedComponent>() == true);
 }
 
-SYSTEM_TEST_CASE("Select nothing, then set Clear=true -> "
+SYSTEM_TEST_CASE("Select nothing, then set m_SelectBox=true -> "
     "Do not add the SelectionChangedComponent")
 {
     TestEnv env;
     flecs::world world = env.m_World;
 
-    world.get_mut<xg::UISelectComponent>().m_Clear = true;
+    world.get_mut<xg::UISelectComponent>().m_SelectBox = true;
 
     env.Update();
     CHECK(world.has<xg::SelectionChangedComponent>() == false);
 }
 
-SYSTEM_TEST_CASE("Select something and set Clear=true same frame -> Do nothing")
+SYSTEM_TEST_CASE("Select something and set m_SelectBox=true same frame -> Do nothing")
 {
     TestEnv env;
     flecs::world world = env.m_World;
 
     flecs::entity entityA = world.entity();
     world.get_mut<xg::UISelectComponent>().m_SelectEntity = entityA;
-    world.get_mut<xg::UISelectComponent>().m_Clear = true;
+    world.get_mut<xg::UISelectComponent>().m_SelectBox = true;
 
     env.Update();
     CHECK(entityA.has<xg::SelectedComponent>() == false);

@@ -40,7 +40,7 @@ void xg::SelectionSystem::Update(flecs::world& world)
     const auto& uiSelect = world.get_mut<xg::UISelectComponent>();
     const flecs::entity& selectEntity = uiSelect.m_SelectEntity;
 
-    if (uiSelect.m_Clear)
+    if (uiSelect.m_SelectBox)
     {
         if (world.count<xg::SelectedComponent>() > 0)
         {

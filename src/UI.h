@@ -33,7 +33,9 @@ namespace xg
 
         void DrawCogMenu(flecs::world& world, bool actionEaten);
 
-        bool GameConsumeInput(flecs::world& world);
+        bool GameConsumeMouseClick(flecs::world& world);
+
+        bool GameConsumeMouseRelease(flecs::world& world);
 
         ImVec2 m_PopupPosition;
 

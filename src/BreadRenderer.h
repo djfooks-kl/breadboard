@@ -29,8 +29,9 @@ namespace xg
     struct CogBoxVFXRenderer;
     struct CogNodeRenderer;
     struct GridRenderer;
-    struct TextRenderer;
     struct RenderSettings;
+    struct SelectionBoxRenderer;
+    struct TextRenderer;
 
     struct BreadRenderer
     {
@@ -59,12 +60,14 @@ namespace xg
         std::unique_ptr<xg::CogBoxRenderer> m_CogBoxPreviewDropRenderer;
         std::unique_ptr<xg::CogBoxRenderer> m_CogBoxSelectedRenderer;
         std::unique_ptr<xg::CogNodeRenderer> m_CogNodeRenderer;
+        std::unique_ptr<xg::SelectionBoxRenderer> m_SelectionBoxRenderer;
 
         std::unique_ptr<xc::ShaderProgram> m_TextProgram;
         std::unique_ptr<xc::ShaderProgram> m_GridProgram;
         std::unique_ptr<xc::ShaderProgram> m_CogBoxProgram;
         std::unique_ptr<xc::ShaderProgram> m_CogBoxSelectedProgram;
         std::unique_ptr<xc::ShaderProgram> m_CogNodeProgram;
+        std::unique_ptr<xc::ShaderProgram> m_SelectionBoxProgram;
 
         GLuint m_WireTexture = 0;
         glm::ivec2 m_WireTextureSize = glm::ivec2(0);
