@@ -10,6 +10,7 @@
 #include "Core/IAABB.h"
 #include "GridHelpers.h"
 #include "MappedInputComponent.h"
+#include "OnStageRemovedComponent.h"
 #include "RenderSettings.h"
 #include "SelectedComponent.h"
 #include "SelectionChangedComponent.h"
@@ -40,12 +41,24 @@ void xg::SelectionSystem::Update(flecs::world& world)
     const auto& uiSelect = world.get_mut<xg::UISelectComponent>();
     const flecs::entity& selectEntity = uiSelect.m_SelectEntity;
 
+    bool anyChanges = false;
+    world.defer_begin();
+    world.each([&](
+        flecs::entity entity,
+        const xg::OnStageRemovedComponent,
+        const xg::SelectedComponent)
+        {
+            entity.remove<xg::SelectedComponent>();
+            anyChanges = true;
+        });
+    world.defer_end();
+
     if (uiSelect.m_SelectBox)
     {
         if (world.count<xg::SelectedComponent>() > 0)
         {
             RemoveAllSelected(world);
-            world.add<xg::SelectionChangedComponent>();
+            anyChanges = true;
         }
     }
     else if (selectEntity)
@@ -60,13 +73,18 @@ void xg::SelectionSystem::Update(flecs::world& world)
             {
                 selectEntity.add<xg::SelectedComponent>();
             }
-            world.add<xg::SelectionChangedComponent>();
+            anyChanges = true;
         }
         else if (world.count<xg::SelectedComponent>() != 1 || !selectEntity.has<xg::SelectedComponent>())
         {
             RemoveAllSelected(world);
             selectEntity.add<xg::SelectedComponent>();
-            world.add<xg::SelectionChangedComponent>();
+            anyChanges = true;
         }
+    }
+
+    if (anyChanges)
+    {
+        world.add<xg::SelectionChangedComponent>();
     }
 }

@@ -5,6 +5,7 @@
 #include "Cogs/CogMap.h"
 #include "Core/GLFWLib.h"
 #include "MappedInputComponent.h"
+#include "OnStageRemovedComponent.h"
 #include "RenderSettings.h"
 #include "SelectedComponent.h"
 #include "SelectionChangedComponent.h"
@@ -17,15 +18,7 @@
 
 namespace
 {
-    const xg::CogResourceId s_OneCellCog = xg::CogResourceId::Create("OneCellCog");
     const xg::CogResourceId s_TestCog1 = xg::CogResourceId::Create("TestCog1");
-
-    struct OneCellCog final : public xg::CogPrototype
-    {
-        xg::CogResourceId GetResourceId() const override { return s_OneCellCog; }
-
-        glm::ivec2 GetSize() const override { return glm::ivec2(1, 1); }
-    };
 
     struct TestCog1 final : public xg::CogPrototype
     {
@@ -222,6 +215,37 @@ SYSTEM_TEST_CASE("Select something and set m_SelectBox=true same frame -> Do not
     flecs::world world = env.m_World;
 
     flecs::entity entityA = world.entity();
+    world.get_mut<xg::UISelectComponent>().m_SelectEntity = entityA;
+    world.get_mut<xg::UISelectComponent>().m_SelectBox = true;
+
+    env.Update();
+    CHECK(entityA.has<xg::SelectedComponent>() == false);
+    CHECK(world.has<xg::SelectionChangedComponent>() == false);
+}
+
+SYSTEM_TEST_CASE("Select something then remove it -> Remove it from selection")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity entityA = world.entity();
+    world.get_mut<xg::UISelectComponent>().m_SelectEntity = entityA;
+
+    env.Update();
+    entityA.add<xg::OnStageRemovedComponent>();
+
+    env.Update();
+    CHECK(entityA.has<xg::SelectedComponent>() == false);
+    CHECK(world.has<xg::SelectionChangedComponent>() == true);
+}
+
+SYSTEM_TEST_CASE("Overlap selection box with a CogBox, set m_SelectBox=true -> Select the cog")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity entityA = world.entity();
+    world.ensure<xg::CogComponent>().m_CogId =
     world.get_mut<xg::UISelectComponent>().m_SelectEntity = entityA;
     world.get_mut<xg::UISelectComponent>().m_SelectBox = true;
 
