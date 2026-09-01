@@ -86,12 +86,11 @@ void xg::UI::UpdateMouse(flecs::world& world, BaseApp& app)
     app.SetCursor(hoverWire ? EMouseCursor::Cross : EMouseCursor::Arrow);
 }
 
-void xg::UI::DrawCogMenu(flecs::world& world, const bool eatenRelease)
+void xg::UI::DrawCogMenu(flecs::world& world)
 {
     const auto& cogMap = world.get<xg::CogMap>();
     const auto& input = world.get<xg::MappedInputComponent>();
     const auto& worldMouse = world.get<xg::WorldMouseComponent>();
-    const auto& hover = world.get<xg::UIHoverComponent>();
     auto& previewAddingCog = world.get_mut<xg::UIPreviewAddingCogComponent>();
     auto& dragDrop = world.get_mut<xg::UIDraggingDropComponent>();
 
@@ -112,16 +111,13 @@ void xg::UI::DrawCogMenu(flecs::world& world, const bool eatenRelease)
     ImGuiIO& io = ImGui::GetIO();
 
     bool openning = false;
-    if (!ImGui::IsPopupOpen("LeftClickPopup") &&
-        ImGui::IsMouseReleased(ImGuiMouseButton_Left) &&
-        !eatenRelease &&
+    if (!ImGui::IsPopupOpen("BuildPopup") &&
+        input.m_KeyDown.contains(xg::EMappedInput::Build) &&
         !ImGui::IsAnyItemHovered() &&
         !ImGui::IsWindowHovered() &&
-        !io.WantCaptureMouse &&
-        !hover.m_Cog &&
-        !hover.m_Wire)
+        !io.WantCaptureMouse)
     {
-        ImGui::OpenPopup("LeftClickPopup");
+        ImGui::OpenPopup("BuildPopup");
         openning = true;
         m_PopupPosition = io.MousePos;
 
@@ -129,7 +125,7 @@ void xg::UI::DrawCogMenu(flecs::world& world, const bool eatenRelease)
         previewAddingCog.m_PreviewPosition = worldMouse.m_Position + popupPreviewOffset;
     }
 
-    m_CogPopupOpen = ImGui::BeginPopup("LeftClickPopup");
+    m_CogPopupOpen = ImGui::BeginPopup("BuildPopup");
     if (m_CogPopupOpen)
     {
         if (!openning && !ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
@@ -139,12 +135,6 @@ void xg::UI::DrawCogMenu(flecs::world& world, const bool eatenRelease)
         }
 
         ImGui::SetWindowPos(m_PopupPosition, ImGuiCond_Always);
-
-        if (!input.m_KeyDown.empty())
-        {
-            ImGui::CloseCurrentPopup();
-            m_CogPopupOpen = false;
-        }
 
         for (const auto& itr : cogMap.GetMap())
         {
@@ -208,7 +198,7 @@ bool xg::UI::GameConsumeMouseRelease(flecs::world& world)
     if (!doAction)
         return false;
 
-    if (select.m_BoxStart.has_value() && select.m_BoxStart != world.get<xg::WorldMouseComponent>().m_Position)
+    if (select.m_BoxStart.has_value())
     {
         select.m_SelectBox = true;
         return true;
@@ -283,6 +273,6 @@ void xg::UI::Draw(flecs::world& world)
     UpdateDelete(world);
 
     GameConsumeMouseClick(world);
-    const bool eatenRelease = GameConsumeMouseRelease(world);
-    DrawCogMenu(world, eatenRelease);
+    GameConsumeMouseRelease(world);
+    DrawCogMenu(world);
 }

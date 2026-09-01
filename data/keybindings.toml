@@ -6,6 +6,7 @@ bindings = [
 	{ key = "e", binding="ZoomIn" },
 	{ key = "q", binding="ZoomOut" },
 	{ key = "r", binding="Rotate" },
+	{ key = "b", binding="Build" },
 	{ key = "delete", binding="Delete" },
 	{ key = "shift", binding="Multiselect" },
 ]

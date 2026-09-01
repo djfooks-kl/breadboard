@@ -31,7 +31,7 @@ namespace xg
 
         void DrawUndo(flecs::world& world);
 
-        void DrawCogMenu(flecs::world& world, bool actionEaten);
+        void DrawCogMenu(flecs::world& world);
 
         bool GameConsumeMouseClick(flecs::world& world);
 

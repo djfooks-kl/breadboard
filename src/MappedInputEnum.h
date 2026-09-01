@@ -8,15 +8,16 @@ namespace xg
     {
         Invalid,
 
-        MoveUp,
-        MoveLeft,
+        Build,
+        Delete,
         MoveDown,
+        MoveLeft,
         MoveRight,
+        MoveUp,
+        Multiselect,
+        Rotate,
         ZoomIn,
         ZoomOut,
-        Rotate,
-        Delete,
-        Multiselect,
 
         MAX
     };
