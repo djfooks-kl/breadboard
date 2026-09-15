@@ -12,6 +12,7 @@
 #include "OnStageRemovedComponent.h"
 #include "WireComponent.h"
 #include "WireHelpers.h"
+#include "GridHelpers.h"
 
 namespace
 {

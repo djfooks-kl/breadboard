@@ -3,22 +3,13 @@
 #include <flecs/flecs.h>
 #include <glm/geometric.hpp>
 
-#include "CogComponent.h"
-#include "Cogs/CogMap.h"
-#include "Core/AABB.h"
 #include "Core/GLFWLib.h"
-#include "Core/IAABB.h"
-#include "GridHelpers.h"
 #include "MappedInputComponent.h"
 #include "OnStageRemovedComponent.h"
-#include "RenderSettings.h"
 #include "SelectedComponent.h"
+#include "SelectionBoxComponent.h"
 #include "SelectionChangedComponent.h"
 #include "UISelectComponent.h"
-#include "UISettings.h"
-#include "WireComponent.h"
-#include "WireHelpers.h"
-#include "WorldMouseComponent.h"
 
 namespace
 {
@@ -55,10 +46,22 @@ void xg::SelectionSystem::Update(flecs::world& world)
 
     if (uiSelect.m_SelectBox)
     {
-        if (world.count<xg::SelectedComponent>() > 0)
+        if (!world.get<xg::MappedInputComponent>().m_KeyDown.contains(xg::EMappedInput::Multiselect))
         {
-            RemoveAllSelected(world);
+            if (world.count<xg::SelectedComponent>() > 0)
+            {
+                RemoveAllSelected(world);
+                anyChanges = true;
+            }
+        }
+
+        if (world.get<const xg::SelectionBoxComponent>().m_Entities.size() > 0)
+        {
             anyChanges = true;
+        }
+        for (flecs::entity entity : world.get<const xg::SelectionBoxComponent>().m_Entities)
+        {
+            entity.add<xg::SelectedComponent>();
         }
     }
     else if (selectEntity)

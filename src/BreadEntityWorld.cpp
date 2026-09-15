@@ -31,13 +31,15 @@
 #include "OnStageRemovedComponent.h"
 #include "OnStageSystem.h"
 #include "RenderSettings.h"
+#include "SelectionBoxComponent.h"
+#include "SelectionBoxSystem.h"
 #include "SelectionSystem.h"
 #include "UIAddWireSystem.h"
 #include "UIDragDropSystem.h"
-#include "UIDragPreviewSystem.h"
-#include "UIDragValidComponent.h"
-#include "UIDragValidationSystem.h"
 #include "UIDraggingDropComponent.h"
+#include "UIDragPreviewSystem.h"
+#include "UIDragValidationSystem.h"
+#include "UIDragValidComponent.h"
 #include "UIHoverComponent.h"
 #include "UIHoverSystem.h"
 #include "UIPreviewAddingCogComponent.h"
@@ -67,6 +69,7 @@ void xg::SetupWorld(flecs::world& world)
     world.emplace<xg::KeybindingSettings>();
     world.emplace<xg::MappedInputComponent>();
     world.emplace<xg::RenderSettings>();
+    world.emplace<xg::SelectionBoxComponent>();
     world.emplace<xg::UIDraggingDropComponent>();
     world.emplace<xg::UIDragValidComponent>();
     world.emplace<xg::UIHoverComponent>();
@@ -114,5 +117,6 @@ void xg::UpdateWorld(flecs::world& world, const double time, const float deltaTi
     xg::cog::BatterySystem::Update(world);
     xg::OnStageSystem::Update(world);
     xg::GridAttachmentSystem::Update(world);
+    xg::SelectionBoxSystem::Update(world);
     xg::SelectionSystem::Update(world);
 }

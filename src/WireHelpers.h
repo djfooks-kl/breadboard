@@ -3,8 +3,12 @@
 #include <glm/ext/vector_int2.hpp>
 #include <vector>
 
-#include "GridHelpers.h"
 #include "WireFlags.h"
+
+namespace xc
+{
+    struct OBB;
+}
 
 namespace xg
 {
@@ -14,4 +18,6 @@ namespace xg
     xg::EWireDirection WireDirectionToFlag(const glm::ivec2& v);
 
     bool HasWireDot(const xg::GridAttachments& attachments);
+
+    xc::OBB GetWireSegmentOBB(const glm::ivec2& start, const glm::ivec2& end, const float halfWidth);
 }

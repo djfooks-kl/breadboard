@@ -15,17 +15,20 @@ target_compile_options(project_compiler_flags INTERFACE
 
 set(core_files
 
+    src/Core/AABB.cpp
+    src/Core/AABB.h
     src/Core/EnumFlags.h
     src/Core/Font.cpp
     src/Core/Font.h
+    src/Core/GeometryHelpers.cpp
+    src/Core/GeometryHelpers.h
     src/Core/GLFWLib.h
-    src/Core/AABB.cpp
-    src/Core/AABB.h
     src/Core/IAABB.cpp
     src/Core/IAABB.h
     src/Core/ITransform.cpp
     src/Core/ITransform.h
     src/Core/MathConstants.h
+    src/Core/OBB.h
     src/Core/Range.h
     src/Core/ResourceId.h
     src/Core/Result.h
@@ -61,6 +64,8 @@ set(source_files
     src/CogBoxUniforms.h
     src/CogComponent.h
     src/CogCreatedComponent.h
+    src/CogHelpers.cpp
+    src/CogHelpers.h
     src/CogNodeRenderer.cpp
     src/CogNodeRenderer.h
     src/CogNodesComponent.h
@@ -107,8 +112,11 @@ set(source_files
     src/RGBColor.cpp
     src/RGBColor.h
     src/SelectedComponent.h
-    src/SelectionBoxRenderer.h
+    src/SelectionBoxComponent.h
     src/SelectionBoxRenderer.cpp
+    src/SelectionBoxRenderer.h
+    src/SelectionBoxSystem.cpp
+    src/SelectionBoxSystem.h
     src/SelectionBoxUniforms.h
     src/SelectionChangedComponent.h
     src/SelectionSystem.cpp
@@ -333,11 +341,13 @@ if (NOT EMSCRIPTEN)
 
         src/ut/AABBTest.cpp
         src/ut/BreadTest.h
+        src/ut/CogHelpersTest.cpp
         src/ut/CogSystemTest.cpp
         src/ut/CommandCreateSystemTest.cpp
         src/ut/CommandListSystemTest.cpp
         src/ut/EnumFlagsTest.cpp
         src/ut/FlecsTestHelpers.h
+        src/ut/GeometryHelpersTest.cpp
         src/ut/GridAttachmentSystemTest.cpp
         src/ut/GridHelpersTest.cpp
         src/ut/IAABBTest.cpp
@@ -349,6 +359,7 @@ if (NOT EMSCRIPTEN)
         src/ut/ResourceIdTest.cpp
         src/ut/ResultTest.cpp
         src/ut/Rotation90Test.cpp
+        src/ut/SelectionBoxSystemTest.cpp
         src/ut/SelectionSystemTest.cpp
         src/ut/ShadersTest.cpp
         src/ut/UIAddWireSystemTest.cpp
@@ -360,6 +371,7 @@ if (NOT EMSCRIPTEN)
         src/ut/UIWirePathfindingSystemTest.cpp
         src/ut/UIWireSegmentsSystemTest.cpp
         src/ut/UIWireValidationSystemTest.cpp
+        src/ut/WireHelpersTest.cpp
         src/ut/WireSystemTest.cpp
     )
 
