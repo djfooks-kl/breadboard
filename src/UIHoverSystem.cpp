@@ -55,7 +55,7 @@ namespace
             glm::vec2 prev = checkpoints[0];
             if (glm::distance(prev, worldMouse) <= wireDotRadius)
                 return true;
-            for (int i = 0; i < checkpoints.size(); ++i)
+            for (int i = 0; i < std::ssize(checkpoints); ++i)
             {
                 const glm::vec2 next = checkpoints[i];
                 if (glm::distance(next, worldMouse) <= wireDotRadius)

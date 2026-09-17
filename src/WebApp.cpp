@@ -20,6 +20,7 @@ namespace
         {
         case EMouseCursor::Arrow: return "default";
         case EMouseCursor::Cross: return "crosshair";
+        case EMouseCursor::Move: return "move";
         }
         return "default";
     }

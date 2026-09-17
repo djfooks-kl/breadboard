@@ -83,7 +83,18 @@ void xg::UI::UpdateMouse(flecs::world& world, BaseApp& app)
     auto& previewAddingCog = world.get_mut<xg::UIPreviewAddingCogComponent>();
     const auto& hover = world.get<xg::UIHoverComponent>();
     bool hoverWire = previewAddingCog.m_AddCogId.IsEmpty() && (hover.m_Node || hover.m_Wire);
-    app.SetCursor(hoverWire ? EMouseCursor::Cross : EMouseCursor::Arrow);
+    if (hoverWire)
+    {
+        app.SetCursor(EMouseCursor::Cross);
+    }
+    else if (hover.m_Cog)
+    {
+        app.SetCursor(EMouseCursor::Move);
+    }
+    else
+    {
+        app.SetCursor(EMouseCursor::Arrow);
+    }
 }
 
 void xg::UI::DrawCogMenu(flecs::world& world)

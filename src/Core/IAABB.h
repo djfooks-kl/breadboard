@@ -9,7 +9,7 @@ namespace xc
     struct IAABB
     {
         // Construct an IAABB by applying a transform to a size
-        static [[nodiscard]] xc::IAABB FromTransformAndSize(const ITransform& transform, const glm::ivec2& size);
+        static xc::IAABB FromTransformAndSize(const ITransform& transform, const glm::ivec2& size);
 
         bool operator==(const xc::IAABB& other) const = default;
 

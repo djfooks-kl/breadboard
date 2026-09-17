@@ -26,7 +26,7 @@ namespace xg
             return;
         }
 
-        for (int i = 1; i < points.size(); ++i)
+        for (int i = 1; i < std::ssize(points); ++i)
         {
             const glm::ivec2& prev = points[i - 1];
             const glm::ivec2& next = points[i];

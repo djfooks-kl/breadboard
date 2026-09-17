@@ -200,7 +200,7 @@ void xg::BreadRenderer::Update(const flecs::world& world)
             world.each([&](const xg::OnStageComponent, const xg::WireComponent& wire)
             {
                 glm::ivec2 prev = wire.m_Checkpoints[0];
-                for (int i = 1; i < wire.m_Checkpoints.size(); ++i)
+                for (int i = 1; i < std::ssize(wire.m_Checkpoints); ++i)
                 {
                     const glm::ivec2& current = wire.m_Checkpoints[i];
                     m_WireRendererMap.Get(s_RenderableWire)->AddWire(prev, current, glm::ivec2(0, 0));
@@ -255,7 +255,7 @@ void xg::BreadRenderer::Update(const flecs::world& world)
                 const std::vector<glm::ivec2>& checkpoints = wireComponent.m_Checkpoints;
                 glm::ivec2 prev = checkpoints[0];
                 renderer->AddWireEnd(prev, glm::ivec2(0, 0));
-                for (int i = 1; i < checkpoints.size(); ++i)
+                for (int i = 1; i < std::ssize(checkpoints); ++i)
                 {
                     const glm::ivec2& current = checkpoints[i];
                     renderer->AddWire(prev, current, glm::ivec2(0, 0));
@@ -403,7 +403,7 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
             if (wire.m_Checkpoints.empty())
                 return;
             glm::ivec2 prev = wire.m_Checkpoints[0];
-            for (int i = 1; i < wire.m_Checkpoints.size(); ++i)
+            for (int i = 1; i < std::ssize(wire.m_Checkpoints); ++i)
             {
                 const glm::ivec2& current = wire.m_Checkpoints[i];
                 m_WirePreviewRendererMap.Get(s_RenderableWire)->AddWire(prev, current, glm::ivec2(0, 0));

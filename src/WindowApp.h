@@ -18,4 +18,5 @@ private:
 
     GLFWcursor* m_ArrowCursor = nullptr;
     GLFWcursor* m_CrossCursor = nullptr;
+    GLFWcursor* m_MoveCursor = nullptr;
 };

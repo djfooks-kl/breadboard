@@ -24,7 +24,7 @@ void xg::UIWireSegmentsSystem::Update(flecs::world& world)
             }
 
             glm::ivec2 prev = path[0];
-            for (int i = 1; i < path.size() - 1; ++i)
+            for (int i = 1; i < std::ssize(path) - 1; ++i)
             {
                 const glm::ivec2& current = path[i];
                 const glm::ivec2& next = path[i + 1];
@@ -36,7 +36,7 @@ void xg::UIWireSegmentsSystem::Update(flecs::world& world)
                 }
                 prev = current;
             }
-            checkpoints.push_back(path[path.size() - 1]);
+            checkpoints.push_back(path[std::ssize(path) - 1]);
         });
     world.defer_end();
 }

@@ -54,7 +54,7 @@ void xg::command::ListSystem::Update(flecs::world& world)
             if (oldCommand.is_alive())
             {
                 oldCommand.get<xg::command::UndoComponent>().m_Undo.destruct();
-                if (list.m_Count == list.m_Commands.size())
+                if (list.m_Count == std::ssize(list.m_Commands))
                 {
                     oldCommand.add<xg::command::ExpiredFromHistoryComponent>();
                 }

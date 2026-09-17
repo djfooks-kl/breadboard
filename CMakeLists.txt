@@ -273,6 +273,7 @@ if (EMSCRIPTEN)
         -sSTACK_SIZE=1mb
         -sEXPORTED_RUNTIME_METHODS=cwrap
         -sALLOW_MEMORY_GROWTH=1
+        -sNO_DISABLE_EXCEPTION_CATCHING
         --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/data@./data)
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
     configure_file(scripts/server.sh.in server.sh)

@@ -55,7 +55,7 @@ void xg::SelectionBoxSystem::Update(flecs::world& world)
                 return;
             }
             const glm::ivec2* prev = &wireComponent.m_Checkpoints[0];
-            for (int i = 1; i < wireComponent.m_Checkpoints.size(); ++i)
+            for (int i = 1; i < std::ssize(wireComponent.m_Checkpoints); ++i)
             {
                 const glm::ivec2& next = wireComponent.m_Checkpoints[i];
 

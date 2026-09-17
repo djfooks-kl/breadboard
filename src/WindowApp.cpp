@@ -29,6 +29,7 @@ bool WindowApp::Init()
 
     m_ArrowCursor = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
     m_CrossCursor = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
+    m_MoveCursor = glfwCreateStandardCursor(GLFW_RESIZE_ALL_CURSOR);
 
     return true;
 }
@@ -55,6 +56,7 @@ void WindowApp::SetCursor(EMouseCursor cursor)
     {
     case EMouseCursor::Arrow: glfwCursor = m_ArrowCursor; break;
     case EMouseCursor::Cross: glfwCursor = m_CrossCursor; break;
+    case EMouseCursor::Move: glfwCursor = m_MoveCursor; break;
     }
 
     glfwSetCursor(m_Window, glfwCursor);

@@ -75,7 +75,7 @@ namespace
         {
             return std::format("Delete {}", GetEntityHandleDetails(command->m_Cog));
         }
-        if (const auto* command = entity.try_get<xg::command::AddWireComponent>())
+        if (entity.has<xg::command::AddWireComponent>())
         {
             if (const auto* commandEntity = entity.try_get<xg::command::EntityComponent>())
             {
@@ -95,7 +95,7 @@ namespace
         entity.each([&](flecs::id id)
         {
             flecs::entity component = id.entity();
-            ss << component.name() ? component.name() : "<unnamed>";
+            ss << (component.name() ? component.name() : "<unnamed>");
             ss << ",";
         });
         return ss.str();
@@ -221,7 +221,7 @@ void xg::DebugUI::DrawGridCell(flecs::world& world, const glm::ivec2& cell)
                 {
                     ImGui::Indent(10.f);
                     entity.each([](flecs::id id) {
-                            ImGui::Text(id.str());
+                            ImGui::Text("%s", id.str().c_str());
                         });
                     ImGui::Unindent(10.f);
                 }
@@ -240,14 +240,14 @@ void xg::DebugUI::DrawCommandHistoryWindow(flecs::world& world)
         const auto& listComponent = world.get<const xg::command::ListComponent>();
         ImGui::Text("Count: %d", listComponent.m_Count);
         ImGui::Text("Undo Count: %d", listComponent.m_UndoCount);
-        for (int i = 0; i < listComponent.m_Commands.size(); ++i)
+        for (int i = 0; i < std::ssize(listComponent.m_Commands); ++i)
         {
             const bool isHead = i == listComponent.m_HeadIndex;
             const bool isUndoHead = i == listComponent.m_UndoHeadIndex;
-            ImGui::Text(std::format("{:5} {} {}",
+            ImGui::Text("%5d %s %s",
                 i,
                 isHead ? "[H]" : isUndoHead ? "[U]" : "   ",
-                GetEntityDetails(listComponent.m_Commands[i])).c_str());
+                GetEntityDetails(listComponent.m_Commands[i]).c_str());
         }
         ImGui::End();
     }

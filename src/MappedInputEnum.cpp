@@ -7,6 +7,8 @@ const char* xg::ToString(const xg::EMappedInput v)
     static_assert(static_cast<int>(xg::EMappedInput::MAX) == 11);
     switch (v)
     {
+        case xg::EMappedInput::Invalid: return "Invalid";
+
         case xg::EMappedInput::Build: return "Build";
         case xg::EMappedInput::Delete: return "Delete";
         case xg::EMappedInput::MoveDown: return "MoveDown";
@@ -17,6 +19,8 @@ const char* xg::ToString(const xg::EMappedInput v)
         case xg::EMappedInput::Rotate: return "Rotate";
         case xg::EMappedInput::ZoomIn: return "ZoomIn";
         case xg::EMappedInput::ZoomOut: return "ZoomOut";
+
+        case xg::EMappedInput::MAX: return "MAX";
     }
     return "Unknown";
 }

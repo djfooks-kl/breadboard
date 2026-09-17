@@ -35,7 +35,9 @@ namespace
     template<typename T>
     T Parse(const toml::value& settings, const char* name, std::string defaultValue)
     {
-        return T(toml::find_or<std::string>(settings, name, defaultValue));
+        return T(settings.contains(name)
+            ? toml::find<std::string>(settings, name)
+            : defaultValue);
     }
 }
 
