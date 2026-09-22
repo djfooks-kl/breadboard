@@ -1,9 +1,9 @@
 #include "BreadTest.h"
 
 #include "Core/AABB.h"
-#include "Core/OBB.h"
 #include "Core/GeometryHelpers.h"
 #include "Core/MathConstants.h"
+#include "Core/OBB.h"
 
 TEST_CASE("xc::CircleOverlapsAABB", "[xc::GeometryHelpers]")
 {

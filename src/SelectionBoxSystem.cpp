@@ -4,12 +4,12 @@
 #include <glm/geometric.hpp>
 
 #include "CogComponent.h"
-#include "Core/GeometryHelpers.h"
-#include "Core/OBB.h"
 #include "CogHelpers.h"
 #include "Cogs/CogMap.h"
 #include "Core/AABB.h"
 #include "Core/GLFWLib.h"
+#include "Core/GeometryHelpers.h"
+#include "Core/OBB.h"
 #include "OnStageComponent.h"
 #include "RenderSettings.h"
 #include "SelectionBoxComponent.h"

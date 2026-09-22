@@ -5,8 +5,8 @@
 #include <glm/vec3.hpp>
 #include <vector>
 
-#include "SelectionBoxUniforms.h"
 #include "Rendering/VertexBufferObject.h"
+#include "SelectionBoxUniforms.h"
 
 namespace xc
 {

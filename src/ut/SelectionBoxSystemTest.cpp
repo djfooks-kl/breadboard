@@ -2,8 +2,8 @@
 #include <flecs/flecs.h>
 
 #include "CogComponent.h"
-#include "Core/MathConstants.h"
 #include "Cogs/CogMap.h"
+#include "Core/MathConstants.h"
 #include "MappedInputComponent.h"
 #include "OnStageComponent.h"
 #include "RenderSettings.h"

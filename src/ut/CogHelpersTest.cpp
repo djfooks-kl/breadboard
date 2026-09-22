@@ -3,8 +3,8 @@
 #include <glm/ext/vector_int2.hpp>
 #include <glm/vec2.hpp>
 
-#include "Core/AABB.h"
 #include "CogHelpers.h"
+#include "Core/AABB.h"
 #include "RenderSettings.h"
 
 TEST_CASE("xg::GetCogAABB", "[xg::CogHelpers]")

@@ -8,11 +8,11 @@
 #include "Core/Range.h"
 #include "EntityHash.h"
 #include "GridAttachmentsComponent.h"
+#include "GridHelpers.h"
 #include "OnStageAddedComponent.h"
 #include "OnStageRemovedComponent.h"
 #include "WireComponent.h"
 #include "WireHelpers.h"
-#include "GridHelpers.h"
 
 namespace
 {
