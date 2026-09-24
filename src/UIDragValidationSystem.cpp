@@ -6,8 +6,11 @@
 #include "Cogs/CogMap.h"
 #include "Core/IAABB.h"
 #include "GridAttachmentsComponent.h"
+#include "GridHelpers.h"
 #include "GridSizeComponent.h"
+#include "UIDragPreviewCogComponent.h"
 #include "UIDragPreviewComponent.h"
+#include "UIDragPreviewMovement.h"
 #include "UIDragValidComponent.h"
 
 namespace
@@ -31,13 +34,16 @@ void xg::UIDragValidationSystem::Update(flecs::world& world)
 {
     const auto& attachmentsMap = world.get<xg::GridAttachmentsComponent>().m_Map;
     const glm::ivec2& gridSize = world.get<xg::GridSizeComponent>().m_Size;
+    const auto& previewMovement = world.get<xg::UIDragPreviewMovement>();
 
     bool valid = true;
-    world.each([&](const xg::UIDragPreviewComponent& dragPreview)
+    world.each([&](const xg::UIDragPreviewCogComponent& dragPreview)
         {
             const auto* cogPrototype = world.get<xg::CogMap>().Get(dragPreview.m_CogId);
-            xc::ITransform transform{ .m_Translation = dragPreview.m_Position, .m_Rotation = dragPreview.m_Rotation };
-            xc::IAABB aabb = xc::IAABB::FromTransformAndSize(transform, cogPrototype->GetSize());
+            const xc::ITransform transform{
+                .m_Translation = xg::SnapToGrid(previewMovement.m_Translation),
+                .m_Rotation = previewMovement.m_Rotation };
+            const xc::IAABB aabb = xc::IAABB::FromTransformAndSize(transform, cogPrototype->GetSize());
             aabb.ForEachCellUntil(
                 [&](const glm::ivec2& p)
                 {

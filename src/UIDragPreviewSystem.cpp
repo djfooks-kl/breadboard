@@ -1,14 +1,17 @@
 #include "UIDragPreviewSystem.h"
 
 #include "FlecsGame.h"
+#include "GridHelpers.h"
+#include "UIDragPreviewCogComponent.h"
 #include "UIDragPreviewComponent.h"
+#include "UIDragPreviewMovement.h"
 #include "UIPreviewAddingCogComponent.h"
 #include "UIRotateComponent.h"
 #include "WorldMouseComponent.h"
 
 namespace
 {
-    void UpdatePreviewAddingHover(
+    /*void UpdatePreviewAddingHover(
         const xg::UIPreviewAddingCogComponent& previewAddingCog,
         xg::UIDragPreviewComponent& out_dragPreview)
     {
@@ -22,11 +25,9 @@ namespace
         xg::UIDragPreviewComponent& out_dragPreview)
     {
         out_dragPreview.m_CogId = previewAddingCog.m_AddCogId;
-        out_dragPreview.m_Position = glm::ivec2(
-            std::round(worldMouse.m_Position.x),
-            std::round(worldMouse.m_Position.y));
+        out_dragPreview.m_Position = xg::SnapToGrid(worldMouse.m_Position);
         out_dragPreview.m_PreviewPosition = worldMouse.m_Position;
-    }
+    }*/
 }
 
 void xg::UIDragPreviewSystem::Update(flecs::world& world)
@@ -36,38 +37,34 @@ void xg::UIDragPreviewSystem::Update(flecs::world& world)
     if (previewAddingCog.m_HoverCogId)
     {
         bool found = false;
-        world.each([&](xg::UIDragPreviewComponent& dragPreview)
+        world.each([&](const xg::UIDragPreviewComponent&, xg::UIDragPreviewCogComponent& previewCog)
             {
+                world.get_mut<xg::UIDragPreviewMovement>().m_Translation = previewAddingCog.m_PreviewPosition;
+                previewCog.m_CogId = previewAddingCog.m_HoverCogId;
                 found = true;
-                UpdatePreviewAddingHover(previewAddingCog, dragPreview);
             });
 
         if (!found)
         {
             flecs::entity dragEntity = xg::CreateEntity(world);
-            auto& dragPreview = dragEntity.ensure<xg::UIDragPreviewComponent>();
-            UpdatePreviewAddingHover(previewAddingCog, dragPreview);
+            dragEntity.add<xg::UIDragPreviewComponent>();
+            dragEntity.ensure<xg::UIDragPreviewCogComponent>().m_CogId = previewAddingCog.m_HoverCogId;
+            world.get_mut<xg::UIDragPreviewMovement>().m_Translation = previewAddingCog.m_PreviewPosition;
         }
     }
     else if (previewAddingCog.m_AddCogId)
     {
-        const auto& worldMouse = world.get<const xg::WorldMouseComponent>();
-
-        bool found = false;
-        world.each([&](xg::UIDragPreviewComponent& dragPreview)
-            {
-                found = true;
-                UpdatePreviewAdding(previewAddingCog, worldMouse, dragPreview);
-
-                dragPreview.m_Rotation += world.get<xg::UIRotateComponent>().m_RotationDirection;
-            });
-
-        if (!found)
+        if (world.query<xg::UIDragPreviewComponent, xg::UIDragPreviewCogComponent>().count() == 0)
         {
             flecs::entity dragEntity = xg::CreateEntity(world);
-            auto& dragPreview = dragEntity.ensure<xg::UIDragPreviewComponent>();
-            UpdatePreviewAdding(previewAddingCog, worldMouse, dragPreview);
+            dragEntity.add<xg::UIDragPreviewComponent>();
+            dragEntity.ensure<xg::UIDragPreviewCogComponent>().m_CogId = previewAddingCog.m_AddCogId;
         }
+
+        const auto& worldMouse = world.get<const xg::WorldMouseComponent>();
+        auto& dragPreview = world.get_mut<xg::UIDragPreviewMovement>();
+        dragPreview.m_Translation = worldMouse.m_Position;
+        dragPreview.m_Rotation += world.get<xg::UIRotateComponent>().m_RotationDirection;
     }
     else
     {
@@ -77,5 +74,9 @@ void xg::UIDragPreviewSystem::Update(flecs::world& world)
                 entity.destruct();
             });
         world.defer_end();
+
+        auto& dragPreview = world.get_mut<xg::UIDragPreviewMovement>();
+        dragPreview.m_Translation = glm::vec2(0.f);
+        dragPreview.m_Rotation = xc::Rotation90(0);
     }
 }

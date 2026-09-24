@@ -16,7 +16,7 @@ namespace xc
         bool Contains(const glm::ivec2& p) const;
 
         template<typename TFn>
-        void ForEachCellUntil(TFn fn)
+        void ForEachCellUntil(TFn fn) const
         {
             for (int x = m_Min.x; x <= m_Max.x; ++x)
             {

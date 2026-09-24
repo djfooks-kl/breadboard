@@ -26,7 +26,9 @@
 #include "SelectionBoxRenderer.h"
 #include "SelectionChangedComponent.h"
 #include "TextRenderer.h"
+#include "UIDragPreviewCogComponent.h"
 #include "UIDragPreviewComponent.h"
+#include "UIDragPreviewMovement.h"
 #include "UIDragValidComponent.h"
 #include "UIPreviewAddingCogComponent.h"
 #include "UISelectComponent.h"
@@ -304,6 +306,7 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
         renderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
     }
 
+    const auto& dragMovement = world.get<xg::UIDragPreviewMovement>();
     const auto& previewAddingCog = world.get<xg::UIPreviewAddingCogComponent>();
     const bool dragValid = world.get<xg::UIDragValidComponent>().m_Valid;
     m_CogBoxPreviewDropRenderer->RemoveAll();
@@ -313,18 +316,18 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
     }
     if (dragValid)
     {
-        world.each([&](const xg::UIDragPreviewComponent& dragPreview)
+        world.each([&](const xg::UIDragPreviewComponent&, const xg::UIDragPreviewCogComponent& previewCog)
             {
                 if (previewAddingCog.m_HoverCogId)
                     return;
 
-                const xg::CogPrototype* cog = cogMap.Get(dragPreview.m_CogId);
+                const xg::CogPrototype* cog = cogMap.Get(previewCog.m_CogId);
                 glm::ivec2 cogExtents = cog->GetSize() - glm::ivec2(1, 1);
-                cogExtents = dragPreview.m_Rotation.GetIMatrix() * cogExtents;
+                cogExtents = dragMovement.m_Rotation.GetIMatrix() * cogExtents;
 
                 m_CogBoxPreviewDropRenderer->AddBox(glm::vec2(0, 0), cogExtents);
 
-                const glm::vec2 previewCogPosition = glm::vec2(dragPreview.m_Position);
+                const glm::vec2 previewCogPosition = glm::vec2(xg::SnapToGrid(dragMovement.m_Translation));
 
                 const glm::vec2 relativeCameraPos = camera.m_Position - previewCogPosition;
                 const glm::vec3 cameraPos = glm::vec3(relativeCameraPos, 0.5f);
@@ -336,7 +339,7 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
                 m_CogBoxPreviewDropRenderer->Draw(previewViewProjection, camera.m_Feather);
 
                 xg::RenderableAdder renderableAdder("CogPreview", m_CogPreviewDropRendererMap);
-                cog->AddStaticRenderables({ glm::ivec2(0, 0), dragPreview.m_Rotation }, renderableAdder);
+                cog->AddStaticRenderables({ glm::ivec2(0, 0), dragMovement.m_Rotation }, renderableAdder);
 
                 for (xg::IRenderer* renderer : m_CogPreviewDropRendererMap.GetOrder())
                 {
@@ -352,11 +355,11 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
     {
         renderer->RemoveAll();
     }
-    world.each([&](const xg::UIDragPreviewComponent& dragPreview)
+    world.each([&](const xg::UIDragPreviewComponent&, const xg::UIDragPreviewCogComponent& previewCog)
         {
-            const xg::CogPrototype* cog = cogMap.Get(dragPreview.m_CogId);
+            const xg::CogPrototype* cog = cogMap.Get(previewCog.m_CogId);
             glm::ivec2 cogExtents = cog->GetSize() - glm::ivec2(1, 1);
-            cogExtents = dragPreview.m_Rotation.GetIMatrix() * cogExtents;
+            cogExtents = dragMovement.m_Rotation.GetIMatrix() * cogExtents;
 
             m_CogBoxPreviewRenderer->AddBox(glm::ivec2(0, 0), cogExtents);
 
@@ -366,7 +369,7 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
                 offset = -glm::vec2(cogExtents);
             }
 
-            const glm::vec2 previewCogPosition = dragPreview.m_PreviewPosition + offset;
+            const glm::vec2 previewCogPosition = dragMovement.m_Translation + offset;
 
             const glm::vec2 relativeCameraPos = camera.m_Position - previewCogPosition;
             const glm::vec3 cameraPos = glm::vec3(relativeCameraPos, 0.5f);
@@ -378,7 +381,7 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
             m_CogBoxPreviewRenderer->Draw(previewViewProjection, camera.m_Feather);
 
             xg::RenderableAdder renderableAdder("CogPreview", m_CogPreviewRendererMap);
-            cog->AddStaticRenderables({ glm::ivec2(0, 0), dragPreview.m_Rotation }, renderableAdder);
+            cog->AddStaticRenderables({ glm::ivec2(0, 0), dragMovement.m_Rotation }, renderableAdder);
 
             for (xg::IRenderer* renderer : m_CogPreviewRendererMap.GetOrder())
             {

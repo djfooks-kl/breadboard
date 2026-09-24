@@ -3,9 +3,11 @@
 
 #include "UIAddCogComponent.h"
 #include "UIDragDropSystem.h"
-#include "UIDragPreviewComponent.h"
-#include "UIDragValidComponent.h"
 #include "UIDraggingDropComponent.h"
+#include "UIDragPreviewCogComponent.h"
+#include "UIDragPreviewComponent.h"
+#include "UIDragPreviewMovement.h"
+#include "UIDragValidComponent.h"
 
 #define SYSTEM_TEST_CASE(description) TEST_CASE("xg::UIDragDropSystem - " description, "[xg::UIDragDropSystem]")
 
@@ -20,6 +22,7 @@ namespace
         {
             m_World.ensure<xg::UIDraggingDropComponent>();
             m_World.ensure<xg::UIDragValidComponent>().m_Valid = true;
+            m_World.ensure<xg::UIDragPreviewMovement>();
         }
 
         void Update()
@@ -37,12 +40,11 @@ SYSTEM_TEST_CASE("When dropping add a new entity requesting the cog at the given
     flecs::world world = env.m_World;
 
     flecs::entity entity = world.entity();
-    {
-        auto& dragPreview = entity.ensure<xg::UIDragPreviewComponent>();
-        dragPreview.m_CogId = s_TestCog1;
-        dragPreview.m_Position = glm::ivec2(1, 2);
-        dragPreview.m_Rotation = xc::Rotation90(3);
-    }
+    entity.ensure<xg::UIDragPreviewCogComponent>().m_CogId = s_TestCog1;
+    entity.add<xg::UIDragPreviewComponent>();
+    world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(1.1f, 1.9f);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Rotation = xc::Rotation90(3);
+
     world.get_mut<xg::UIDraggingDropComponent>().m_Drop = true;
 
     env.Update();
@@ -64,12 +66,11 @@ SYSTEM_TEST_CASE("After dropping destroy the UIAddCogComponent entity")
     flecs::world world = env.m_World;
 
     flecs::entity entity = world.entity();
-    {
-        auto& dragPreview = entity.ensure<xg::UIDragPreviewComponent>();
-        dragPreview.m_CogId = s_TestCog1;
-        dragPreview.m_Position = glm::ivec2(1, 2);
-        dragPreview.m_Rotation = xc::Rotation90(3);
-    }
+    entity.ensure<xg::UIDragPreviewCogComponent>().m_CogId = s_TestCog1;
+    entity.add<xg::UIDragPreviewComponent>();
+    world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(1.1f, 2.2f);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Rotation = xc::Rotation90(3);
+
     world.get_mut<xg::UIDraggingDropComponent>().m_Drop = true;
 
     env.Update();
@@ -99,12 +100,11 @@ SYSTEM_TEST_CASE("When not dropping do nothing")
     flecs::world world = env.m_World;
 
     flecs::entity entity = world.entity();
-    {
-        auto& dragPreview = entity.ensure<xg::UIDragPreviewComponent>();
-        dragPreview.m_CogId = s_TestCog1;
-        dragPreview.m_Position = glm::ivec2(1, 2);
-        dragPreview.m_Rotation = xc::Rotation90(3);
-    }
+    entity.ensure<xg::UIDragPreviewCogComponent>().m_CogId = s_TestCog1;
+    entity.add<xg::UIDragPreviewComponent>();
+    world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(1.1f, 2.2f);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Rotation = xc::Rotation90(3);
+
     world.get_mut<xg::UIDraggingDropComponent>().m_Drop = false;
 
     env.Update();
@@ -118,12 +118,11 @@ SYSTEM_TEST_CASE("When dropping but it is invalid do nothing")
     flecs::world world = env.m_World;
 
     flecs::entity entity = world.entity();
-    {
-        auto& dragPreview = entity.ensure<xg::UIDragPreviewComponent>();
-        dragPreview.m_CogId = s_TestCog1;
-        dragPreview.m_Position = glm::ivec2(1, 2);
-        dragPreview.m_Rotation = xc::Rotation90(3);
-    }
+    entity.ensure<xg::UIDragPreviewCogComponent>().m_CogId = s_TestCog1;
+    entity.add<xg::UIDragPreviewComponent>();
+    world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(1.1f, 2.2f);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Rotation = xc::Rotation90(3);
+
     world.get_mut<xg::UIDraggingDropComponent>().m_Drop = true;
     world.get_mut<xg::UIDragValidComponent>().m_Valid = false;
 

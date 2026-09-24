@@ -7,10 +7,10 @@
 #include "CameraInputSystem.h"
 #include "CameraSystem.h"
 #include "CogCreatedComponent.h"
-#include "CogSystem.h"
 #include "Cogs/BatterySystem.h"
 #include "Cogs/CogMap.h"
 #include "Cogs/Register.h"
+#include "CogSystem.h"
 #include "Command/CommandCreateSystem.h"
 #include "Command/CommandExecuteComponent.h"
 #include "Command/CommandExpiredFromHistoryComponent.h"
@@ -19,8 +19,8 @@
 #include "Command/CommandSeveredFromHistoryComponent.h"
 #include "GameComponent.h"
 #include "GlobalComponent.h"
-#include "GridAttachmentSystem.h"
 #include "GridAttachmentsComponent.h"
+#include "GridAttachmentSystem.h"
 #include "GridSizeComponent.h"
 #include "InputComponent.h"
 #include "InputSystem.h"
@@ -36,10 +36,11 @@
 #include "SelectionSystem.h"
 #include "UIAddWireSystem.h"
 #include "UIDragDropSystem.h"
-#include "UIDragPreviewSystem.h"
-#include "UIDragValidComponent.h"
-#include "UIDragValidationSystem.h"
 #include "UIDraggingDropComponent.h"
+#include "UIDragPreviewMovement.h"
+#include "UIDragPreviewSystem.h"
+#include "UIDragValidationSystem.h"
+#include "UIDragValidComponent.h"
 #include "UIHoverComponent.h"
 #include "UIHoverSystem.h"
 #include "UIPreviewAddingCogComponent.h"
@@ -71,6 +72,7 @@ void xg::SetupWorld(flecs::world& world)
     world.emplace<xg::RenderSettings>();
     world.emplace<xg::SelectionBoxComponent>();
     world.emplace<xg::UIDraggingDropComponent>();
+    world.emplace<xg::UIDragPreviewMovement>();
     world.emplace<xg::UIDragValidComponent>();
     world.emplace<xg::UIHoverComponent>();
     world.emplace<xg::UIPreviewAddingCogComponent>();
