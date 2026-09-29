@@ -26,6 +26,7 @@
 #include "SelectionBoxRenderer.h"
 #include "SelectionChangedComponent.h"
 #include "TextRenderer.h"
+#include "UIDragPreviewChanged.h"
 #include "UIDragPreviewCogComponent.h"
 #include "UIDragPreviewComponent.h"
 #include "UIDragPreviewMovement.h"
@@ -280,12 +281,35 @@ void xg::BreadRenderer::Update(const flecs::world& world)
             m_SelectionBoxRenderer->RemoveAll();
         }
     }
+
+    if (world.has<xg::UIDragPreviewChanged>())
+    {
+        m_CogBoxPreviewRenderer->RemoveAll();
+        for (xg::IRenderer* renderer : m_CogPreviewRendererMap.GetOrder())
+        {
+            renderer->RemoveAll();
+        }
+        m_CogBoxPreviewDropRenderer->RemoveAll();
+        for (xg::IRenderer* renderer : m_CogPreviewDropRendererMap.GetOrder())
+        {
+            renderer->RemoveAll();
+        }
+        world.each([&](const xg::UIDragPreviewComponent&, const xg::UIDragPreviewCogComponent& previewCog)
+            {
+                const xg::CogPrototype* cog = cogMap.Get(previewCog.m_CogId);
+                glm::ivec2 cogExtents = cog->GetSize() - glm::ivec2(1, 1);
+                m_CogBoxPreviewRenderer->AddBox(glm::ivec2(0, 0), cogExtents);
+                m_CogBoxPreviewDropRenderer->AddBox(glm::vec2(0, 0), cogExtents);
+
+                cog->AddStaticRenderables({}, xg::RenderableAdder("CogPreview", m_CogPreviewRendererMap));
+                cog->AddStaticRenderables({}, xg::RenderableAdder("CogPreviewDrop", m_CogPreviewDropRendererMap));
+            });
+    }
 }
 
 void xg::BreadRenderer::Draw(const flecs::world& world)
 {
     const auto& camera = world.get<xg::CameraComponent>();
-    const auto& cogMap = world.get<xg::CogMap>();
     const glm::ivec2& gridSize = world.get<xg::GridSizeComponent>().m_Size;
     const glm::ivec2& wireTextureSize = world.get<xg::WireTextureSizeComponent>().m_Size;
 
@@ -309,85 +333,42 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
     const auto& dragMovement = world.get<xg::UIDragPreviewMovement>();
     const auto& previewAddingCog = world.get<xg::UIPreviewAddingCogComponent>();
     const bool dragValid = world.get<xg::UIDragValidComponent>().m_Valid;
-    m_CogBoxPreviewDropRenderer->RemoveAll();
-    for (xg::IRenderer* renderer : m_CogPreviewDropRendererMap.GetOrder())
+    if (dragValid && !previewAddingCog.m_HoverCogId)
     {
-        renderer->RemoveAll();
-    }
-    if (dragValid)
-    {
-        world.each([&](const xg::UIDragPreviewComponent&, const xg::UIDragPreviewCogComponent& previewCog)
-            {
-                if (previewAddingCog.m_HoverCogId)
-                    return;
+        const glm::vec2 previewTranslation = glm::vec2(xg::SnapToGrid(dragMovement.m_Translation));
+        const glm::vec2 relativeCameraPos = dragMovement.m_Rotation.ApplyInverse(camera.m_Position - previewTranslation);
+        const glm::vec3 cameraPos = glm::vec3(relativeCameraPos, 0.5f);
+        const glm::vec3 cameraTarget = glm::vec3(relativeCameraPos, 0.0f);
+        const glm::ivec2 rotatedUp = dragMovement.m_Rotation.ApplyInverse(glm::ivec2(0, 1));
+        const glm::vec3 cameraUp = glm::vec3(rotatedUp.x, rotatedUp.y, 0.f);
 
-                const xg::CogPrototype* cog = cogMap.Get(previewCog.m_CogId);
-                glm::ivec2 cogExtents = cog->GetSize() - glm::ivec2(1, 1);
-                cogExtents = dragMovement.m_Rotation.GetIMatrix() * cogExtents;
-
-                m_CogBoxPreviewDropRenderer->AddBox(glm::vec2(0, 0), cogExtents);
-
-                const glm::vec2 previewCogPosition = glm::vec2(xg::SnapToGrid(dragMovement.m_Translation));
-
-                const glm::vec2 relativeCameraPos = camera.m_Position - previewCogPosition;
-                const glm::vec3 cameraPos = glm::vec3(relativeCameraPos, 0.5f);
-                const glm::vec3 cameraTarget = glm::vec3(relativeCameraPos, 0.0f);
-                const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-
-                const glm::mat4 previewCameraView = glm::lookAt(cameraPos, cameraTarget, cameraUp);
-                const glm::mat4 previewViewProjection = camera.m_Projection * previewCameraView;
-                m_CogBoxPreviewDropRenderer->Draw(previewViewProjection, camera.m_Feather);
-
-                xg::RenderableAdder renderableAdder("CogPreview", m_CogPreviewDropRendererMap);
-                cog->AddStaticRenderables({ glm::ivec2(0, 0), dragMovement.m_Rotation }, renderableAdder);
-
-                for (xg::IRenderer* renderer : m_CogPreviewDropRendererMap.GetOrder())
-                {
-                    renderer->Draw(previewViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
-                }
-            });
+        const glm::mat4 previewCameraView = glm::lookAt(cameraPos, cameraTarget, cameraUp);
+        const glm::mat4 previewViewProjection = camera.m_Projection * previewCameraView;
+        m_CogBoxPreviewDropRenderer->Draw(previewViewProjection, camera.m_Feather);
+        for (xg::IRenderer* renderer : m_CogPreviewDropRendererMap.GetOrder())
+        {
+            renderer->Draw(previewViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
+        }
     }
 
     m_CogBoxPreviewRenderer->m_Uniforms.m_Color = glm::vec3(dragValid ? 0.f : 1.f, 0.f, 0.f);
-    m_CogBoxPreviewRenderer->RemoveAll();
-
-    for (xg::IRenderer* renderer : m_CogPreviewRendererMap.GetOrder())
     {
-        renderer->RemoveAll();
-    }
-    world.each([&](const xg::UIDragPreviewComponent&, const xg::UIDragPreviewCogComponent& previewCog)
+        const glm::vec2 previewCogPosition = dragMovement.m_Translation;
+
+        const glm::vec2 relativeCameraPos = dragMovement.m_Rotation.ApplyInverse(camera.m_Position - previewCogPosition);
+        const glm::vec3 cameraPos = glm::vec3(relativeCameraPos, 0.5f);
+        const glm::vec3 cameraTarget = glm::vec3(relativeCameraPos, 0.0f);
+        const glm::ivec2 rotatedUp = dragMovement.m_Rotation.ApplyInverse(glm::ivec2(0, 1));
+        const glm::vec3 cameraUp = glm::vec3(rotatedUp.x, rotatedUp.y, 0.f);
+
+        const glm::mat4 previewCameraView = glm::lookAt(cameraPos, cameraTarget, cameraUp);
+        const glm::mat4 previewViewProjection = camera.m_Projection * previewCameraView;
+        m_CogBoxPreviewRenderer->Draw(previewViewProjection, camera.m_Feather);
+        for (xg::IRenderer* renderer : m_CogPreviewRendererMap.GetOrder())
         {
-            const xg::CogPrototype* cog = cogMap.Get(previewCog.m_CogId);
-            glm::ivec2 cogExtents = cog->GetSize() - glm::ivec2(1, 1);
-            cogExtents = dragMovement.m_Rotation.GetIMatrix() * cogExtents;
-
-            m_CogBoxPreviewRenderer->AddBox(glm::ivec2(0, 0), cogExtents);
-
-            glm::vec2 offset(0.f, 0.f);
-            if (world.get<xg::UIPreviewAddingCogComponent>().m_HoverCogId)
-            {
-                offset = -glm::vec2(cogExtents);
-            }
-
-            const glm::vec2 previewCogPosition = dragMovement.m_Translation + offset;
-
-            const glm::vec2 relativeCameraPos = camera.m_Position - previewCogPosition;
-            const glm::vec3 cameraPos = glm::vec3(relativeCameraPos, 0.5f);
-            const glm::vec3 cameraTarget = glm::vec3(relativeCameraPos, 0.0f);
-            const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-
-            const glm::mat4 previewCameraView = glm::lookAt(cameraPos, cameraTarget, cameraUp);
-            const glm::mat4 previewViewProjection = camera.m_Projection * previewCameraView;
-            m_CogBoxPreviewRenderer->Draw(previewViewProjection, camera.m_Feather);
-
-            xg::RenderableAdder renderableAdder("CogPreview", m_CogPreviewRendererMap);
-            cog->AddStaticRenderables({ glm::ivec2(0, 0), dragMovement.m_Rotation }, renderableAdder);
-
-            for (xg::IRenderer* renderer : m_CogPreviewRendererMap.GetOrder())
-            {
-                renderer->Draw(previewViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
-            }
-        });
+            renderer->Draw(previewViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
+        }
+    }
 
     m_CogNodeRenderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
 

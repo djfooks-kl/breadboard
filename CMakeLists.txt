@@ -139,6 +139,7 @@ set(source_files
     src/UIDragDropSystem.cpp
     src/UIDragDropSystem.h
     src/UIDraggingDropComponent.h
+    src/UIDragPreviewChanged.h
     src/UIDragPreviewComponent.h
     src/UIDragPreviewSystem.cpp
     src/UIDragPreviewSystem.h
