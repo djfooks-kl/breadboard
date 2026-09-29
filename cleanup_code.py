@@ -2,7 +2,7 @@
 import os
 import sys
 
-def convert_indentation(line, tab_width=4):
+def convert_indentation_and_strip_whitespace(line, tab_width=4):
     """Convert the leading whitespace of a line to spaces.
 
     Any existing mix of leading tabs/spaces is first expanded into an
@@ -22,7 +22,9 @@ def convert_indentation(line, tab_width=4):
     tabs = col // tab_width
     spaces = col % tab_width
 
-    return (" " * tabs * tab_width) + (" " * spaces) + stripped
+    newline = '\r\n' if stripped.endswith('\r\n') else ('\n' if stripped.endswith('\n') else '')
+
+    return (" " * tabs * tab_width) + (" " * spaces) + stripped.rstrip() + newline
 
 def sort_include_blocks(lines):
     """Sort each consecutive run of '#include' lines alphabetically."""
@@ -31,7 +33,7 @@ def sort_include_blocks(lines):
 
     def flush_block():
         if block:
-            block.sort(key=lambda l: l.strip())
+            block.sort(key=lambda l: l.strip().lower())
             result.extend(block)
             block.clear()
 
@@ -55,7 +57,7 @@ def process_file(path, tab_width=4):
 
     raw_lines = content.splitlines(keepends=True)
 
-    indented_lines = [convert_indentation(l, tab_width) for l in raw_lines]
+    indented_lines = [convert_indentation_and_strip_whitespace(l, tab_width) for l in raw_lines]
     final_lines = sort_include_blocks(indented_lines)
 
     new_content = "".join(final_lines)
