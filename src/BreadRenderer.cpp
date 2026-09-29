@@ -4,6 +4,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "CameraComponent.h"
+#include "CameraHelpers.h"
 #include "CogBoxRenderer.h"
 #include "CogComponent.h"
 #include "CogNodeRenderer.h"
@@ -336,13 +337,7 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
     if (dragValid && !previewAddingCog.m_HoverCogId)
     {
         const glm::vec2 previewTranslation = glm::vec2(xg::SnapToGrid(dragMovement.m_Translation));
-        const glm::vec2 relativeCameraPos = dragMovement.m_Rotation.ApplyInverse(camera.m_Position - previewTranslation);
-        const glm::vec3 cameraPos = glm::vec3(relativeCameraPos, 0.5f);
-        const glm::vec3 cameraTarget = glm::vec3(relativeCameraPos, 0.0f);
-        const glm::ivec2 rotatedUp = dragMovement.m_Rotation.ApplyInverse(glm::ivec2(0, 1));
-        const glm::vec3 cameraUp = glm::vec3(rotatedUp.x, rotatedUp.y, 0.f);
-
-        const glm::mat4 previewCameraView = glm::lookAt(cameraPos, cameraTarget, cameraUp);
+        const glm::mat4 previewCameraView = xg::CameraViewWithTransformedScene(camera.m_Position, previewTranslation, dragMovement.m_Rotation);
         const glm::mat4 previewViewProjection = camera.m_Projection * previewCameraView;
         m_CogBoxPreviewDropRenderer->Draw(previewViewProjection, camera.m_Feather);
         for (xg::IRenderer* renderer : m_CogPreviewDropRendererMap.GetOrder())
@@ -353,15 +348,7 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
 
     m_CogBoxPreviewRenderer->m_Uniforms.m_Color = glm::vec3(dragValid ? 0.f : 1.f, 0.f, 0.f);
     {
-        const glm::vec2 previewCogPosition = dragMovement.m_Translation;
-
-        const glm::vec2 relativeCameraPos = dragMovement.m_Rotation.ApplyInverse(camera.m_Position - previewCogPosition);
-        const glm::vec3 cameraPos = glm::vec3(relativeCameraPos, 0.5f);
-        const glm::vec3 cameraTarget = glm::vec3(relativeCameraPos, 0.0f);
-        const glm::ivec2 rotatedUp = dragMovement.m_Rotation.ApplyInverse(glm::ivec2(0, 1));
-        const glm::vec3 cameraUp = glm::vec3(rotatedUp.x, rotatedUp.y, 0.f);
-
-        const glm::mat4 previewCameraView = glm::lookAt(cameraPos, cameraTarget, cameraUp);
+        const glm::mat4 previewCameraView = xg::CameraViewWithTransformedScene(camera.m_Position, dragMovement.m_Translation, dragMovement.m_Rotation);
         const glm::mat4 previewViewProjection = camera.m_Projection * previewCameraView;
         m_CogBoxPreviewRenderer->Draw(previewViewProjection, camera.m_Feather);
         for (xg::IRenderer* renderer : m_CogPreviewRendererMap.GetOrder())
