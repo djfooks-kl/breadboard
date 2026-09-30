@@ -1,9 +1,9 @@
 #include "DebugUI.h"
 
-#include <ImGui/imgui.h>
-#include <ImGui/misc/cpp/imgui_stdlib.h>
 #include <flecs/flecs.h>
 #include <format>
+#include <ImGui/imgui.h>
+#include <ImGui/misc/cpp/imgui_stdlib.h>
 #include <set>
 #include <sstream>
 

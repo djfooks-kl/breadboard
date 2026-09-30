@@ -3,8 +3,8 @@
 
 #include "GridSizeComponent.h"
 #include "UIWireSegmentsComponent.h"
-#include "UIWireValidComponent.h"
 #include "UIWireValidationSystem.h"
+#include "UIWireValidComponent.h"
 
 #define SYSTEM_TEST_CASE(description) TEST_CASE("xg::UIWireValidationSystem - " description, "[xg::UIWireValidationSystem]")
 
