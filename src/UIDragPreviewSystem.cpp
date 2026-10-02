@@ -4,11 +4,13 @@
 #include "Cogs/CogMap.h"
 #include "FlecsGame.h"
 #include "GridHelpers.h"
+#include "SelectedComponent.h"
 #include "UIDragPreviewChanged.h"
 #include "UIDragPreviewCogComponent.h"
 #include "UIDragPreviewComponent.h"
 #include "UIDragPreviewMovement.h"
 #include "UIPreviewAddingCogComponent.h"
+#include "UIPreviewMovingComponent.h"
 #include "UIRotateComponent.h"
 #include "WorldMouseComponent.h"
 
@@ -20,8 +22,25 @@ void xg::UIDragPreviewSystem::Update(flecs::world& world)
     }
 
     const auto& previewAddingCog = world.get<const xg::UIPreviewAddingCogComponent>();
+    const auto& previewMoving = world.get<const xg::UIPreviewMovingComponent>();
 
-    if (previewAddingCog.m_HoverCogId)
+    if (previewMoving.m_Dragging)
+    {
+        world.defer_begin();
+        auto addQuery = world.query_builder<const xg::SelectedComponent>().without<const xg::UIDragPreviewComponent>();
+        addQuery.build().each([&](flecs::entity selectedEntity, const xg::SelectedComponent&)
+            {
+                selectedEntity.add<xg::UIDragPreviewComponent>();
+                world.add<xg::UIDragPreviewChanged>();
+            });
+        world.defer_end();
+
+        const auto& worldMouse = world.get<const xg::WorldMouseComponent>();
+        auto& dragPreview = world.get_mut<xg::UIDragPreviewMovement>();
+        dragPreview.m_Rotation += world.get<xg::UIRotateComponent>().m_RotationDirection;
+        dragPreview.m_Translation = worldMouse.m_Position;
+    }
+    else if (previewAddingCog.m_HoverCogId)
     {
         const auto& cogMap = world.get<const xg::CogMap>();
         const xg::CogPrototype* cog = cogMap.Get(previewAddingCog.m_HoverCogId);
@@ -66,7 +85,14 @@ void xg::UIDragPreviewSystem::Update(flecs::world& world)
     else
     {
         world.defer_begin();
-        world.each([&](flecs::entity entity, const xg::UIDragPreviewComponent&)
+
+        auto addQuery = world.query_builder<const xg::UIDragPreviewComponent>().without<const xg::UIDragPreviewCogComponent>();
+        addQuery.build().each([&](flecs::entity movingEntity, const xg::UIDragPreviewComponent&)
+            {
+                movingEntity.remove<xg::UIDragPreviewComponent>();
+                world.add<xg::UIDragPreviewChanged>();
+            });
+        world.each([&](flecs::entity entity, const xg::UIDragPreviewComponent&, xg::UIDragPreviewCogComponent)
             {
                 entity.destruct();
                 world.add<xg::UIDragPreviewChanged>();

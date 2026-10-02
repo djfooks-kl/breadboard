@@ -46,6 +46,7 @@
 #include "UIPreviewAddingCogComponent.h"
 #include "UIPreviewAddingWireComponent.h"
 #include "UIPreviewCreateWireComponent.h"
+#include "UIPreviewMovingComponent.h"
 #include "UIPreviewWireSystem.h"
 #include "UIRedoComponent.h"
 #include "UIRotateComponent.h"
@@ -69,19 +70,20 @@ void xg::SetupWorld(flecs::world& world)
     world.emplace<xg::InputComponent>();
     world.emplace<xg::KeybindingSettings>();
     world.emplace<xg::MappedInputComponent>();
-    world.emplace<xg::RenderSettings>();
-    world.emplace<xg::SelectionBoxComponent>();
-    world.emplace<xg::UIDraggingDropComponent>();
-    world.emplace<xg::UIDragPreviewMovement>();
-    world.emplace<xg::UIDragValidComponent>();
-    world.emplace<xg::UIHoverComponent>();
-    world.emplace<xg::UIPreviewAddingCogComponent>();
-    world.emplace<xg::UIPreviewAddingWireComponent>();
-    world.emplace<xg::UIPreviewCreateWireComponent>();
-    world.emplace<xg::UIRotateComponent>();
-    world.emplace<xg::UISelectComponent>();
-    world.emplace<xg::UISettings>();
     world.emplace<xg::WindowSizeComponent>();
+    world.emplace<xg::UISettings>();
+    world.emplace<xg::UISelectComponent>();
+    world.emplace<xg::UIRotateComponent>();
+    world.emplace<xg::UIPreviewMovingComponent>();
+    world.emplace<xg::UIPreviewCreateWireComponent>();
+    world.emplace<xg::UIPreviewAddingWireComponent>();
+    world.emplace<xg::UIPreviewAddingCogComponent>();
+    world.emplace<xg::UIHoverComponent>();
+    world.emplace<xg::UIDragValidComponent>();
+    world.emplace<xg::UIDragPreviewMovement>();
+    world.emplace<xg::UIDraggingDropComponent>();
+    world.emplace<xg::SelectionBoxComponent>();
+    world.emplace<xg::RenderSettings>();
     world.emplace<xg::WorldMouseComponent>();
 
     world.ensure<xg::GridSizeComponent>().m_Size = glm::ivec2(100, 100);

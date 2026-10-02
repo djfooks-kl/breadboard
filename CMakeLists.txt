@@ -152,6 +152,7 @@ set(source_files
     src/UIPreviewAddingCogComponent.h
     src/UIPreviewAddingWireComponent.h
     src/UIPreviewCreateWireComponent.h
+    src/UIPreviewMovingComponent.h
     src/UIPreviewWireComponent.h
     src/UIPreviewWireSystem.cpp
     src/UIPreviewWireSystem.h

@@ -33,6 +33,7 @@
 #include "UIDragPreviewMovement.h"
 #include "UIDragValidComponent.h"
 #include "UIPreviewAddingCogComponent.h"
+#include "UIPreviewMovingComponent.h"
 #include "UISelectComponent.h"
 #include "UISettings.h"
 #include "UIWireSegmentsComponent.h"
@@ -305,6 +306,16 @@ void xg::BreadRenderer::Update(const flecs::world& world)
                 cog->AddStaticRenderables({}, xg::RenderableAdder("CogPreview", m_CogPreviewRendererMap));
                 cog->AddStaticRenderables({}, xg::RenderableAdder("CogPreviewDrop", m_CogPreviewDropRendererMap));
             });
+        world.each([&](const xg::UIDragPreviewComponent&, const xg::CogComponent& cogComponent)
+            {
+                const xg::CogPrototype* cog = cogMap.Get(cogComponent.m_CogId);
+                glm::ivec2 cogExtents = cog->GetSize() - glm::ivec2(1, 1);
+                m_CogBoxPreviewRenderer->AddBox(cogComponent.m_Transform.m_Translation, cogComponent.m_Transform.Apply(cogExtents));
+                m_CogBoxPreviewDropRenderer->AddBox(cogComponent.m_Transform.m_Translation, cogComponent.m_Transform.Apply(cogExtents));
+
+                cog->AddStaticRenderables(cogComponent.m_Transform, xg::RenderableAdder("CogPreview", m_CogPreviewRendererMap));
+                cog->AddStaticRenderables(cogComponent.m_Transform, xg::RenderableAdder("CogPreviewDrop", m_CogPreviewDropRendererMap));
+            });
     }
 }
 
@@ -334,9 +345,11 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
     const auto& dragMovement = world.get<xg::UIDragPreviewMovement>();
     const auto& previewAddingCog = world.get<xg::UIPreviewAddingCogComponent>();
     const bool dragValid = world.get<xg::UIDragValidComponent>().m_Valid;
+    const auto* previewMoving = world.try_get<const xg::UIPreviewMovingComponent>();
+    const glm::vec2 grabbedPos = previewMoving ? previewMoving->m_GrabbedPosition : glm::vec2(0.f);
     if (dragValid && !previewAddingCog.m_HoverCogId)
     {
-        const glm::vec2 previewTranslation = glm::vec2(xg::SnapToGrid(dragMovement.m_Translation));
+        const glm::vec2 previewTranslation = glm::vec2(xg::SnapToGrid(dragMovement.m_Translation - dragMovement.m_Rotation.Apply(grabbedPos)));
         const glm::mat4 previewCameraView = xg::CameraViewWithTransformedScene(camera.m_Position, previewTranslation, dragMovement.m_Rotation);
         const glm::mat4 previewViewProjection = camera.m_Projection * previewCameraView;
         m_CogBoxPreviewDropRenderer->Draw(previewViewProjection, camera.m_Feather);
@@ -348,7 +361,10 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
 
     m_CogBoxPreviewRenderer->m_Uniforms.m_Color = glm::vec3(dragValid ? 0.f : 1.f, 0.f, 0.f);
     {
-        const glm::mat4 previewCameraView = xg::CameraViewWithTransformedScene(camera.m_Position, dragMovement.m_Translation, dragMovement.m_Rotation);
+        const glm::mat4 previewCameraView = xg::CameraViewWithTransformedScene(
+            camera.m_Position,
+            dragMovement.m_Translation - dragMovement.m_Rotation.Apply(grabbedPos),
+            dragMovement.m_Rotation);
         const glm::mat4 previewViewProjection = camera.m_Projection * previewCameraView;
         m_CogBoxPreviewRenderer->Draw(previewViewProjection, camera.m_Feather);
         for (xg::IRenderer* renderer : m_CogPreviewRendererMap.GetOrder())

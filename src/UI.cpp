@@ -24,6 +24,7 @@
 #include "UIPreviewAddingCogComponent.h"
 #include "UIPreviewAddingWireComponent.h"
 #include "UIPreviewCreateWireComponent.h"
+#include "UIPreviewMovingComponent.h"
 #include "UIRedoComponent.h"
 #include "UIRotateComponent.h"
 #include "UISelectComponent.h"
@@ -214,6 +215,13 @@ bool xg::UI::GameConsumeMouseRelease(flecs::world& world)
         select.m_SelectBox = true;
         return true;
     }
+
+    auto& moving = world.get_mut<xg::UIPreviewMovingComponent>();
+    if (moving.m_Dragging)
+    {
+        moving.m_Dragging = false;
+    }
+
     return false;
 }
 
@@ -261,7 +269,16 @@ bool xg::UI::GameConsumeMouseClick(flecs::world& world)
 
     if (hover.m_Entity && hover.m_Entity == hover.m_Cog)
     {
-        select.m_SelectEntity = hover.m_Cog;
+        if (hover.m_Entity.has<xg::SelectedComponent>())
+        {
+            auto& moving = world.get_mut<xg::UIPreviewMovingComponent>();
+            moving.m_Dragging = true;
+            moving.m_GrabbedPosition = world.get<xg::WorldMouseComponent>().m_Position;
+        }
+        else
+        {
+            select.m_SelectEntity = hover.m_Cog;
+        }
         return true;
     }
 
