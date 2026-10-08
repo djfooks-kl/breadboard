@@ -11,6 +11,7 @@
 #include "OnStageComponent.h"
 #include "OnStageRemovedComponent.h"
 #include "OnStageSystem.h"
+#include "UIDragPreviewComponent.h"
 
 #define SYSTEM_TEST_CASE(description) TEST_CASE("xg::OnStageSystem - " description, "[xg::OnStageSystem]")
 
@@ -126,6 +127,7 @@ SYSTEM_TEST_CASE("Executing a delete wire command -> "
     CHECK(addedEntity.has<xg::OnStageComponent>() == false);
     CHECK(addedEntity.has<xg::OnStageRemovedComponent>());
 }
+
 SYSTEM_TEST_CASE("OnStageAddedComponent is removed next frame")
 {
     TestEnv env;
@@ -161,4 +163,25 @@ SYSTEM_TEST_CASE("OnStageRemovedComponent is removed next frame")
     env.Update();
     env.Update();
     CHECK(addedEntity.has<xg::OnStageRemovedComponent>() == false);
+}
+
+SYSTEM_TEST_CASE("During drag to move an entity -> "
+    "Remove the OnStageComponent and add OnStageRemovedComponent")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity addedEntity = world.entity();
+    flecs::entity commandAdd = world.entity();
+    commandAdd.ensure<xg::command::AddWireComponent>();
+    commandAdd.ensure<xg::command::EntityComponent>().m_Entity = addedEntity;
+
+    commandAdd.add<xg::command::ExecuteComponent>();
+    env.Update();
+
+    addedEntity.add<xg::UIDragPreviewComponent>();
+    env.Update();
+
+    CHECK(addedEntity.has<xg::OnStageComponent>() == false);
+    CHECK(addedEntity.has<xg::OnStageRemovedComponent>());
 }

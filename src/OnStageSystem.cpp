@@ -11,6 +11,7 @@
 #include "OnStageAddedComponent.h"
 #include "OnStageComponent.h"
 #include "OnStageRemovedComponent.h"
+#include "UIDragPreviewComponent.h"
 
 void xg::OnStageSystem::Update(flecs::world& world)
 {
@@ -60,6 +61,17 @@ void xg::OnStageSystem::Update(flecs::world& world)
         {
             deleteWire.m_Wire.remove<xg::OnStageComponent>();
             deleteWire.m_Wire.add<xg::OnStageRemovedComponent>();
+        });
+    world.defer_end();
+
+    world.defer_begin();
+    world.each([&](
+        flecs::entity entity,
+        const xg::OnStageComponent&,
+        const xg::UIDragPreviewComponent&)
+        {
+            entity.remove<xg::OnStageComponent>();
+            entity.add<xg::OnStageRemovedComponent>();
         });
     world.defer_end();
 }

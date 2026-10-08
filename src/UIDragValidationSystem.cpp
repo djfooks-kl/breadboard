@@ -28,6 +28,37 @@ namespace
         }
         return false;
     }
+
+    bool IsCogPositionValid(
+        const xg::CogResourceId& cogId,
+        const xg::CogMap& cogMap,
+        const xg::GridAttachmentsMap& attachmentsMap,
+        const glm::ivec2& gridSize,
+        const xg::UIDragPreviewMovement& previewMovement)
+    {
+        const auto* cogPrototype = cogMap.Get(cogId);
+        const xc::ITransform transform{
+            .m_Translation = xg::SnapToGrid(previewMovement.m_Translation ),
+            .m_Rotation = previewMovement.m_Rotation };
+        const xc::IAABB aabb = xc::IAABB::FromTransformAndSize(transform, cogPrototype->GetSize());
+
+        bool valid = true;
+        aabb.ForEachCellUntil(
+            [&](const glm::ivec2& p)
+            {
+                if (GridHasCog(attachmentsMap, p) ||
+                    p.x < 0 ||
+                    p.y < 0 ||
+                    p.x > gridSize.x ||
+                    p.y > gridSize.y)
+                {
+                    valid = false;
+                    return true;
+                }
+                return false;
+            });
+        return valid;
+    }
 }
 
 void xg::UIDragValidationSystem::Update(flecs::world& world)
@@ -35,30 +66,33 @@ void xg::UIDragValidationSystem::Update(flecs::world& world)
     const auto& attachmentsMap = world.get<xg::GridAttachmentsComponent>().m_Map;
     const glm::ivec2& gridSize = world.get<xg::GridSizeComponent>().m_Size;
     const auto& previewMovement = world.get<xg::UIDragPreviewMovement>();
+    const auto& cogMap = world.get<xg::CogMap>();
 
     bool valid = true;
     world.each([&](const xg::UIDragPreviewCogComponent& dragPreview)
         {
-            const auto* cogPrototype = world.get<xg::CogMap>().Get(dragPreview.m_CogId);
-            const xc::ITransform transform{
-                .m_Translation = xg::SnapToGrid(previewMovement.m_Translation),
-                .m_Rotation = previewMovement.m_Rotation };
-            const xc::IAABB aabb = xc::IAABB::FromTransformAndSize(transform, cogPrototype->GetSize());
-            aabb.ForEachCellUntil(
-                [&](const glm::ivec2& p)
-                {
-                    if (GridHasCog(attachmentsMap, p) ||
-                        p.x < 0 ||
-                        p.y < 0 ||
-                        p.x > gridSize.x ||
-                        p.y > gridSize.y)
-                    {
-                        valid = false;
-                        return true;
-                    }
-                    return false;
-                });
-            return valid;
+            if (!IsCogPositionValid(
+                dragPreview.m_CogId,
+                cogMap,
+                attachmentsMap,
+                gridSize,
+                previewMovement))
+            {
+                valid = false;
+            }
+        });
+
+    world.each([&](const xg::CogComponent& cogComponent, const xg::UIDragPreviewComponent&)
+        {
+            if (!IsCogPositionValid(
+                cogComponent.m_CogId,
+                cogMap,
+                attachmentsMap,
+                gridSize,
+                previewMovement))
+            {
+                valid = false;
+            }
         });
 
     world.get_mut<xg::UIDragValidComponent>().m_Valid = valid;

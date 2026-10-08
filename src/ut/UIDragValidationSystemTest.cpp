@@ -1,4 +1,6 @@
 #include "BreadTest.h"
+
+#include <catch2/catch_template_test_macros.hpp>
 #include <flecs/flecs.h>
 
 #include "CogComponent.h"
@@ -10,8 +12,15 @@
 #include "UIDragPreviewMovement.h"
 #include "UIDragValidationSystem.h"
 #include "UIDragValidComponent.h"
+#include "UIPreviewMovingComponent.h"
 
 #define SYSTEM_TEST_CASE(description) TEST_CASE("xg::UIDragValidationSystem - " description, "[xg::UIDragValidationSystem]")
+
+#define SYSTEM_TEMPLATE_TEST_CASE(description, ...)  \
+    TEMPLATE_TEST_CASE(                              \
+        "xg::UIDragValidationSystem - " description, \
+        "[xg::UIDragValidationSystem]",              \
+        __VA_ARGS__)
 
 namespace
 {
@@ -40,6 +49,7 @@ namespace
             m_World.emplace<xg::UIDragValidComponent>();
             m_World.ensure<xg::GridSizeComponent>().m_Size = glm::ivec2(1000, 1000);
             m_World.ensure<xg::UIDragPreviewMovement>();
+            m_World.ensure<xg::UIPreviewMovingComponent>();
 
             auto& cogMap = m_World.ensure<xg::CogMap>();
             cogMap.Register<Size1Cog>();
@@ -55,13 +65,16 @@ namespace
     };
 }
 
-SYSTEM_TEST_CASE("Nothing on grid -> Preview valid")
+SYSTEM_TEMPLATE_TEST_CASE(
+    "Preview cog with nothing on grid -> Preview valid",
+    xg::UIDragPreviewCogComponent,
+    xg::CogComponent)
 {
     TestEnv env;
     flecs::world world = env.m_World;
 
     flecs::entity draggingCog = world.entity();
-    draggingCog.ensure<xg::UIDragPreviewCogComponent>().m_CogId = s_Size1Cog;
+    draggingCog.ensure<TestType>().m_CogId = s_Size1Cog;
     draggingCog.add<xg::UIDragPreviewComponent>();
     world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(3.f, 5.f);
 
@@ -69,13 +82,16 @@ SYSTEM_TEST_CASE("Nothing on grid -> Preview valid")
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
 }
 
-SYSTEM_TEST_CASE("A cog on the grid in the same place -> Preview invalid")
+SYSTEM_TEMPLATE_TEST_CASE(
+    "Preview cog with a cog on the grid in the same place -> Preview invalid",
+    xg::UIDragPreviewCogComponent,
+    xg::CogComponent)
 {
     TestEnv env;
     flecs::world world = env.m_World;
 
     flecs::entity draggingCog = world.entity();
-    draggingCog.ensure<xg::UIDragPreviewCogComponent>().m_CogId = s_Size1Cog;
+    draggingCog.ensure<TestType>().m_CogId = s_Size1Cog;
     draggingCog.add<xg::UIDragPreviewComponent>();
     world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(3.2f, 4.6f);
 
@@ -88,13 +104,16 @@ SYSTEM_TEST_CASE("A cog on the grid in the same place -> Preview invalid")
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
 }
 
-SYSTEM_TEST_CASE("Cog on the grid in a different place -> Preview valid")
+SYSTEM_TEMPLATE_TEST_CASE(
+    "Preview cog with a cog on the grid in a different place -> Preview valid",
+    xg::UIDragPreviewCogComponent,
+    xg::CogComponent)
 {
     TestEnv env;
     flecs::world world = env.m_World;
 
     flecs::entity draggingCog = world.entity();
-    draggingCog.ensure<xg::UIDragPreviewCogComponent>().m_CogId = s_Size1Cog;
+    draggingCog.ensure<TestType>().m_CogId = s_Size1Cog;
     draggingCog.add<xg::UIDragPreviewComponent>();
     world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(3.2f, 4.6f);
 
@@ -107,13 +126,54 @@ SYSTEM_TEST_CASE("Cog on the grid in a different place -> Preview valid")
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
 }
 
-SYSTEM_TEST_CASE("A non-cog on the grid in the same place -> Preview valid")
+SYSTEM_TEST_CASE("Moving cog, with cog translate and grabbed position -> Preview invalid")
+{
+    // TODO add a new component with the snapped transform ITransform to apply
+    // then all other systems can just apply this and no need to do complicated maths...
+
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity draggingCog = world.entity();
+    {
+        auto& cog = draggingCog.ensure<xg::CogComponent>();
+        cog.m_CogId = s_Size1Cog;
+        cog.m_Transform = xc::ITransform{ .m_Translation = glm::ivec2(10, 20) };
+    }
+    draggingCog.add<xg::UIDragPreviewComponent>();
+    world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(13.74f, 17.26f);
+    world.get_mut<xg::UIPreviewMovingComponent>().m_GrabbedPosition = glm::vec2(15.25f, 20.75f);
+
+    // vector to move
+    // Translation - GrabbedPosition = (13.74 - 15.25, 17.26 - 20.75) = (-1.51, -3.49)
+    // clamped vector
+    // (-2, -3)
+    // apply this to the current position
+    // (10, 20) + (-2, -3) = (8, 17)
+
+    flecs::entity gridCog = world.entity();
+    gridCog.ensure<xg::CogComponent>();
+
+    world.get_mut<xg::GridAttachmentsComponent>().m_Map[glm::ivec2(8, 17)].m_Entities.push_back(gridCog);
+    env.Update();
+    CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
+
+    world.get_mut<xg::GridAttachmentsComponent>().m_Map.clear();
+    world.get_mut<xg::GridAttachmentsComponent>().m_Map[glm::ivec2(8, 18)].m_Entities.push_back(gridCog);
+    env.Update();
+    CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
+}
+
+SYSTEM_TEMPLATE_TEST_CASE(
+    "Preview cog with a non-cog on the grid in the same place -> Preview valid",
+    xg::UIDragPreviewCogComponent,
+    xg::CogComponent)
 {
     TestEnv env;
     flecs::world world = env.m_World;
 
     flecs::entity draggingCog = world.entity();
-    draggingCog.ensure<xg::UIDragPreviewCogComponent>().m_CogId = s_Size1Cog;
+    draggingCog.ensure<TestType>().m_CogId = s_Size1Cog;
     draggingCog.add<xg::UIDragPreviewComponent>();
     world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(2.9f, 5.1f);
 
@@ -125,13 +185,16 @@ SYSTEM_TEST_CASE("A non-cog on the grid in the same place -> Preview valid")
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
 }
 
-SYSTEM_TEST_CASE("Cog on the grid overlapping with the cog -> Preview invalid")
+SYSTEM_TEMPLATE_TEST_CASE(
+    "Preview cog with cog on the grid overlapping -> Preview invalid",
+    xg::UIDragPreviewCogComponent,
+    xg::CogComponent)
 {
     TestEnv env;
     flecs::world world = env.m_World;
 
     flecs::entity draggingCog = world.entity();
-    draggingCog.ensure<xg::UIDragPreviewCogComponent>().m_CogId = s_LongCog;
+    draggingCog.ensure<TestType>().m_CogId = s_LongCog;
     draggingCog.add<xg::UIDragPreviewComponent>();
     world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(2.6f, 5.4f);
 
@@ -169,13 +232,16 @@ SYSTEM_TEST_CASE("Cog on the grid overlapping with the cog -> Preview invalid")
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
 }
 
-SYSTEM_TEST_CASE("Cog on the grid not overlapping with the cog -> Preview valid")
+SYSTEM_TEMPLATE_TEST_CASE(
+    "Preview cog with cog on the grid not overlapping -> Preview valid",
+    xg::UIDragPreviewCogComponent,
+    xg::CogComponent)
 {
     TestEnv env;
     flecs::world world = env.m_World;
 
     flecs::entity draggingCog = world.entity();
-    draggingCog.ensure<xg::UIDragPreviewCogComponent>().m_CogId = s_LongCog;
+    draggingCog.ensure<TestType>().m_CogId = s_LongCog;
     draggingCog.add<xg::UIDragPreviewComponent>();
     world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(2.6f, 5.4f);
 
@@ -203,13 +269,16 @@ SYSTEM_TEST_CASE("Cog on the grid not overlapping with the cog -> Preview valid"
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
 }
 
-SYSTEM_TEST_CASE("Cog on the grid overlapping with the rotated cog -> Preview invalid")
+SYSTEM_TEMPLATE_TEST_CASE(
+    "Preview cog with cog on the grid overlapping with the rotated cog -> Preview invalid",
+    xg::UIDragPreviewCogComponent,
+    xg::CogComponent)
 {
     TestEnv env;
     flecs::world world = env.m_World;
 
     flecs::entity draggingCog = world.entity();
-    draggingCog.ensure<xg::UIDragPreviewCogComponent>().m_CogId = s_LongCog;
+    draggingCog.ensure<TestType>().m_CogId = s_LongCog;
     draggingCog.add<xg::UIDragPreviewComponent>();
     world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(2.6f, 2.4f);
     world.get_mut<xg::UIDragPreviewMovement>().m_Rotation = xc::Rotation90(1);
@@ -250,13 +319,16 @@ SYSTEM_TEST_CASE("Cog on the grid overlapping with the rotated cog -> Preview in
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
 }
 
-SYSTEM_TEST_CASE("Cog on the grid not overlapping with the rotated cog -> Preview valid")
+SYSTEM_TEMPLATE_TEST_CASE(
+    "Preview cog with cog on the grid not overlapping with the rotated cog -> Preview valid",
+    xg::UIDragPreviewCogComponent,
+    xg::CogComponent)
 {
     TestEnv env;
     flecs::world world = env.m_World;
 
     flecs::entity draggingCog = world.entity();
-    draggingCog.ensure<xg::UIDragPreviewCogComponent>().m_CogId = s_LongCog;
+    draggingCog.ensure<TestType>().m_CogId = s_LongCog;
     draggingCog.add<xg::UIDragPreviewComponent>();
     world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(2.6f, 5.4f);
     world.get_mut<xg::UIDragPreviewMovement>().m_Rotation = xc::Rotation90(1);
@@ -286,13 +358,16 @@ SYSTEM_TEST_CASE("Cog on the grid not overlapping with the rotated cog -> Previe
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
 }
 
-SYSTEM_TEST_CASE("Cog goes into x<0 -> Preview valid")
+SYSTEM_TEMPLATE_TEST_CASE(
+    "Preview cog goes into x<0 -> Preview valid",
+    xg::UIDragPreviewCogComponent,
+    xg::CogComponent)
 {
     TestEnv env;
     flecs::world world = env.m_World;
 
     flecs::entity draggingCog = world.entity();
-    draggingCog.ensure<xg::UIDragPreviewCogComponent>().m_CogId = s_LongCog;
+    draggingCog.ensure<TestType>().m_CogId = s_LongCog;
     draggingCog.add<xg::UIDragPreviewComponent>();
     world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(0.f, 0.f);
     world.get_mut<xg::UIDragPreviewMovement>().m_Rotation = xc::Rotation90(-1);
@@ -301,13 +376,16 @@ SYSTEM_TEST_CASE("Cog goes into x<0 -> Preview valid")
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
 }
 
-SYSTEM_TEST_CASE("Cog goes into y<0 -> Preview valid")
+SYSTEM_TEMPLATE_TEST_CASE(
+    "Preview cog goes into y<0 -> Preview valid",
+    xg::UIDragPreviewCogComponent,
+    xg::CogComponent)
 {
     TestEnv env;
     flecs::world world = env.m_World;
 
     flecs::entity draggingCog = world.entity();
-    draggingCog.ensure<xg::UIDragPreviewCogComponent>().m_CogId = s_LongCog;
+    draggingCog.ensure<TestType>().m_CogId = s_LongCog;
     draggingCog.add<xg::UIDragPreviewComponent>();
     world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(0.f, 0.f);
     world.get_mut<xg::UIDragPreviewMovement>().m_Rotation = xc::Rotation90(1);
@@ -316,13 +394,16 @@ SYSTEM_TEST_CASE("Cog goes into y<0 -> Preview valid")
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
 }
 
-SYSTEM_TEST_CASE("Cog goes into x==gridSize -> Preview valid")
+SYSTEM_TEMPLATE_TEST_CASE(
+    "Cog goes into x==gridSize -> Preview valid",
+    xg::UIDragPreviewCogComponent,
+    xg::CogComponent)
 {
     TestEnv env;
     flecs::world world = env.m_World;
 
     flecs::entity draggingCog = world.entity();
-    draggingCog.ensure<xg::UIDragPreviewCogComponent>().m_CogId = s_LongCog;
+    draggingCog.ensure<TestType>().m_CogId = s_LongCog;
     draggingCog.add<xg::UIDragPreviewComponent>();
     world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(9.f, 0.f);
 
@@ -332,13 +413,16 @@ SYSTEM_TEST_CASE("Cog goes into x==gridSize -> Preview valid")
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
 }
 
-SYSTEM_TEST_CASE("Cog is x > gridSize -> Preview invalid")
+SYSTEM_TEMPLATE_TEST_CASE(
+    "Preview cog is x > gridSize -> Preview invalid",
+    xg::UIDragPreviewCogComponent,
+    xg::CogComponent)
 {
     TestEnv env;
     flecs::world world = env.m_World;
 
     flecs::entity draggingCog = world.entity();
-    draggingCog.ensure<xg::UIDragPreviewCogComponent>().m_CogId = s_LongCog;
+    draggingCog.ensure<TestType>().m_CogId = s_LongCog;
     draggingCog.add<xg::UIDragPreviewComponent>();
     world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(100.f, 0.f);
 
@@ -348,13 +432,16 @@ SYSTEM_TEST_CASE("Cog is x > gridSize -> Preview invalid")
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
 }
 
-SYSTEM_TEST_CASE("Cog goes into y==gridSize -> Preview valid")
+SYSTEM_TEMPLATE_TEST_CASE(
+    "Cog goes into y==gridSize -> Preview valid",
+    xg::UIDragPreviewCogComponent,
+    xg::CogComponent)
 {
     TestEnv env;
     flecs::world world = env.m_World;
 
     flecs::entity draggingCog = world.entity();
-    draggingCog.ensure<xg::UIDragPreviewCogComponent>().m_CogId = s_LongCog;
+    draggingCog.ensure<TestType>().m_CogId = s_LongCog;
     draggingCog.add<xg::UIDragPreviewComponent>();
     world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(0.f, 8.f);
 
@@ -364,13 +451,16 @@ SYSTEM_TEST_CASE("Cog goes into y==gridSize -> Preview valid")
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
 }
 
-SYSTEM_TEST_CASE("Cog is y > gridSize -> Preview invalid")
+SYSTEM_TEMPLATE_TEST_CASE(
+    "Preview cog is y > gridSize -> Preview invalid",
+    xg::UIDragPreviewCogComponent,
+    xg::CogComponent)
 {
     TestEnv env;
     flecs::world world = env.m_World;
 
     flecs::entity draggingCog = world.entity();
-    draggingCog.ensure<xg::UIDragPreviewCogComponent>().m_CogId = s_LongCog;
+    draggingCog.ensure<TestType>().m_CogId = s_LongCog;
     draggingCog.add<xg::UIDragPreviewComponent>();
     world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(0.f, 100.f);
 
