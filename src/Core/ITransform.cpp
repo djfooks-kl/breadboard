@@ -17,6 +17,14 @@ xc::ITransform xc::ITransform::WithLocalTranslation(const glm::ivec2& v) const
     return xc::ITransform{ .m_Translation = Apply(v), .m_Rotation = m_Rotation };
 }
 
+xc::ITransform xc::ITransform::operator*(const xc::ITransform& rhs) const
+{
+    return xc::ITransform{
+        .m_Translation = m_Rotation.Apply(rhs.m_Translation) + m_Translation,
+        .m_Rotation = m_Rotation + rhs.m_Rotation
+    };
+}
+
 std::ostream& xc::operator<<(std::ostream& os, const xc::ITransform& obj)
 {
     return os <<

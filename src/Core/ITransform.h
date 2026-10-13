@@ -20,11 +20,17 @@ namespace xc
         // and the original rotation
         [[nodiscard]] xc::ITransform WithLocalTranslation(const glm::ivec2& v) const;
 
+        [[nodiscard]] xc::ITransform operator*(const xc::ITransform& rhs) const;
+
         bool operator==(const xc::ITransform& other) const = default;
+
+        static const xc::ITransform s_Identy;
 
         glm::ivec2 m_Translation = glm::ivec2(0);
         xc::Rotation90 m_Rotation;
     };
+
+    inline constexpr xc::ITransform xc::ITransform::s_Identy = {};
 
     std::ostream& operator<<(std::ostream& os, const xc::ITransform& obj);
 }

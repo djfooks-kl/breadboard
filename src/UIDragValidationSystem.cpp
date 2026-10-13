@@ -31,16 +31,14 @@ namespace
 
     bool IsCogPositionValid(
         const xg::CogResourceId& cogId,
+        const xc::ITransform& cogTransform,
         const xg::CogMap& cogMap,
         const xg::GridAttachmentsMap& attachmentsMap,
         const glm::ivec2& gridSize,
         const xg::UIDragPreviewMovement& previewMovement)
     {
         const auto* cogPrototype = cogMap.Get(cogId);
-        const xc::ITransform transform{
-            .m_Translation = xg::SnapToGrid(previewMovement.m_Translation ),
-            .m_Rotation = previewMovement.m_Rotation };
-        const xc::IAABB aabb = xc::IAABB::FromTransformAndSize(transform, cogPrototype->GetSize());
+        const xc::IAABB aabb = xc::IAABB::FromTransformAndSize(previewMovement.m_Transform * cogTransform, cogPrototype->GetSize());
 
         bool valid = true;
         aabb.ForEachCellUntil(
@@ -73,6 +71,7 @@ void xg::UIDragValidationSystem::Update(flecs::world& world)
         {
             if (!IsCogPositionValid(
                 dragPreview.m_CogId,
+                xc::ITransform::s_Identy,
                 cogMap,
                 attachmentsMap,
                 gridSize,
@@ -86,6 +85,7 @@ void xg::UIDragValidationSystem::Update(flecs::world& world)
         {
             if (!IsCogPositionValid(
                 cogComponent.m_CogId,
+                cogComponent.m_Transform,
                 cogMap,
                 attachmentsMap,
                 gridSize,

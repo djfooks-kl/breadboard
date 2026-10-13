@@ -12,7 +12,6 @@
 #include "UIDragPreviewMovement.h"
 #include "UIDragValidationSystem.h"
 #include "UIDragValidComponent.h"
-#include "UIPreviewMovingComponent.h"
 
 #define SYSTEM_TEST_CASE(description) TEST_CASE("xg::UIDragValidationSystem - " description, "[xg::UIDragValidationSystem]")
 
@@ -49,7 +48,6 @@ namespace
             m_World.emplace<xg::UIDragValidComponent>();
             m_World.ensure<xg::GridSizeComponent>().m_Size = glm::ivec2(1000, 1000);
             m_World.ensure<xg::UIDragPreviewMovement>();
-            m_World.ensure<xg::UIPreviewMovingComponent>();
 
             auto& cogMap = m_World.ensure<xg::CogMap>();
             cogMap.Register<Size1Cog>();
@@ -76,7 +74,7 @@ SYSTEM_TEMPLATE_TEST_CASE(
     flecs::entity draggingCog = world.entity();
     draggingCog.ensure<TestType>().m_CogId = s_Size1Cog;
     draggingCog.add<xg::UIDragPreviewComponent>();
-    world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(3.f, 5.f);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(3, 5);
 
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
@@ -93,12 +91,12 @@ SYSTEM_TEMPLATE_TEST_CASE(
     flecs::entity draggingCog = world.entity();
     draggingCog.ensure<TestType>().m_CogId = s_Size1Cog;
     draggingCog.add<xg::UIDragPreviewComponent>();
-    world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(3.2f, 4.6f);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(3, 4);
 
     flecs::entity gridCog = world.entity();
     gridCog.ensure<xg::CogComponent>();
 
-    world.get_mut<xg::GridAttachmentsComponent>().m_Map[glm::ivec2(3, 5)].m_Entities.push_back(gridCog);
+    world.get_mut<xg::GridAttachmentsComponent>().m_Map[glm::ivec2(3, 4)].m_Entities.push_back(gridCog);
 
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
@@ -115,51 +113,13 @@ SYSTEM_TEMPLATE_TEST_CASE(
     flecs::entity draggingCog = world.entity();
     draggingCog.ensure<TestType>().m_CogId = s_Size1Cog;
     draggingCog.add<xg::UIDragPreviewComponent>();
-    world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(3.2f, 4.6f);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(3, 4);
 
     flecs::entity gridCog = world.entity();
     gridCog.ensure<xg::CogComponent>();
 
     world.get_mut<xg::GridAttachmentsComponent>().m_Map[glm::ivec2(10, 5)].m_Entities.push_back(gridCog);
 
-    env.Update();
-    CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
-}
-
-SYSTEM_TEST_CASE("Moving cog, with cog translate and grabbed position -> Preview invalid")
-{
-    // TODO add a new component with the snapped transform ITransform to apply
-    // then all other systems can just apply this and no need to do complicated maths...
-
-    TestEnv env;
-    flecs::world world = env.m_World;
-
-    flecs::entity draggingCog = world.entity();
-    {
-        auto& cog = draggingCog.ensure<xg::CogComponent>();
-        cog.m_CogId = s_Size1Cog;
-        cog.m_Transform = xc::ITransform{ .m_Translation = glm::ivec2(10, 20) };
-    }
-    draggingCog.add<xg::UIDragPreviewComponent>();
-    world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(13.74f, 17.26f);
-    world.get_mut<xg::UIPreviewMovingComponent>().m_GrabbedPosition = glm::vec2(15.25f, 20.75f);
-
-    // vector to move
-    // Translation - GrabbedPosition = (13.74 - 15.25, 17.26 - 20.75) = (-1.51, -3.49)
-    // clamped vector
-    // (-2, -3)
-    // apply this to the current position
-    // (10, 20) + (-2, -3) = (8, 17)
-
-    flecs::entity gridCog = world.entity();
-    gridCog.ensure<xg::CogComponent>();
-
-    world.get_mut<xg::GridAttachmentsComponent>().m_Map[glm::ivec2(8, 17)].m_Entities.push_back(gridCog);
-    env.Update();
-    CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
-
-    world.get_mut<xg::GridAttachmentsComponent>().m_Map.clear();
-    world.get_mut<xg::GridAttachmentsComponent>().m_Map[glm::ivec2(8, 18)].m_Entities.push_back(gridCog);
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
 }
@@ -175,7 +135,7 @@ SYSTEM_TEMPLATE_TEST_CASE(
     flecs::entity draggingCog = world.entity();
     draggingCog.ensure<TestType>().m_CogId = s_Size1Cog;
     draggingCog.add<xg::UIDragPreviewComponent>();
-    world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(2.9f, 5.1f);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(3, 5);
 
     flecs::entity notACog = world.entity();
 
@@ -196,7 +156,7 @@ SYSTEM_TEMPLATE_TEST_CASE(
     flecs::entity draggingCog = world.entity();
     draggingCog.ensure<TestType>().m_CogId = s_LongCog;
     draggingCog.add<xg::UIDragPreviewComponent>();
-    world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(2.6f, 5.4f);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(3, 5);
 
     flecs::entity gridCog = world.entity();
     gridCog.ensure<xg::CogComponent>();
@@ -243,7 +203,7 @@ SYSTEM_TEMPLATE_TEST_CASE(
     flecs::entity draggingCog = world.entity();
     draggingCog.ensure<TestType>().m_CogId = s_LongCog;
     draggingCog.add<xg::UIDragPreviewComponent>();
-    world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(2.6f, 5.4f);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(3, 5);
 
     flecs::entity gridCog = world.entity();
     gridCog.ensure<xg::CogComponent>();
@@ -280,8 +240,8 @@ SYSTEM_TEMPLATE_TEST_CASE(
     flecs::entity draggingCog = world.entity();
     draggingCog.ensure<TestType>().m_CogId = s_LongCog;
     draggingCog.add<xg::UIDragPreviewComponent>();
-    world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(2.6f, 2.4f);
-    world.get_mut<xg::UIDragPreviewMovement>().m_Rotation = xc::Rotation90(1);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(3, 2);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Rotation = xc::Rotation90(1);
 
     flecs::entity gridCog = world.entity();
     gridCog.ensure<xg::CogComponent>();
@@ -330,8 +290,8 @@ SYSTEM_TEMPLATE_TEST_CASE(
     flecs::entity draggingCog = world.entity();
     draggingCog.ensure<TestType>().m_CogId = s_LongCog;
     draggingCog.add<xg::UIDragPreviewComponent>();
-    world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(2.6f, 5.4f);
-    world.get_mut<xg::UIDragPreviewMovement>().m_Rotation = xc::Rotation90(1);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::vec2(3, 5);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Rotation = xc::Rotation90(1);
 
     flecs::entity gridCog = world.entity();
     gridCog.ensure<xg::CogComponent>();
@@ -369,8 +329,8 @@ SYSTEM_TEMPLATE_TEST_CASE(
     flecs::entity draggingCog = world.entity();
     draggingCog.ensure<TestType>().m_CogId = s_LongCog;
     draggingCog.add<xg::UIDragPreviewComponent>();
-    world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(0.f, 0.f);
-    world.get_mut<xg::UIDragPreviewMovement>().m_Rotation = xc::Rotation90(-1);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(0, 0);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Rotation = xc::Rotation90(-1);
 
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
@@ -387,8 +347,8 @@ SYSTEM_TEMPLATE_TEST_CASE(
     flecs::entity draggingCog = world.entity();
     draggingCog.ensure<TestType>().m_CogId = s_LongCog;
     draggingCog.add<xg::UIDragPreviewComponent>();
-    world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(0.f, 0.f);
-    world.get_mut<xg::UIDragPreviewMovement>().m_Rotation = xc::Rotation90(1);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(0, 0);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Rotation = xc::Rotation90(1);
 
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
@@ -405,7 +365,7 @@ SYSTEM_TEMPLATE_TEST_CASE(
     flecs::entity draggingCog = world.entity();
     draggingCog.ensure<TestType>().m_CogId = s_LongCog;
     draggingCog.add<xg::UIDragPreviewComponent>();
-    world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(9.f, 0.f);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(9, 0);
 
     world.get_mut<xg::GridSizeComponent>().m_Size = glm::ivec2(10, 300);
 
@@ -424,7 +384,7 @@ SYSTEM_TEMPLATE_TEST_CASE(
     flecs::entity draggingCog = world.entity();
     draggingCog.ensure<TestType>().m_CogId = s_LongCog;
     draggingCog.add<xg::UIDragPreviewComponent>();
-    world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(100.f, 0.f);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(100, 0);
 
     world.get_mut<xg::GridSizeComponent>().m_Size = glm::ivec2(10, 300);
 
@@ -443,7 +403,7 @@ SYSTEM_TEMPLATE_TEST_CASE(
     flecs::entity draggingCog = world.entity();
     draggingCog.ensure<TestType>().m_CogId = s_LongCog;
     draggingCog.add<xg::UIDragPreviewComponent>();
-    world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(0.f, 8.f);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(0, 8);
 
     world.get_mut<xg::GridSizeComponent>().m_Size = glm::ivec2(300, 10);
 
@@ -462,10 +422,85 @@ SYSTEM_TEMPLATE_TEST_CASE(
     flecs::entity draggingCog = world.entity();
     draggingCog.ensure<TestType>().m_CogId = s_LongCog;
     draggingCog.add<xg::UIDragPreviewComponent>();
-    world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(0.f, 100.f);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(0, 100);
 
     world.get_mut<xg::GridSizeComponent>().m_Size = glm::ivec2(300, 10);
 
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
+}
+
+SYSTEM_TEST_CASE(
+    "Preview cog already has a translate -> Preview valid when not overlapping")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity draggingCog = world.entity();
+    draggingCog.ensure<xg::CogComponent>().m_CogId = s_Size1Cog;
+    draggingCog.ensure<xg::CogComponent>().m_Transform.m_Translation = glm::ivec2(10, 20);
+    draggingCog.add<xg::UIDragPreviewComponent>();
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(3, 4);
+
+    flecs::entity gridCog = world.entity();
+    gridCog.ensure<xg::CogComponent>();
+
+    world.get_mut<xg::GridAttachmentsComponent>().m_Map[glm::ivec2(13, 24)].m_Entities.push_back(gridCog);
+
+    env.Update();
+    CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
+
+    draggingCog.ensure<xg::CogComponent>().m_Transform.m_Translation = glm::ivec2(9, 20);
+    env.Update();
+    CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
+}
+
+SYSTEM_TEST_CASE(
+    "Preview cog already has a rotation -> Preview valid when not overlapping")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity draggingCog = world.entity();
+    draggingCog.ensure<xg::CogComponent>().m_CogId = s_LongCog;
+    draggingCog.ensure<xg::CogComponent>().m_Transform.m_Translation = glm::ivec2(10, 2);
+    draggingCog.ensure<xg::CogComponent>().m_Transform.m_Rotation = xc::Rotation90(1);
+    draggingCog.add<xg::UIDragPreviewComponent>();
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(3, 23);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Rotation = xc::Rotation90(1);
+
+    flecs::entity gridCog = world.entity();
+    gridCog.ensure<xg::CogComponent>();
+
+    // p1 = (5, 13)
+    // p2 = (5, 13) - (1, 2) = (4, 11)
+
+    world.get_mut<xg::GridAttachmentsComponent>().m_Map[glm::ivec2(5, 13)].m_Entities.push_back(gridCog);
+    env.Update();
+    CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
+
+    world.get_mut<xg::GridAttachmentsComponent>().m_Map.clear();
+    world.get_mut<xg::GridAttachmentsComponent>().m_Map[glm::ivec2(4, 11)].m_Entities.push_back(gridCog);
+    env.Update();
+    CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
+
+    world.get_mut<xg::GridAttachmentsComponent>().m_Map.clear();
+    world.get_mut<xg::GridAttachmentsComponent>().m_Map[glm::ivec2(3, 11)].m_Entities.push_back(gridCog);
+    env.Update();
+    CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
+
+    world.get_mut<xg::GridAttachmentsComponent>().m_Map.clear();
+    world.get_mut<xg::GridAttachmentsComponent>().m_Map[glm::ivec2(4, 14)].m_Entities.push_back(gridCog);
+    env.Update();
+    CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
+
+    world.get_mut<xg::GridAttachmentsComponent>().m_Map.clear();
+    world.get_mut<xg::GridAttachmentsComponent>().m_Map[glm::ivec2(6, 11)].m_Entities.push_back(gridCog);
+    env.Update();
+    CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
+
+    world.get_mut<xg::GridAttachmentsComponent>().m_Map.clear();
+    world.get_mut<xg::GridAttachmentsComponent>().m_Map[glm::ivec2(4, 10)].m_Entities.push_back(gridCog);
+    env.Update();
+    CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
 }

@@ -349,8 +349,12 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
     const glm::vec2 grabbedPos = previewMoving ? previewMoving->m_GrabbedPosition : glm::vec2(0.f);
     if (dragValid && !previewAddingCog.m_HoverCogId)
     {
-        const glm::vec2 previewTranslation = glm::vec2(xg::SnapToGrid(dragMovement.m_Translation - dragMovement.m_Rotation.Apply(grabbedPos)));
-        const glm::mat4 previewCameraView = xg::CameraViewWithTransformedScene(camera.m_Position, previewTranslation, dragMovement.m_Rotation);
+        const glm::vec2 previewTranslation = glm::vec2(dragMovement.m_Transform.m_Translation);
+        const glm::mat4 previewCameraView = xg::CameraViewWithTransformedScene(
+            camera.m_Position,
+            previewTranslation,
+            dragMovement.m_Transform.m_Rotation);
+
         const glm::mat4 previewViewProjection = camera.m_Projection * previewCameraView;
         m_CogBoxPreviewDropRenderer->Draw(previewViewProjection, camera.m_Feather);
         for (xg::IRenderer* renderer : m_CogPreviewDropRendererMap.GetOrder())
@@ -363,8 +367,8 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
     {
         const glm::mat4 previewCameraView = xg::CameraViewWithTransformedScene(
             camera.m_Position,
-            dragMovement.m_Translation - dragMovement.m_Rotation.Apply(grabbedPos),
-            dragMovement.m_Rotation);
+            dragMovement.m_FreeTranslation,
+            dragMovement.m_Transform.m_Rotation);
         const glm::mat4 previewViewProjection = camera.m_Projection * previewCameraView;
         m_CogBoxPreviewRenderer->Draw(previewViewProjection, camera.m_Feather);
         for (xg::IRenderer* renderer : m_CogPreviewRendererMap.GetOrder())

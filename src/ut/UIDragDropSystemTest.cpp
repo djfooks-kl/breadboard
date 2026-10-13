@@ -42,8 +42,8 @@ SYSTEM_TEST_CASE("When dropping add a new entity requesting the cog at the given
     flecs::entity entity = world.entity();
     entity.ensure<xg::UIDragPreviewCogComponent>().m_CogId = s_TestCog1;
     entity.add<xg::UIDragPreviewComponent>();
-    world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(1.1f, 1.9f);
-    world.get_mut<xg::UIDragPreviewMovement>().m_Rotation = xc::Rotation90(3);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(1, 2);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Rotation = xc::Rotation90(3);
 
     world.get_mut<xg::UIDraggingDropComponent>().m_Drop = true;
 
@@ -68,8 +68,8 @@ SYSTEM_TEST_CASE("After dropping destroy the UIAddCogComponent entity")
     flecs::entity entity = world.entity();
     entity.ensure<xg::UIDragPreviewCogComponent>().m_CogId = s_TestCog1;
     entity.add<xg::UIDragPreviewComponent>();
-    world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(1.1f, 2.2f);
-    world.get_mut<xg::UIDragPreviewMovement>().m_Rotation = xc::Rotation90(3);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(1, 2);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Rotation = xc::Rotation90(3);
 
     world.get_mut<xg::UIDraggingDropComponent>().m_Drop = true;
 
@@ -102,8 +102,8 @@ SYSTEM_TEST_CASE("When not dropping do nothing")
     flecs::entity entity = world.entity();
     entity.ensure<xg::UIDragPreviewCogComponent>().m_CogId = s_TestCog1;
     entity.add<xg::UIDragPreviewComponent>();
-    world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(1.1f, 2.2f);
-    world.get_mut<xg::UIDragPreviewMovement>().m_Rotation = xc::Rotation90(3);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(1, 2);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Rotation = xc::Rotation90(3);
 
     world.get_mut<xg::UIDraggingDropComponent>().m_Drop = false;
 
@@ -120,8 +120,8 @@ SYSTEM_TEST_CASE("When dropping but it is invalid do nothing")
     flecs::entity entity = world.entity();
     entity.ensure<xg::UIDragPreviewCogComponent>().m_CogId = s_TestCog1;
     entity.add<xg::UIDragPreviewComponent>();
-    world.get_mut<xg::UIDragPreviewMovement>().m_Translation = glm::vec2(1.1f, 2.2f);
-    world.get_mut<xg::UIDragPreviewMovement>().m_Rotation = xc::Rotation90(3);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(1, 2);
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Rotation = xc::Rotation90(3);
 
     world.get_mut<xg::UIDraggingDropComponent>().m_Drop = true;
     world.get_mut<xg::UIDragValidComponent>().m_Valid = false;

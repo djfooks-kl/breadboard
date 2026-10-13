@@ -81,8 +81,8 @@ SYSTEM_TEST_CASE("While hovering -> show a preview at the given position")
             createdEntity = entity;
             CHECK(previewCog.m_CogId == s_Size1Cog);
         });
-    CHECK(world.get<xg::UIDragPreviewMovement>().m_Rotation == xc::Rotation90(0));
-    CHECK(world.get<xg::UIDragPreviewMovement>().m_Translation == glm::vec2(1.f, 2.f));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Rotation == xc::Rotation90(0));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_FreeTranslation == glm::vec2(1.f, 2.f));
     CHECK(world.has<xg::UIDragPreviewChanged>());
 
     env.Update();
@@ -97,8 +97,8 @@ SYSTEM_TEST_CASE("While hovering -> show a preview at the given position")
             CHECK(createdEntity == entity);
             CHECK(previewCog.m_CogId == s_Size1Cog);
         });
-    CHECK(world.get<xg::UIDragPreviewMovement>().m_Rotation == xc::Rotation90(0));
-    CHECK(world.get<xg::UIDragPreviewMovement>().m_Translation == glm::vec2(2.f, 3.f));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Rotation == xc::Rotation90(0));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_FreeTranslation == glm::vec2(2.f, 3.f));
     CHECK(world.has<xg::UIDragPreviewChanged>() == false);
 
     world.get_mut<xg::UIPreviewAddingCogComponent>().m_HoverCogId = s_LongCog;
@@ -133,12 +133,12 @@ SYSTEM_TEST_CASE("While hovering, with > 1 size cog -> show a preview with the c
 
     flecs::entity createdEntity;
     CHECK(world.query<xg::UIDragPreviewComponent, xg::UIDragPreviewCogComponent>().count() == 1);
-    CHECK(world.get<xg::UIDragPreviewMovement>().m_Translation == glm::vec2(-1.f, -2.f));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_FreeTranslation == glm::vec2(-1.f, -2.f));
     CHECK(world.has<xg::UIDragPreviewChanged>());
 
     world.get_mut<xg::UIPreviewAddingCogComponent>().m_PreviewPosition = glm::vec2(4.f, 4.f);
     env.Update();
-    CHECK(world.get<xg::UIDragPreviewMovement>().m_Translation == glm::vec2(3.f, 2.f));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_FreeTranslation == glm::vec2(3.f, 2.f));
 }
 
 SYSTEM_TEST_CASE("Stop hovering -> remove the drag preview")
@@ -182,7 +182,7 @@ SYSTEM_TEST_CASE("Hovering ends and cog is being added -> show a preview at the 
         uiPreviewAddingCog.m_HoverCogId = xg::CogResourceId();
         uiPreviewAddingCog.m_AddCogId = s_Size1Cog;
     }
-    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(3.f, 4.f);
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(2.6f, 4.4f);
 
     env.Update();
 
@@ -193,15 +193,17 @@ SYSTEM_TEST_CASE("Hovering ends and cog is being added -> show a preview at the 
             createdEntity = entity;
             CHECK(previewCog.m_CogId == s_Size1Cog);
         });
-    CHECK(world.get<xg::UIDragPreviewMovement>().m_Rotation == xc::Rotation90(0));
-    CHECK(world.get<xg::UIDragPreviewMovement>().m_Translation == glm::vec2(3.f, 4.f));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Translation == glm::ivec2(3, 4));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Rotation == xc::Rotation90(0));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_FreeTranslation == glm::vec2(2.6f, 4.4f));
     CHECK(world.has<xg::UIDragPreviewChanged>() == false);
 
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(5.1f, 6.1f);
     env.Update();
 
     CHECK(world.count<xg::UIDragPreviewComponent>() == 1);
-    CHECK(world.get<xg::UIDragPreviewMovement>().m_Translation == glm::vec2(5.1f, 6.1f));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Translation == glm::ivec2(5, 6));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_FreeTranslation == glm::vec2(5.1f, 6.1f));
     CHECK(world.has<xg::UIDragPreviewChanged>() == false);
 }
 
@@ -225,8 +227,9 @@ SYSTEM_TEST_CASE("Cog is being added (without hovering first) -> show a preview 
             createdEntity = entity;
             CHECK(previewCog.m_CogId == s_Size1Cog);
         });
-    CHECK(world.get<xg::UIDragPreviewMovement>().m_Rotation == xc::Rotation90(0));
-    CHECK(world.get<xg::UIDragPreviewMovement>().m_Translation == glm::vec2(3.f, 4.f));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Translation == glm::ivec2(3, 4));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Rotation == xc::Rotation90(0));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_FreeTranslation == glm::vec2(3.f, 4.f));
     CHECK(world.has<xg::UIDragPreviewChanged>());
 }
 
@@ -253,21 +256,21 @@ SYSTEM_TEST_CASE("Rotation changes while previewing -> Update the rotation")
     env.Update();
 
     CHECK(world.count<xg::UIDragPreviewComponent>() == 1);
-    CHECK(world.get<xg::UIDragPreviewMovement>().m_Rotation == xc::Rotation90(1));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Rotation == xc::Rotation90(1));
     CHECK(world.has<xg::UIDragPreviewChanged>() == false);
 
     world.get_mut<xg::UIRotateComponent>().m_RotationDirection = 0;
     env.Update();
 
     CHECK(world.count<xg::UIDragPreviewComponent>() == 1);
-    CHECK(world.get<xg::UIDragPreviewMovement>().m_Rotation == xc::Rotation90(1));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Rotation == xc::Rotation90(1));
     CHECK(world.has<xg::UIDragPreviewChanged>() == false);
 
     world.get_mut<xg::UIRotateComponent>().m_RotationDirection = -1;
     env.Update();
 
     CHECK(world.count<xg::UIDragPreviewComponent>() == 1);
-    CHECK(world.get<xg::UIDragPreviewMovement>().m_Rotation == xc::Rotation90(0));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Rotation == xc::Rotation90(0));
     CHECK(world.has<xg::UIDragPreviewChanged>() == false);
 }
 
@@ -285,8 +288,9 @@ SYSTEM_TEST_CASE("Rotation changes while previewing then stop -> Movement should
     world.get_mut<xg::UIPreviewAddingCogComponent>().m_AddCogId = {};
     env.Update();
 
-    CHECK(world.get<xg::UIDragPreviewMovement>().m_Translation == glm::vec2(0.f));
-    CHECK(world.get<xg::UIDragPreviewMovement>().m_Rotation == xc::Rotation90(0));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_FreeTranslation == glm::vec2(0.f));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Translation == glm::ivec2(0));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Rotation == xc::Rotation90(0));
 }
 
 SYSTEM_TEST_CASE("While moving -> move all selected entities")
@@ -295,7 +299,8 @@ SYSTEM_TEST_CASE("While moving -> move all selected entities")
     flecs::world world = env.m_World;
 
     world.get_mut<xg::UIPreviewMovingComponent>().m_Dragging = true;
-    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(3.f, 5.f);
+    world.get_mut<xg::UIPreviewMovingComponent>().m_GrabbedPosition = glm::vec2(1.75f, 2.f);
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 5.75f);
 
     flecs::entity cog1 = world.entity();
     cog1.add<xg::SelectedComponent>();
@@ -306,8 +311,9 @@ SYSTEM_TEST_CASE("While moving -> move all selected entities")
 
     CHECK(cog1.has<xg::UIDragPreviewComponent>());
     CHECK(cog2.has<xg::UIDragPreviewComponent>());
-    CHECK(world.get<xg::UIDragPreviewMovement>().m_Translation == glm::vec2(3.f, 5.f));
-    CHECK(world.get<xg::UIDragPreviewMovement>().m_Rotation == xc::Rotation90(0));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_FreeTranslation == glm::vec2(-0.75f, 3.75f));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Translation == glm::ivec2(-1, 4));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Rotation == xc::Rotation90(0));
     CHECK(world.has<xg::UIDragPreviewChanged>());
 
     env.Update();
@@ -320,6 +326,7 @@ SYSTEM_TEST_CASE("While moving, translation/rotation changes -> move all selecte
     flecs::world world = env.m_World;
 
     world.get_mut<xg::UIPreviewMovingComponent>().m_Dragging = true;
+    world.get_mut<xg::UIPreviewMovingComponent>().m_GrabbedPosition = glm::vec2(1.75f, 2.f);
     world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(3.f, 5.f);
 
     flecs::entity cog1 = world.entity();
@@ -329,17 +336,27 @@ SYSTEM_TEST_CASE("While moving, translation/rotation changes -> move all selecte
 
     env.Update();
 
-    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(3.f, 6.f);
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(3.f, 5.75f);
     env.Update();
     CHECK(world.has<xg::UIDragPreviewChanged>() == false);
-    CHECK(world.get<xg::UIDragPreviewMovement>().m_Translation == glm::vec2(3.f, 6.f));
-    CHECK(world.get<xg::UIDragPreviewMovement>().m_Rotation == xc::Rotation90(0));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_FreeTranslation == glm::vec2(1.25f, 3.75f));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Translation == glm::ivec2(1, 4));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Rotation == xc::Rotation90(0));
 
     world.get_mut<xg::UIRotateComponent>().m_RotationDirection = 1;
     env.Update();
+
+    // 1. rotate around origin by rotation
+    // 2. rotatedGrabbed = rotate the grabbed pos by rotation
+    // 3. set translate to rotatedGrabbed->mouse
+
+    // rotatedGrabbed = (2, -1.75)
+    // translate = (3, 5.75) - (2, -1.75) = (1, 7.5)
+
     CHECK(world.has<xg::UIDragPreviewChanged>() == false);
-    CHECK(world.get<xg::UIDragPreviewMovement>().m_Translation == glm::vec2(3.f, 6.f));
-    CHECK(world.get<xg::UIDragPreviewMovement>().m_Rotation == xc::Rotation90(1));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_FreeTranslation == glm::vec2(1.f, 7.5f));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Translation == glm::ivec2(1, 8));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Rotation == xc::Rotation90(1));
 }
 
 SYSTEM_TEST_CASE("Moving stops -> remove the UIDragPreviewComponent")
@@ -365,8 +382,9 @@ SYSTEM_TEST_CASE("Moving stops -> remove the UIDragPreviewComponent")
 
     CHECK(cog1.has<xg::UIDragPreviewComponent>() == false);
     CHECK(cog2.has<xg::UIDragPreviewComponent>() == false);
-    CHECK(world.get<xg::UIDragPreviewMovement>().m_Translation == glm::vec2(0.f));
-    CHECK(world.get<xg::UIDragPreviewMovement>().m_Rotation == xc::Rotation90(0));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_FreeTranslation == glm::vec2(0.f));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Translation == glm::ivec2(0, 0));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Rotation == xc::Rotation90(0));
     CHECK(world.has<xg::UIDragPreviewChanged>());
 
     env.Update();

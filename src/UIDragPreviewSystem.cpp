@@ -37,8 +37,10 @@ void xg::UIDragPreviewSystem::Update(flecs::world& world)
 
         const auto& worldMouse = world.get<const xg::WorldMouseComponent>();
         auto& dragPreview = world.get_mut<xg::UIDragPreviewMovement>();
-        dragPreview.m_Rotation += world.get<xg::UIRotateComponent>().m_RotationDirection;
-        dragPreview.m_Translation = worldMouse.m_Position;
+        dragPreview.m_Transform.m_Rotation += world.get<xg::UIRotateComponent>().m_RotationDirection;
+        const glm::vec2 rotateGrabbed = dragPreview.m_Transform.m_Rotation.Apply(previewMoving.m_GrabbedPosition);
+        dragPreview.m_FreeTranslation = worldMouse.m_Position - rotateGrabbed;
+        dragPreview.m_Transform.m_Translation = xg::SnapToGrid(dragPreview.m_FreeTranslation);
     }
     else if (previewAddingCog.m_HoverCogId)
     {
@@ -49,7 +51,7 @@ void xg::UIDragPreviewSystem::Update(flecs::world& world)
         bool found = false;
         world.each([&](const xg::UIDragPreviewComponent&, xg::UIDragPreviewCogComponent& previewCog)
             {
-                world.get_mut<xg::UIDragPreviewMovement>().m_Translation = previewAddingCog.m_PreviewPosition + offset;
+                world.get_mut<xg::UIDragPreviewMovement>().m_FreeTranslation = previewAddingCog.m_PreviewPosition + offset;
                 if (previewCog.m_CogId != previewAddingCog.m_HoverCogId)
                 {
                     previewCog.m_CogId = previewAddingCog.m_HoverCogId;
@@ -63,7 +65,7 @@ void xg::UIDragPreviewSystem::Update(flecs::world& world)
             flecs::entity dragEntity = xg::CreateEntity(world);
             dragEntity.add<xg::UIDragPreviewComponent>();
             dragEntity.ensure<xg::UIDragPreviewCogComponent>().m_CogId = previewAddingCog.m_HoverCogId;
-            world.get_mut<xg::UIDragPreviewMovement>().m_Translation = previewAddingCog.m_PreviewPosition + offset;
+            world.get_mut<xg::UIDragPreviewMovement>().m_FreeTranslation = previewAddingCog.m_PreviewPosition + offset;
             world.add<xg::UIDragPreviewChanged>();
         }
     }
@@ -79,8 +81,9 @@ void xg::UIDragPreviewSystem::Update(flecs::world& world)
 
         const auto& worldMouse = world.get<const xg::WorldMouseComponent>();
         auto& dragPreview = world.get_mut<xg::UIDragPreviewMovement>();
-        dragPreview.m_Translation = worldMouse.m_Position;
-        dragPreview.m_Rotation += world.get<xg::UIRotateComponent>().m_RotationDirection;
+        dragPreview.m_FreeTranslation = worldMouse.m_Position;
+        dragPreview.m_Transform.m_Translation = xg::SnapToGrid(worldMouse.m_Position);
+        dragPreview.m_Transform.m_Rotation += world.get<xg::UIRotateComponent>().m_RotationDirection;
     }
     else
     {
@@ -100,7 +103,7 @@ void xg::UIDragPreviewSystem::Update(flecs::world& world)
         world.defer_end();
 
         auto& dragPreview = world.get_mut<xg::UIDragPreviewMovement>();
-        dragPreview.m_Translation = glm::vec2(0.f);
-        dragPreview.m_Rotation = xc::Rotation90(0);
+        dragPreview.m_FreeTranslation = glm::vec2(0.f);
+        dragPreview.m_Transform = {};
     }
 }
