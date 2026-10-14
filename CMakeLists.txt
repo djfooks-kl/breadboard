@@ -165,6 +165,7 @@ set(source_files
     src/UIWirePathComponent.h
     src/UIWirePathfindingSystem.cpp
     src/UIWirePathfindingSystem.h
+    src/UIWireSegmentsChangedComponent.h
     src/UIWireSegmentsComponent.h
     src/UIWireSegmentsSystem.cpp
     src/UIWireSegmentsSystem.h

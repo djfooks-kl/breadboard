@@ -3,6 +3,7 @@
 
 #include "UIWirePathComponent.h"
 #include "UIWireSegmentsComponent.h"
+#include "UIWireSegmentsChangedComponent.h"
 #include "UIWireSegmentsSystem.h"
 
 #define SYSTEM_TEST_CASE(description) TEST_CASE("xg::UIWireSegmentsSystem - " description, "[xg::UIWireSegmentsSystem]")
@@ -36,6 +37,7 @@ SYSTEM_TEST_CASE("No cells -> No segments")
 
     REQUIRE(preview.has<xg::UIWireSegmentsComponent>());
     CHECK(preview.get<xg::UIWireSegmentsComponent>().m_Checkpoints.size() == 0);
+    CHECK(preview.has<xg::UIWireSegmentsChangedComponent>() == false);
 }
 
 SYSTEM_TEST_CASE("Single cell -> Single segment with start=end")
@@ -51,6 +53,7 @@ SYSTEM_TEST_CASE("Single cell -> Single segment with start=end")
     REQUIRE(preview.has<xg::UIWireSegmentsComponent>());
     REQUIRE(preview.get<xg::UIWireSegmentsComponent>().m_Checkpoints.size() == 1);
     CHECK(preview.get<xg::UIWireSegmentsComponent>().m_Checkpoints[0] == glm::ivec2(1, 2));
+    CHECK(preview.has<xg::UIWireSegmentsChangedComponent>());
 }
 
 SYSTEM_TEST_CASE("2 cells -> Single segment")
@@ -69,6 +72,7 @@ SYSTEM_TEST_CASE("2 cells -> Single segment")
     REQUIRE(preview.get<xg::UIWireSegmentsComponent>().m_Checkpoints.size() == 2);
     CHECK(preview.get<xg::UIWireSegmentsComponent>().m_Checkpoints[0] == glm::ivec2(1, 2));
     CHECK(preview.get<xg::UIWireSegmentsComponent>().m_Checkpoints[1] == glm::ivec2(1, 3));
+    CHECK(preview.has<xg::UIWireSegmentsChangedComponent>());
 }
 
 SYSTEM_TEST_CASE("3 cells with a bend -> 2 segments")
@@ -89,6 +93,7 @@ SYSTEM_TEST_CASE("3 cells with a bend -> 2 segments")
     CHECK(preview.get<xg::UIWireSegmentsComponent>().m_Checkpoints[0] == glm::ivec2(1, 2));
     CHECK(preview.get<xg::UIWireSegmentsComponent>().m_Checkpoints[1] == glm::ivec2(1, 3));
     CHECK(preview.get<xg::UIWireSegmentsComponent>().m_Checkpoints[2] == glm::ivec2(2, 3));
+    CHECK(preview.has<xg::UIWireSegmentsChangedComponent>());
 }
 
 SYSTEM_TEST_CASE("3 cells in a straight line -> 2 segments")
@@ -108,6 +113,7 @@ SYSTEM_TEST_CASE("3 cells in a straight line -> 2 segments")
     REQUIRE(preview.get<xg::UIWireSegmentsComponent>().m_Checkpoints.size() == 2);
     CHECK(preview.get<xg::UIWireSegmentsComponent>().m_Checkpoints[0] == glm::ivec2(1, 2));
     CHECK(preview.get<xg::UIWireSegmentsComponent>().m_Checkpoints[1] == glm::ivec2(1, 4));
+    CHECK(preview.has<xg::UIWireSegmentsChangedComponent>());
 }
 
 SYSTEM_TEST_CASE("Path changes -> Update segments")
@@ -136,6 +142,25 @@ SYSTEM_TEST_CASE("Path changes -> Update segments")
     REQUIRE(preview.get<xg::UIWireSegmentsComponent>().m_Checkpoints.size() == 2);
     CHECK(preview.get<xg::UIWireSegmentsComponent>().m_Checkpoints[0] == glm::ivec2(3, 2));
     CHECK(preview.get<xg::UIWireSegmentsComponent>().m_Checkpoints[1] == glm::ivec2(3, 1));
+    CHECK(preview.has<xg::UIWireSegmentsChangedComponent>());
+}
+
+SYSTEM_TEST_CASE("Path does not change -> Do not add UIWireSegmentsChangedComponent")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity preview = world.entity();
+    {
+        auto& path = preview.ensure<xg::UIWirePathComponent>().m_Path;
+        path.push_back(glm::ivec2(1, 2));
+        path.push_back(glm::ivec2(1, 3));
+        path.push_back(glm::ivec2(2, 3));
+    }
+    env.Update();
+    env.Update();
+
+    CHECK(preview.has<xg::UIWireSegmentsChangedComponent>() == false);
 }
 
 SYSTEM_TEST_CASE("Mix of straight lines and bends")
@@ -168,4 +193,5 @@ SYSTEM_TEST_CASE("Mix of straight lines and bends")
     CHECK(preview.get<xg::UIWireSegmentsComponent>().m_Checkpoints[2] == glm::ivec2(4, 7));
     CHECK(preview.get<xg::UIWireSegmentsComponent>().m_Checkpoints[3] == glm::ivec2(0, 7));
     CHECK(preview.get<xg::UIWireSegmentsComponent>().m_Checkpoints[4] == glm::ivec2(0, 4));
+    CHECK(preview.has<xg::UIWireSegmentsChangedComponent>());
 }

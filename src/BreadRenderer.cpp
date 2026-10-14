@@ -36,6 +36,7 @@
 #include "UIPreviewMovingComponent.h"
 #include "UISelectComponent.h"
 #include "UISettings.h"
+#include "UIWireSegmentsChangedComponent.h"
 #include "UIWireSegmentsComponent.h"
 #include "UIWireValidComponent.h"
 #include "WireComponent.h"
@@ -317,6 +318,34 @@ void xg::BreadRenderer::Update(const flecs::world& world)
                 cog->AddStaticRenderables(cogComponent.m_Transform, xg::RenderableAdder("CogPreviewDrop", m_CogPreviewDropRendererMap));
             });
     }
+
+    if (world.count<const xg::UIWireSegmentsChangedComponent>() != 0)
+    {
+        for (xg::IWireRenderer* renderer : m_WirePreviewRendererMap.GetOrder())
+        {
+            renderer->RemoveAll();
+        }
+        bool allPreviewWiresValid = true;
+        world.each([&](const xg::UIWireSegmentsComponent& wire, const xg::UIWireValidComponent& validComponent)
+            {
+                for (const glm::ivec2& checkpoint : wire.m_Checkpoints)
+                {
+                    m_WirePreviewRendererMap.Get(s_RenderableWireCircleTop)->AddWireEnd(checkpoint, glm::ivec2(0, 0));
+                    m_WirePreviewRendererMap.Get(s_RenderableWireCircleBottom)->AddWireEnd(checkpoint, glm::ivec2(0, 0));
+                }
+                if (wire.m_Checkpoints.empty())
+                    return;
+                glm::ivec2 prev = wire.m_Checkpoints[0];
+                for (int i = 1; i < std::ssize(wire.m_Checkpoints); ++i)
+                {
+                    const glm::ivec2& current = wire.m_Checkpoints[i];
+                    m_WirePreviewRendererMap.Get(s_RenderableWire)->AddWire(prev, current, glm::ivec2(0, 0));
+                    prev = current;
+                }
+
+                allPreviewWiresValid = allPreviewWiresValid && validComponent.m_Valid;
+            });
+    }
 }
 
 void xg::BreadRenderer::Draw(const flecs::world& world)
@@ -379,28 +408,9 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
 
     m_CogNodeRenderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
 
-    for (xg::IWireRenderer* renderer : m_WirePreviewRendererMap.GetOrder())
-    {
-        renderer->RemoveAll();
-    }
     bool allPreviewWiresValid = true;
-    world.each([&](const xg::UIWireSegmentsComponent& wire, const xg::UIWireValidComponent& validComponent)
+    world.each([&](const xg::UIWireValidComponent& validComponent)
         {
-            for (const glm::ivec2& checkpoint : wire.m_Checkpoints)
-            {
-                m_WirePreviewRendererMap.Get(s_RenderableWireCircleTop)->AddWireEnd(checkpoint, glm::ivec2(0, 0));
-                m_WirePreviewRendererMap.Get(s_RenderableWireCircleBottom)->AddWireEnd(checkpoint, glm::ivec2(0, 0));
-            }
-            if (wire.m_Checkpoints.empty())
-                return;
-            glm::ivec2 prev = wire.m_Checkpoints[0];
-            for (int i = 1; i < std::ssize(wire.m_Checkpoints); ++i)
-            {
-                const glm::ivec2& current = wire.m_Checkpoints[i];
-                m_WirePreviewRendererMap.Get(s_RenderableWire)->AddWire(prev, current, glm::ivec2(0, 0));
-                prev = current;
-            }
-
             allPreviewWiresValid = allPreviewWiresValid && validComponent.m_Valid;
         });
     for (xg::IWireRenderer* renderer : m_WirePreviewRendererMap.GetOrder())
