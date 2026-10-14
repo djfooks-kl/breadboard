@@ -50,6 +50,7 @@ namespace xg
         xg::CogRendererMap m_CogPreviewDropRendererMap;
         xg::WireRendererMap m_WireRendererMap;
         xg::WireRendererMap m_WirePreviewRendererMap;
+        xg::WireRendererMap m_WirePreviewDropRendererMap;
         xg::WireRendererMap m_WireSelectedRendererMap;
 
         std::unique_ptr<xc::Font> m_Font;

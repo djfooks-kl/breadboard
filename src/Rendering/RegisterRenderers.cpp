@@ -31,6 +31,7 @@ namespace
     static const xg::ShaderProgramResourceId s_ShaderWire = xg::ShaderProgramResourceId::Create("Wire");
     static const xg::RenderableResourceId s_RenderableWire = xg::RenderableResourceId::Create("Wire");
 
+    constexpr float s_WireDotBottomHeight = 0.f;
     constexpr float s_WireLineHeight = 1.f;
     constexpr float s_WireDotTopHeight = 2.f;
 
@@ -116,7 +117,21 @@ void xg::RegisterWireRenderers(
 
     {
         std::unique_ptr<xg::WireEndRenderer> renderer = std::make_unique<xg::WireEndRenderer>(shaderProgramMap.at(s_ShaderWireCircle));
-        renderer->m_Uniforms.m_ColorEmpty = glm::vec3(1.f);
+        renderer->m_Uniforms.m_ColorEmpty = glm::vec3(0.f);
+        renderer->m_Uniforms.m_ColorFull = glm::vec3(0.f);
+        renderer->m_Uniforms.m_Size = settings.m_WireDotOuterRadius;
+        renderer->m_Uniforms.m_HasInfoTexture = false;
+        renderer->m_Uniforms.m_Expand = mode == ERenderingMode::Selected;
+        renderer->SetHeight(s_WireDotBottomHeight);
+        renderer->m_ColorValid =
+            mode == ERenderingMode::Selected ? settings.m_WireSelectedColor :
+            mode == ERenderingMode::DropPreview ? settings.m_DropPreviewColor : settings.m_WireEdgeColor;
+        renderer->m_ColorInvalid = settings.m_WireEdgeInvalidColor;
+        map.Register(s_RenderableWireCircleBottom, std::move(renderer));
+    }
+    {
+        std::unique_ptr<xg::WireEndRenderer> renderer = std::make_unique<xg::WireEndRenderer>(shaderProgramMap.at(s_ShaderWireCircle));
+        renderer->m_Uniforms.m_ColorEmpty = settings.m_WireEmptyColor;
         renderer->m_Uniforms.m_ColorFull = settings.m_WireFullColor;
         renderer->m_Uniforms.m_Size = settings.m_WireDotInnerRadius;
         renderer->m_Uniforms.m_HasInfoTexture = mode == ERenderingMode::Normal;
@@ -125,17 +140,6 @@ void xg::RegisterWireRenderers(
         renderer->m_ColorInvalid = glm::vec3(1.f);
         map.Register(s_RenderableWireCircleTop, std::move(renderer));
     }
-    {
-        std::unique_ptr<xg::WireEndRenderer> renderer = std::make_unique<xg::WireEndRenderer>(shaderProgramMap.at(s_ShaderWireCircle));
-        renderer->m_Uniforms.m_ColorEmpty = glm::vec3(0.f);
-        renderer->m_Uniforms.m_ColorFull = glm::vec3(0.f);
-        renderer->m_Uniforms.m_Size = settings.m_WireDotOuterRadius;
-        renderer->m_Uniforms.m_HasInfoTexture = false;
-        renderer->m_Uniforms.m_Expand = mode == ERenderingMode::Selected;
-        renderer->m_ColorValid = mode == ERenderingMode::Selected ? settings.m_WireSelectedColor : settings.m_WireEdgeColor;
-        renderer->m_ColorInvalid = settings.m_WireEdgeInvalidColor;
-        map.Register(s_RenderableWireCircleBottom, std::move(renderer));
-    }
 
     RegisterShaderProgram(shaderProgramMap, s_ShaderWire, xc::ShaderProgramOptions{
         .m_VertexPath = "shaders/WireLineVertex.glsl",
@@ -143,14 +147,16 @@ void xg::RegisterWireRenderers(
 
     {
         std::unique_ptr<xg::WireLineRenderer> renderer = std::make_unique<xg::WireLineRenderer>(shaderProgramMap.at(s_ShaderWire));
-        renderer->m_Uniforms.m_ColorEmpty = mode == ERenderingMode::DropPreview ? settings.m_DropPreviewColor : glm::vec3(1.f);
+        renderer->m_Uniforms.m_ColorEmpty = settings.m_WireEmptyColor;
         renderer->m_Uniforms.m_ColorFull = settings.m_WireFullColor;
         renderer->m_Uniforms.m_InnerWidth = settings.m_WireInnerWidth;
         renderer->m_Uniforms.m_OuterWidth = settings.m_WireOuterWidth;
         renderer->m_Uniforms.m_Expand = mode == ERenderingMode::Selected;
         renderer->m_Uniforms.m_HasInfoTexture = mode == ERenderingMode::Normal;
         renderer->SetHeight(s_WireLineHeight);
-        renderer->m_ColorEdge = mode == ERenderingMode::Selected ? settings.m_WireSelectedColor : settings.m_WireEdgeColor;
+        renderer->m_ColorEdge =
+            mode == ERenderingMode::Selected ? settings.m_WireSelectedColor :
+            mode == ERenderingMode::DropPreview ? settings.m_DropPreviewColor : settings.m_WireEdgeColor;
         renderer->m_ColorInvalidEdge = settings.m_WireEdgeInvalidColor;
         map.Register(s_RenderableWire, std::move(renderer));
     }

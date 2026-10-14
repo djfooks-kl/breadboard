@@ -71,6 +71,7 @@ void xg::BreadRenderer::Load(const xg::RenderSettings& settings)
 
     xg::RegisterWireRenderers(settings, m_WireRendererMap, m_ShaderProgramMap, xg::ERenderingMode::Normal);
     xg::RegisterWireRenderers(settings, m_WirePreviewRendererMap, m_ShaderProgramMap, xg::ERenderingMode::Preview);
+    xg::RegisterWireRenderers(settings, m_WirePreviewDropRendererMap, m_ShaderProgramMap, xg::ERenderingMode::DropPreview);
     xg::RegisterWireRenderers(settings, m_WireSelectedRendererMap, m_ShaderProgramMap, xg::ERenderingMode::Selected);
 
     m_TextProgram = std::make_unique<xc::ShaderProgram>(xc::ShaderProgramOptions{
@@ -317,6 +318,35 @@ void xg::BreadRenderer::Update(const flecs::world& world)
                 cog->AddStaticRenderables(cogComponent.m_Transform, xg::RenderableAdder("CogPreview", m_CogPreviewRendererMap));
                 cog->AddStaticRenderables(cogComponent.m_Transform, xg::RenderableAdder("CogPreviewDrop", m_CogPreviewDropRendererMap));
             });
+
+        for (xg::IWireRenderer* renderer : m_WirePreviewRendererMap.GetOrder())
+        {
+            renderer->RemoveAll();
+        }
+        for (xg::IWireRenderer* renderer : m_WirePreviewDropRendererMap.GetOrder())
+        {
+            renderer->RemoveAll();
+        }
+        world.each([&](const xg::UIDragPreviewComponent&, const xg::WireComponent& wire)
+            {
+                for (const glm::ivec2& checkpoint : wire.m_Checkpoints)
+                {
+                    m_WirePreviewRendererMap.Get(s_RenderableWireCircleTop)->AddWireEnd(checkpoint, glm::ivec2(0, 0));
+                    m_WirePreviewRendererMap.Get(s_RenderableWireCircleBottom)->AddWireEnd(checkpoint, glm::ivec2(0, 0));
+                    m_WirePreviewDropRendererMap.Get(s_RenderableWireCircleTop)->AddWireEnd(checkpoint, glm::ivec2(0, 0));
+                    m_WirePreviewDropRendererMap.Get(s_RenderableWireCircleBottom)->AddWireEnd(checkpoint, glm::ivec2(0, 0));
+                }
+                if (wire.m_Checkpoints.empty())
+                    return;
+                glm::ivec2 prev = wire.m_Checkpoints[0];
+                for (int i = 1; i < std::ssize(wire.m_Checkpoints); ++i)
+                {
+                    const glm::ivec2& current = wire.m_Checkpoints[i];
+                    m_WirePreviewRendererMap.Get(s_RenderableWire)->AddWire(prev, current, glm::ivec2(0, 0));
+                    m_WirePreviewDropRendererMap.Get(s_RenderableWire)->AddWire(prev, current, glm::ivec2(0, 0));
+                    prev = current;
+                }
+            });
     }
 
     if (world.count<const xg::UIWireSegmentsChangedComponent>() != 0)
@@ -325,8 +355,7 @@ void xg::BreadRenderer::Update(const flecs::world& world)
         {
             renderer->RemoveAll();
         }
-        bool allPreviewWiresValid = true;
-        world.each([&](const xg::UIWireSegmentsComponent& wire, const xg::UIWireValidComponent& validComponent)
+        world.each([&](const xg::UIWireSegmentsComponent& wire, const xg::UIWireValidComponent&)
             {
                 for (const glm::ivec2& checkpoint : wire.m_Checkpoints)
                 {
@@ -342,8 +371,6 @@ void xg::BreadRenderer::Update(const flecs::world& world)
                     m_WirePreviewRendererMap.Get(s_RenderableWire)->AddWire(prev, current, glm::ivec2(0, 0));
                     prev = current;
                 }
-
-                allPreviewWiresValid = allPreviewWiresValid && validComponent.m_Valid;
             });
     }
 }
@@ -392,6 +419,27 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
         }
     }
 
+    bool allPreviewWiresValid = true;
+    world.each([&](const xg::UIWireValidComponent& validComponent)
+        {
+            allPreviewWiresValid = allPreviewWiresValid && validComponent.m_Valid;
+        });
+    if (allPreviewWiresValid)
+    {
+        for (xg::IWireRenderer* renderer : m_WirePreviewDropRendererMap.GetOrder())
+        {
+            const glm::vec2 previewTranslation = glm::vec2(dragMovement.m_Transform.m_Translation);
+            const glm::mat4 previewCameraView = xg::CameraViewWithTransformedScene(
+                camera.m_Position,
+                previewTranslation,
+                dragMovement.m_Transform.m_Rotation);
+            const glm::mat4 previewViewProjection = camera.m_Projection * previewCameraView;
+
+            renderer->SetValid(allPreviewWiresValid);
+            renderer->Draw(previewViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
+        }
+    }
+
     m_CogBoxPreviewRenderer->m_Uniforms.m_Color = glm::vec3(dragValid ? 0.f : 1.f, 0.f, 0.f);
     {
         const glm::mat4 previewCameraView = xg::CameraViewWithTransformedScene(
@@ -408,15 +456,16 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
 
     m_CogNodeRenderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
 
-    bool allPreviewWiresValid = true;
-    world.each([&](const xg::UIWireValidComponent& validComponent)
-        {
-            allPreviewWiresValid = allPreviewWiresValid && validComponent.m_Valid;
-        });
     for (xg::IWireRenderer* renderer : m_WirePreviewRendererMap.GetOrder())
     {
+        const glm::mat4 previewCameraView = xg::CameraViewWithTransformedScene(
+            camera.m_Position,
+            dragMovement.m_FreeTranslation,
+            dragMovement.m_Transform.m_Rotation);
+        const glm::mat4 previewViewProjection = camera.m_Projection * previewCameraView;
+
         renderer->SetValid(allPreviewWiresValid);
-        renderer->Draw(camera.m_ViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
+        renderer->Draw(previewViewProjection, camera.m_Feather, wireTextureSize, m_WireTexture);
     }
 
     const auto& uiSelect = world.get<xg::UISelectComponent>();
