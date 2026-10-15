@@ -12,6 +12,7 @@
 #include "UIDragPreviewMovement.h"
 #include "UIDragValidationSystem.h"
 #include "UIDragValidComponent.h"
+#include "WireComponent.h"
 
 #define SYSTEM_TEST_CASE(description) TEST_CASE("xg::UIDragValidationSystem - " description, "[xg::UIDragValidationSystem]")
 
@@ -319,7 +320,7 @@ SYSTEM_TEMPLATE_TEST_CASE(
 }
 
 SYSTEM_TEMPLATE_TEST_CASE(
-    "Preview cog goes into x<0 -> Preview valid",
+    "Preview cog goes into x<0 -> Preview invalid",
     xg::UIDragPreviewCogComponent,
     xg::CogComponent)
 {
@@ -337,7 +338,7 @@ SYSTEM_TEMPLATE_TEST_CASE(
 }
 
 SYSTEM_TEMPLATE_TEST_CASE(
-    "Preview cog goes into y<0 -> Preview valid",
+    "Preview cog goes into y<0 -> Preview invalid",
     xg::UIDragPreviewCogComponent,
     xg::CogComponent)
 {
@@ -501,6 +502,58 @@ SYSTEM_TEST_CASE(
 
     world.get_mut<xg::GridAttachmentsComponent>().m_Map.clear();
     world.get_mut<xg::GridAttachmentsComponent>().m_Map[glm::ivec2(4, 10)].m_Entities.push_back(gridCog);
+    env.Update();
+    CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
+}
+
+SYSTEM_TEST_CASE("Preview wire goes off grid -> Preview invalid")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+    world.get_mut<xg::GridSizeComponent>().m_Size = glm::ivec2(100, 100);
+
+    flecs::entity draggingWire = world.entity();
+    draggingWire.ensure<xg::WireComponent>().m_Checkpoints.push_back(glm::ivec2(1, 1));
+    draggingWire.ensure<xg::WireComponent>().m_Checkpoints.push_back(glm::ivec2(1, 2));
+    draggingWire.add<xg::UIDragPreviewComponent>();
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Rotation = xc::Rotation90(1);
+    // after rotation will be at (1, -1)->(2, -1)
+
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(-3, 2);
+    env.Update();
+    CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
+
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(0, 0);
+    env.Update();
+    CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
+
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(99, 2);
+    env.Update();
+    CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
+
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(2, 102);
+    env.Update();
+    CHECK(world.get<xg::UIDragValidComponent>().m_Valid == false);
+}
+
+SYSTEM_TEST_CASE("Preview wire goes just inside grid -> Preview valid")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+    world.get_mut<xg::GridSizeComponent>().m_Size = glm::ivec2(100, 100);
+
+    flecs::entity draggingWire = world.entity();
+    draggingWire.ensure<xg::WireComponent>().m_Checkpoints.push_back(glm::ivec2(1, 1));
+    draggingWire.ensure<xg::WireComponent>().m_Checkpoints.push_back(glm::ivec2(1, 2));
+    draggingWire.add<xg::UIDragPreviewComponent>();
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Rotation = xc::Rotation90(1);
+    // after rotation will be at (1, -1)->(2, -1)
+
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(-1, 1);
+    env.Update();
+    CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
+
+    world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(98, 101);
     env.Update();
     CHECK(world.get<xg::UIDragValidComponent>().m_Valid == true);
 }

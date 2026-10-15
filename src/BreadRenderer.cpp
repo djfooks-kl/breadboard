@@ -419,7 +419,7 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
         }
     }
 
-    bool allPreviewWiresValid = true;
+    bool allPreviewWiresValid = dragValid;
     world.each([&](const xg::UIWireValidComponent& validComponent)
         {
             allPreviewWiresValid = allPreviewWiresValid && validComponent.m_Valid;

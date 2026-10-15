@@ -12,6 +12,8 @@
 #include "UIDragPreviewComponent.h"
 #include "UIDragPreviewMovement.h"
 #include "UIDragValidComponent.h"
+#include "WireComponent.h"
+#include "WireHelpers.h"
 
 namespace
 {
@@ -92,6 +94,22 @@ void xg::UIDragValidationSystem::Update(flecs::world& world)
                 previewMovement))
             {
                 valid = false;
+            }
+        });
+
+    world.each([&](const xg::WireComponent& wireComponent, const xg::UIDragPreviewComponent&)
+        {
+            for (const glm::ivec2& checkpoint : wireComponent.m_Checkpoints)
+            {
+                const glm::ivec2 p = previewMovement.m_Transform.Apply(checkpoint);
+                if (p.x < 0 ||
+                    p.y < 0 ||
+                    p.x > gridSize.x ||
+                    p.y > gridSize.y)
+                {
+                    valid = false;
+                    //break;
+                }
             }
         });
 
