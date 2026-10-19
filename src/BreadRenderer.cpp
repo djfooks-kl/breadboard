@@ -33,7 +33,6 @@
 #include "UIDragPreviewMovement.h"
 #include "UIDragValidComponent.h"
 #include "UIPreviewAddingCogComponent.h"
-#include "UIPreviewMovingComponent.h"
 #include "UISelectComponent.h"
 #include "UISettings.h"
 #include "UIWireSegmentsChangedComponent.h"
@@ -401,8 +400,6 @@ void xg::BreadRenderer::Draw(const flecs::world& world)
     const auto& dragMovement = world.get<xg::UIDragPreviewMovement>();
     const auto& previewAddingCog = world.get<xg::UIPreviewAddingCogComponent>();
     const bool dragValid = world.get<xg::UIDragValidComponent>().m_Valid;
-    const auto* previewMoving = world.try_get<const xg::UIPreviewMovingComponent>();
-    const glm::vec2 grabbedPos = previewMoving ? previewMoving->m_GrabbedPosition : glm::vec2(0.f);
     if (dragValid && !previewAddingCog.m_HoverCogId)
     {
         const glm::vec2 previewTranslation = glm::vec2(dragMovement.m_Transform.m_Translation);

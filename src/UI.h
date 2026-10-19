@@ -3,6 +3,7 @@
 #include <glm/ext/vector_float2.hpp>
 #include <ImGui/imgui.h>
 #include <memory>
+#include <optional>
 
 class BaseApp;
 
@@ -42,5 +43,6 @@ namespace xg
         std::unique_ptr<xg::DebugUI> m_DebugUI;
 
         bool m_CogPopupOpen = false;
+        std::optional<glm::vec2> m_DragMoveStart;
     };
 }

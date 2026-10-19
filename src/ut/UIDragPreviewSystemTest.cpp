@@ -9,6 +9,7 @@
 #include "UIDragPreviewComponent.h"
 #include "UIDragPreviewMovement.h"
 #include "UIDragPreviewSystem.h"
+#include "UIHoverComponent.h"
 #include "UIPreviewAddingCogComponent.h"
 #include "UIPreviewMovingComponent.h"
 #include "UIRotateComponent.h"
@@ -39,11 +40,12 @@ namespace
     {
         TestEnv()
         {
+            m_World.ensure<xg::UIDragPreviewMovement>();
+            m_World.ensure<xg::UIHoverComponent>();
+            m_World.ensure<xg::UIPreviewAddingCogComponent>();
+            m_World.ensure<xg::UIPreviewMovingComponent>();
             m_World.ensure<xg::UIRotateComponent>();
             m_World.ensure<xg::WorldMouseComponent>();
-            m_World.ensure<xg::UIPreviewAddingCogComponent>();
-            m_World.ensure<xg::UIDragPreviewMovement>();
-            m_World.ensure<xg::UIPreviewMovingComponent>();
 
             auto& cogMap = m_World.ensure<xg::CogMap>();
             cogMap.Register<Size1Cog>();
@@ -293,7 +295,7 @@ SYSTEM_TEST_CASE("Rotation changes while previewing then stop -> Movement should
     CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Rotation == xc::Rotation90(0));
 }
 
-SYSTEM_TEST_CASE("While moving -> move all selected entities")
+SYSTEM_TEST_CASE("While moving, hovered entity is in selected list -> move all selected entities")
 {
     TestEnv env;
     flecs::world world = env.m_World;
@@ -307,6 +309,8 @@ SYSTEM_TEST_CASE("While moving -> move all selected entities")
     flecs::entity cog2 = world.entity();
     cog2.add<xg::SelectedComponent>();
 
+    world.get_mut<xg::UIHoverComponent>().m_Entity = cog2;
+
     env.Update();
 
     CHECK(cog1.has<xg::UIDragPreviewComponent>());
@@ -317,6 +321,99 @@ SYSTEM_TEST_CASE("While moving -> move all selected entities")
     CHECK(world.has<xg::UIDragPreviewChanged>());
 
     env.Update();
+    CHECK(world.has<xg::UIDragPreviewChanged>() == false);
+}
+
+SYSTEM_TEST_CASE("While moving, hovered entity is not in selected list -> move only the hovered entity")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    world.get_mut<xg::UIPreviewMovingComponent>().m_Dragging = true;
+    world.get_mut<xg::UIPreviewMovingComponent>().m_GrabbedPosition = glm::vec2(1.75f, 2.f);
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 5.75f);
+
+    flecs::entity cog1 = world.entity();
+    cog1.add<xg::SelectedComponent>();
+    flecs::entity cog2 = world.entity();
+    cog2.add<xg::SelectedComponent>();
+    flecs::entity cog3 = world.entity();
+
+    world.get_mut<xg::UIHoverComponent>().m_Entity = cog3;
+
+    env.Update();
+
+    CHECK(cog1.has<xg::UIDragPreviewComponent>() == false);
+    CHECK(cog2.has<xg::UIDragPreviewComponent>() == false);
+    CHECK(cog3.has<xg::UIDragPreviewComponent>());
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_FreeTranslation == glm::vec2(-0.75f, 3.75f));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Translation == glm::ivec2(-1, 4));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Rotation == xc::Rotation90(0));
+    CHECK(world.has<xg::UIDragPreviewChanged>());
+
+    env.Update();
+    CHECK(world.has<xg::UIDragPreviewChanged>() == false);
+}
+
+SYSTEM_TEST_CASE("While moving, hovered entity starts as null -> do nothing")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    world.get_mut<xg::UIPreviewMovingComponent>().m_Dragging = true;
+    world.get_mut<xg::UIPreviewMovingComponent>().m_GrabbedPosition = glm::vec2(1.75f, 2.f);
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 5.75f);
+
+    flecs::entity cog1 = world.entity();
+    cog1.add<xg::SelectedComponent>();
+
+    world.get_mut<xg::UIHoverComponent>().m_Entity = flecs::entity::null();
+
+    env.Update();
+
+    CHECK(cog1.has<xg::UIDragPreviewComponent>() == false);
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_FreeTranslation == glm::vec2(0.f, 0.f));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Translation == glm::ivec2(0, 0));
+    CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Rotation == xc::Rotation90(0));
+    CHECK(world.has<xg::UIDragPreviewChanged>() == false);
+
+    env.Update();
+    CHECK(world.has<xg::UIDragPreviewChanged>() == false);
+}
+
+SYSTEM_TEST_CASE("While moving, hovered entity switches to null/other entity -> continue moving the same entities")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    world.get_mut<xg::UIPreviewMovingComponent>().m_Dragging = true;
+    world.get_mut<xg::UIPreviewMovingComponent>().m_GrabbedPosition = glm::vec2(1.75f, 2.f);
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 5.75f);
+
+    flecs::entity cog1 = world.entity();
+    cog1.add<xg::SelectedComponent>();
+    flecs::entity cog2 = world.entity();
+    cog2.add<xg::SelectedComponent>();
+
+    flecs::entity cog3 = world.entity();
+
+    world.get_mut<xg::UIHoverComponent>().m_Entity = cog2;
+    env.Update();
+
+    world.get_mut<xg::UIHoverComponent>().m_Entity = flecs::entity::null();
+    env.Update();
+
+    CHECK(cog1.has<xg::UIDragPreviewComponent>());
+    CHECK(cog2.has<xg::UIDragPreviewComponent>());
+    CHECK(cog3.has<xg::UIDragPreviewComponent>() == false);
+    CHECK(world.has<xg::UIDragPreviewChanged>() == false);
+
+    world.get_mut<xg::UIHoverComponent>().m_Entity = cog3;
+    env.Update();
+
+    CHECK(cog1.has<xg::UIDragPreviewComponent>());
+    CHECK(cog2.has<xg::UIDragPreviewComponent>());
+    CHECK(cog3.has<xg::UIDragPreviewComponent>() == false);
     CHECK(world.has<xg::UIDragPreviewChanged>() == false);
 }
 
@@ -333,6 +430,8 @@ SYSTEM_TEST_CASE("While moving, translation/rotation changes -> move all selecte
     cog1.add<xg::SelectedComponent>();
     flecs::entity cog2 = world.entity();
     cog2.add<xg::SelectedComponent>();
+
+    world.get_mut<xg::UIHoverComponent>().m_Entity = cog1;
 
     env.Update();
 
@@ -371,6 +470,8 @@ SYSTEM_TEST_CASE("Moving stops -> remove the UIDragPreviewComponent")
     cog1.add<xg::SelectedComponent>();
     flecs::entity cog2 = world.entity();
     cog2.add<xg::SelectedComponent>();
+
+    world.get_mut<xg::UIHoverComponent>().m_Entity = cog2;
 
     env.Update();
 

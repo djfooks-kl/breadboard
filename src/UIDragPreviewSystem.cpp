@@ -9,6 +9,7 @@
 #include "UIDragPreviewCogComponent.h"
 #include "UIDragPreviewComponent.h"
 #include "UIDragPreviewMovement.h"
+#include "UIHoverComponent.h"
 #include "UIPreviewAddingCogComponent.h"
 #include "UIPreviewMovingComponent.h"
 #include "UIRotateComponent.h"
@@ -26,21 +27,39 @@ void xg::UIDragPreviewSystem::Update(flecs::world& world)
 
     if (previewMoving.m_Dragging)
     {
-        world.defer_begin();
-        auto addQuery = world.query_builder<const xg::SelectedComponent>().without<const xg::UIDragPreviewComponent>();
-        addQuery.build().each([&](flecs::entity selectedEntity, const xg::SelectedComponent&)
+        if (world.count<const xg::UIDragPreviewComponent>() == 0)
+        {
+            const flecs::entity& hovered = world.get<const xg::UIHoverComponent>().m_Entity;
+            if (hovered.is_alive())
             {
-                selectedEntity.add<xg::UIDragPreviewComponent>();
-                world.add<xg::UIDragPreviewChanged>();
-            });
-        world.defer_end();
+                if (hovered.has<xg::SelectedComponent>())
+                {
+                    world.defer_begin();
+                    auto addQuery = world.query_builder<const xg::SelectedComponent>().without<const xg::UIDragPreviewComponent>();
+                    addQuery.build().each([&](flecs::entity selectedEntity, const xg::SelectedComponent&)
+                        {
+                            selectedEntity.add<xg::UIDragPreviewComponent>();
+                            world.add<xg::UIDragPreviewChanged>();
+                        });
+                    world.defer_end();
+                }
+                else
+                {
+                    hovered.add<xg::UIDragPreviewComponent>();
+                    world.add<xg::UIDragPreviewChanged>();
+                }
+            }
+        }
 
-        const auto& worldMouse = world.get<const xg::WorldMouseComponent>();
-        auto& dragPreview = world.get_mut<xg::UIDragPreviewMovement>();
-        dragPreview.m_Transform.m_Rotation += world.get<xg::UIRotateComponent>().m_RotationDirection;
-        const glm::vec2 rotateGrabbed = dragPreview.m_Transform.m_Rotation.Apply(previewMoving.m_GrabbedPosition);
-        dragPreview.m_FreeTranslation = worldMouse.m_Position - rotateGrabbed;
-        dragPreview.m_Transform.m_Translation = xg::SnapToGrid(dragPreview.m_FreeTranslation);
+        if (world.count<const xg::UIDragPreviewComponent>() > 0)
+        {
+            const auto& worldMouse = world.get<const xg::WorldMouseComponent>();
+            auto& dragPreview = world.get_mut<xg::UIDragPreviewMovement>();
+            dragPreview.m_Transform.m_Rotation += world.get<xg::UIRotateComponent>().m_RotationDirection;
+            const glm::vec2 rotateGrabbed = dragPreview.m_Transform.m_Rotation.Apply(previewMoving.m_GrabbedPosition);
+            dragPreview.m_FreeTranslation = worldMouse.m_Position - rotateGrabbed;
+            dragPreview.m_Transform.m_Translation = xg::SnapToGrid(dragPreview.m_FreeTranslation);
+        }
     }
     else if (previewAddingCog.m_HoverCogId)
     {

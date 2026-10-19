@@ -83,16 +83,14 @@ void xg::UI::UpdateMouse(flecs::world& world, BaseApp& app)
 {
     auto& previewAddingCog = world.get_mut<xg::UIPreviewAddingCogComponent>();
     const auto& hover = world.get<xg::UIHoverComponent>();
-    if (hover.m_Entity && hover.m_Entity.has<xg::SelectedComponent>())
-    {
-        app.SetCursor(EMouseCursor::Move);
-        return;
-    }
-
     bool hoverWire = previewAddingCog.m_AddCogId.IsEmpty() && (hover.m_Node || hover.m_Wire);
     if (hoverWire)
     {
         app.SetCursor(EMouseCursor::Cross);
+    }
+    else if (hover.m_Entity)
+    {
+        app.SetCursor(EMouseCursor::Move);
     }
     else
     {
@@ -123,13 +121,10 @@ void xg::UI::DrawCogMenu(flecs::world& world)
     xg::CogResourceId hoverCogId;
 
     ImGuiIO& io = ImGui::GetIO();
-
     bool openning = false;
     if (!ImGui::IsPopupOpen("BuildPopup") &&
         input.m_KeyDown.contains(xg::EMappedInput::Build) &&
-        !ImGui::IsAnyItemHovered() &&
-        !ImGui::IsWindowHovered() &&
-        !io.WantCaptureMouse)
+        !ImGui::IsWindowHovered())
     {
         ImGui::OpenPopup("BuildPopup");
         openning = true;
@@ -212,6 +207,17 @@ bool xg::UI::GameConsumeMouseRelease(flecs::world& world)
     if (!doAction)
         return false;
 
+    if (m_DragMoveStart.has_value())
+    {
+        m_DragMoveStart.reset();
+        auto& hover = world.get<xg::UIHoverComponent>();
+        if (hover.m_Cog)
+        {
+            select.m_SelectEntity = hover.m_Cog;
+        }
+        return true;
+    }
+
     if (select.m_BoxStart.has_value())
     {
         select.m_SelectBox = true;
@@ -264,13 +270,6 @@ bool xg::UI::GameConsumeMouseClick(flecs::world& world)
     }
 
     auto& hover = world.get<xg::UIHoverComponent>();
-    if (hover.m_Entity && hover.m_Entity.has<xg::SelectedComponent>())
-    {
-        moving.m_Dragging = true;
-        moving.m_GrabbedPosition = world.get<xg::WorldMouseComponent>().m_Position;
-        return true;
-    }
-
     if (hover.m_Node || hover.m_Wire)
     {
         previewAddingWire.m_Active = true;
@@ -279,7 +278,7 @@ bool xg::UI::GameConsumeMouseClick(flecs::world& world)
 
     if (hover.m_Entity && hover.m_Entity == hover.m_Cog)
     {
-        select.m_SelectEntity = hover.m_Cog;
+        m_DragMoveStart = world.get<xg::WorldMouseComponent>().m_Position;
         return true;
     }
 
@@ -304,4 +303,15 @@ void xg::UI::Draw(flecs::world& world)
     GameConsumeMouseClick(world);
     GameConsumeMouseRelease(world);
     DrawCogMenu(world);
+
+    if (m_DragMoveStart.has_value())
+    {
+        if (m_DragMoveStart.value() != world.get<xg::WorldMouseComponent>().m_Position)
+        {
+            auto& moving = world.get_mut<xg::UIPreviewMovingComponent>();
+            moving.m_Dragging = true;
+            moving.m_GrabbedPosition = m_DragMoveStart.value();
+            m_DragMoveStart.reset();
+        }
+    }
 }
