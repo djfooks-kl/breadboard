@@ -33,6 +33,7 @@
 #include "UIDragPreviewMovement.h"
 #include "UIDragValidComponent.h"
 #include "UIPreviewAddingCogComponent.h"
+#include "UIPreviewWireComponent.h"
 #include "UISelectComponent.h"
 #include "UISettings.h"
 #include "UIWireSegmentsChangedComponent.h"
@@ -348,7 +349,8 @@ void xg::BreadRenderer::Update(const flecs::world& world)
             });
     }
 
-    if (world.count<const xg::UIWireSegmentsChangedComponent>() != 0)
+    if (world.count<const xg::UIWireSegmentsChangedComponent>() != 0 ||
+        world.count<const xg::UIPreviewWireComponent>() == 0)
     {
         for (xg::IWireRenderer* renderer : m_WirePreviewRendererMap.GetOrder())
         {
