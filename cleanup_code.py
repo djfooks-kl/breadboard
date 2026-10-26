@@ -10,6 +10,11 @@ def convert_indentation_and_strip_whitespace(line, tab_width=4):
     with any remainder kept as spaces.
     """
     stripped = line.lstrip(" \t")
+    newline = '\r\n' if stripped.endswith('\r\n') else ('\n' if stripped.endswith('\n') else '')
+
+    if len(stripped.strip("\r\n")) == 0:
+        return newline
+
     leading = line[: len(line) - len(stripped)]
 
     col = 0
@@ -22,7 +27,6 @@ def convert_indentation_and_strip_whitespace(line, tab_width=4):
     tabs = col // tab_width
     spaces = col % tab_width
 
-    newline = '\r\n' if stripped.endswith('\r\n') else ('\n' if stripped.endswith('\n') else '')
 
     return (" " * tabs * tab_width) + (" " * spaces) + stripped.rstrip() + newline
 

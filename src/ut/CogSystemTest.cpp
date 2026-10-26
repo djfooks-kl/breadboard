@@ -136,7 +136,7 @@ SYSTEM_TEST_CASE("Moving a cog -> Update transform and nodes")
         moveGroup.m_Transform = xc::ITransform{ .m_Translation = glm::ivec2(10, 10), .m_Rotation = xc::Rotation90(2) };
     }
     commandMove.add<xg::command::ExecuteComponent>();
-    
+
     env.Update();
 
     CHECK(addedEntity.has<xg::CogCreatedComponent>() == false);
