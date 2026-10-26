@@ -8,6 +8,7 @@
 #include "Command/CommandDeleteWireComponent.h"
 #include "Command/CommandEntityComponent.h"
 #include "Command/CommandExpiredFromHistoryComponent.h"
+#include "Command/CommandMoveGroupComponent.h"
 #include "Command/CommandSeveredFromHistoryComponent.h"
 #include "Command/CommandToQueueComponent.h"
 #include "FlecsTestHelpers.h"
@@ -15,6 +16,7 @@
 #include "UIAddWireComponent.h"
 #include "UIDeleteCogComponent.h"
 #include "UIDeleteWireComponent.h"
+#include "UIMoveGroupComponent.h"
 
 #define SYSTEM_TEST_CASE(description) TEST_CASE("xg::command::CreateSystem - " description, "[xg::command::CreateSystem]")
 
@@ -49,6 +51,11 @@ namespace
                 });
 
             m_World.each([](flecs::entity entity, xg::UIDeleteWireComponent)
+                {
+                    entity.destruct();
+                });
+
+            m_World.each([](flecs::entity entity, xg::UIMoveGroupComponent)
                 {
                     entity.destruct();
                 });
@@ -285,6 +292,91 @@ TEST_CASE("When an add cog command is severed from history destroy the added ent
     env.Update();
 
     std::vector<flecs::entity> entities = xc::ut::CollectEntities(world.query<xg::command::AddCogComponent>());
+    REQUIRE(entities.size() == 1);
+    flecs::entity command = entities[0];
+
+    command.add<xg::command::SeveredFromHistoryComponent>();
+    env.Update();
+
+    CHECK(world.is_alive(command) == false);
+}
+
+TEST_CASE("Move group -> Queue for execution and add a move back undo command")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    const flecs::entity uiCommand = world.entity();
+    flecs::entity entity1 = world.entity();
+    flecs::entity entity2 = world.entity();
+    auto& uiMove = uiCommand.ensure<xg::UIMoveGroupComponent>();
+    uiMove.m_Entities.push_back(entity1);
+    uiMove.m_Entities.push_back(entity2);
+    xc::ITransform transform{ .m_Translation = glm::ivec2(5, 11), .m_Rotation = xc::Rotation90(3) };
+    uiMove.m_Transform = transform;
+    env.Update();
+
+    std::vector<flecs::entity> entities = xc::ut::CollectEntities(world.query<xg::command::MoveGroupComponent, xg::command::ToQueueComponent>());
+    REQUIRE(entities.size() == 1);
+    flecs::entity command = entities[0];
+    CHECK(uiCommand != command);
+
+    REQUIRE(command.get<const xg::command::MoveGroupComponent>().m_Entities.size() == 2);
+    CHECK(command.get<const xg::command::MoveGroupComponent>().m_Entities[0] == entity1);
+    CHECK(command.get<const xg::command::MoveGroupComponent>().m_Entities[1] == entity2);
+    CHECK(command.get<const xg::command::MoveGroupComponent>().m_Transform == transform);
+
+    REQUIRE(command.has<xg::command::ToQueueComponent>());
+    const flecs::entity undo = command.get<const xg::command::ToQueueComponent>().m_Undo;
+    REQUIRE(undo != flecs::entity());
+    REQUIRE(undo.has<xg::command::MoveGroupComponent>());
+    REQUIRE(undo.get<const xg::command::MoveGroupComponent>().m_Entities.size() == 2);
+    CHECK(undo.get<const xg::command::MoveGroupComponent>().m_Entities[0] == entity1);
+    CHECK(undo.get<const xg::command::MoveGroupComponent>().m_Entities[1] == entity2);
+    CHECK(undo.get<const xg::command::MoveGroupComponent>().m_Transform == transform.Inverse());
+}
+
+TEST_CASE("When a move group command expires from history destroy the command entity")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    const flecs::entity uiCommand = world.entity();
+    flecs::entity entity1 = world.entity();
+    flecs::entity entity2 = world.entity();
+    auto& uiMove = uiCommand.ensure<xg::UIMoveGroupComponent>();
+    uiMove.m_Entities.push_back(entity1);
+    uiMove.m_Entities.push_back(entity2);
+    xc::ITransform transform{ .m_Translation = glm::ivec2(5, 11), .m_Rotation = xc::Rotation90(3) };
+    uiMove.m_Transform = transform;
+    env.Update();
+
+    std::vector<flecs::entity> entities = xc::ut::CollectEntities(world.query<xg::command::ToQueueComponent>());
+    REQUIRE(entities.size() == 1);
+    flecs::entity command = entities[0];
+
+    command.add<xg::command::ExpiredFromHistoryComponent>();
+    env.Update();
+
+    CHECK(world.is_alive(command) == false);
+}
+
+TEST_CASE("When a move group command is severed from history destroy the command entity")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    const flecs::entity uiCommand = world.entity();
+    flecs::entity entity1 = world.entity();
+    flecs::entity entity2 = world.entity();
+    auto& uiMove = uiCommand.ensure<xg::UIMoveGroupComponent>();
+    uiMove.m_Entities.push_back(entity1);
+    uiMove.m_Entities.push_back(entity2);
+    xc::ITransform transform{ .m_Translation = glm::ivec2(5, 11), .m_Rotation = xc::Rotation90(3) };
+    uiMove.m_Transform = transform;
+    env.Update();
+
+    std::vector<flecs::entity> entities = xc::ut::CollectEntities(world.query<xg::command::ToQueueComponent>());
     REQUIRE(entities.size() == 1);
     flecs::entity command = entities[0];
 

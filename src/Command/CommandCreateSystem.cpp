@@ -6,6 +6,7 @@
 #include "Command/CommandDeleteWireComponent.h"
 #include "Command/CommandEntityComponent.h"
 #include "Command/CommandExpiredFromHistoryComponent.h"
+#include "Command/CommandMoveGroupComponent.h"
 #include "Command/CommandSeveredFromHistoryComponent.h"
 #include "Command/CommandToQueueComponent.h"
 #include "FlecsGame.h"
@@ -13,6 +14,7 @@
 #include "UIAddWireComponent.h"
 #include "UIDeleteCogComponent.h"
 #include "UIDeleteWireComponent.h"
+#include "UIMoveGroupComponent.h"
 #include "UIPreviewCreateWireComponent.h"
 
 void xg::command::CreateSystem::Update(flecs::world& world)
@@ -26,35 +28,47 @@ void xg::command::CreateSystem::Update(flecs::world& world)
 
     world.defer_begin();
     world.each([](
-        flecs::entity entity,
         xg::command::SeveredFromHistoryComponent,
         xg::command::AddCogComponent&,
         xg::command::EntityComponent& commandEntity)
         {
             commandEntity.m_Entity.destruct();
-            entity.destruct();
         });
     world.defer_end();
 
     world.defer_begin();
     world.each([](
-        flecs::entity entity,
         xg::command::SeveredFromHistoryComponent,
         xg::command::AddWireComponent&,
         xg::command::EntityComponent& commandEntity)
         {
             commandEntity.m_Entity.destruct();
-            entity.destruct();
         });
     world.defer_end();
 
     world.defer_begin();
     world.each([](
-        flecs::entity entity,
         xg::command::ExpiredFromHistoryComponent,
         xg::command::DeleteCogComponent& deleteCog)
         {
             deleteCog.m_Cog.destruct();
+        });
+    world.defer_end();
+
+    world.defer_begin();
+    world.each([](
+        xg::command::ExpiredFromHistoryComponent,
+        xg::command::DeleteWireComponent& deleteWire)
+        {
+            deleteWire.m_Wire.destruct();
+        });
+    world.defer_end();
+
+    world.defer_begin();
+    world.each([](
+        flecs::entity entity,
+        xg::command::SeveredFromHistoryComponent)
+        {
             entity.destruct();
         });
     world.defer_end();
@@ -62,10 +76,8 @@ void xg::command::CreateSystem::Update(flecs::world& world)
     world.defer_begin();
     world.each([](
         flecs::entity entity,
-        xg::command::ExpiredFromHistoryComponent,
-        xg::command::DeleteWireComponent& deleteWire)
+        xg::command::ExpiredFromHistoryComponent)
         {
-            deleteWire.m_Wire.destruct();
             entity.destruct();
         });
     world.defer_end();
@@ -126,6 +138,21 @@ void xg::command::CreateSystem::Update(flecs::world& world)
             undo.ensure<xg::command::AddWireComponent>();
 
             undo.ensure<xg::command::EntityComponent>().m_Entity = deleteWire.m_Wire;
+
+            entity.ensure<xg::command::ToQueueComponent>().m_Undo = undo;
+        });
+
+    world.each([&](const xg::UIMoveGroupComponent& uiMoveGroup)
+        {
+            flecs::entity entity = xg::CreateEntity(world);
+            auto& command = entity.ensure<xg::command::MoveGroupComponent>();
+            command.m_Entities = uiMoveGroup.m_Entities;
+            command.m_Transform = uiMoveGroup.m_Transform;
+
+            const flecs::entity undo = xg::CreateEntity(world);
+            auto& undoCommand = undo.ensure<xg::command::MoveGroupComponent>();
+            undoCommand.m_Entities = uiMoveGroup.m_Entities;
+            undoCommand.m_Transform = uiMoveGroup.m_Transform.Inverse();
 
             entity.ensure<xg::command::ToQueueComponent>().m_Undo = undo;
         });

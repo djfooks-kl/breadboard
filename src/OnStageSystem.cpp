@@ -8,6 +8,7 @@
 #include "Command/CommandDeleteWireComponent.h"
 #include "Command/CommandEntityComponent.h"
 #include "Command/CommandExecuteComponent.h"
+#include "Command/CommandMoveGroupComponent.h"
 #include "OnStageAddedComponent.h"
 #include "OnStageComponent.h"
 #include "OnStageRemovedComponent.h"
@@ -72,6 +73,22 @@ void xg::OnStageSystem::Update(flecs::world& world)
         {
             entity.remove<xg::OnStageComponent>();
             entity.add<xg::OnStageRemovedComponent>();
+        });
+    world.defer_end();
+
+    world.defer_begin();
+    world.each([&](
+        const xg::command::MoveGroupComponent& moveGroup,
+        const xg::command::ExecuteComponent&)
+        {
+            for (const flecs::entity& entity : moveGroup.m_Entities)
+            {
+                if (!entity.has<xg::OnStageComponent>())
+                {
+                    entity.add<xg::OnStageComponent>();
+                    entity.add<xg::OnStageAddedComponent>();
+                }
+            }
         });
     world.defer_end();
 }

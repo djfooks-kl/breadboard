@@ -14,7 +14,7 @@ namespace xc
     public:
         Rotation90() = default;
 
-        // \param rotationIndex number of cockwise rotations to apply
+        // \param rotationIndex number of clockwise rotations to apply
         Rotation90(int rotationIndex);
 
         void RotateClockwise(int rotationIndexOffset);

@@ -136,6 +136,7 @@ set(source_files
     src/UIAddWireSystem.cpp
     src/UIAddWireSystem.h
     src/UIDeleteWireComponent.h
+    src/UIDragDeleteGroupComponent.h
     src/UIDragDropSystem.cpp
     src/UIDragDropSystem.h
     src/UIDraggingDropComponent.h
@@ -149,6 +150,7 @@ set(source_files
     src/UIHoverComponent.h
     src/UIHoverSystem.cpp
     src/UIHoverSystem.h
+    src/UIMoveGroupComponent.h
     src/UIPreviewAddingCogComponent.h
     src/UIPreviewAddingWireComponent.h
     src/UIPreviewCreateWireComponent.h
@@ -246,6 +248,8 @@ set(command_files
     src/Command/CommandListComponent.h
     src/Command/CommandListSystem.cpp
     src/Command/CommandListSystem.h
+    src/Command/CommandMoveGroupComponent.h
+    src/Command/CommandDeleteGroupComponent.h
     src/Command/CommandSeveredFromHistoryComponent.h
     src/Command/CommandToQueueComponent.h
     src/Command/CommandUndoComponent.h

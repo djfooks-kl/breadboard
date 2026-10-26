@@ -8,6 +8,12 @@ namespace xc
 {
     struct ITransform
     {
+        [[nodiscard]] ITransform Inverse() const;
+
+        [[nodiscard]] xc::ITransform operator*(const xc::ITransform& rhs) const;
+
+        bool operator==(const xc::ITransform& other) const = default;
+
         // Apply the transform to a vector in local space
         // Returns the world space position
         [[nodiscard]] glm::ivec2 Apply(const glm::ivec2& localV) const;
@@ -19,10 +25,6 @@ namespace xc
         // Apply the transform to a vector in local space and create a new translation with that translation
         // and the original rotation
         [[nodiscard]] xc::ITransform WithLocalTranslation(const glm::ivec2& v) const;
-
-        [[nodiscard]] xc::ITransform operator*(const xc::ITransform& rhs) const;
-
-        bool operator==(const xc::ITransform& other) const = default;
 
         static const xc::ITransform s_Identy;
 

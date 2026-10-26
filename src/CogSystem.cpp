@@ -9,6 +9,7 @@
 #include "Command/CommandAddCogComponent.h"
 #include "Command/CommandEntityComponent.h"
 #include "Command/CommandExecuteComponent.h"
+#include "Command/CommandMoveGroupComponent.h"
 
 void xg::CogSystem::Update(flecs::world& world)
 {
@@ -41,6 +42,31 @@ void xg::CogSystem::Update(flecs::world& world)
                 for (const glm::ivec2& node : prototype->GetWireNodes())
                 {
                     cogNodes.m_Nodes.push_back(addCog.m_Transform.Apply(node));
+                }
+            }
+        });
+    world.defer_end();
+
+    world.defer_begin();
+    world.each([&](
+        const xg::command::MoveGroupComponent& moveGroup,
+        const xg::command::ExecuteComponent&)
+        {
+            for (const auto& entity : moveGroup.m_Entities)
+            {
+                auto* cog = entity.try_get_mut<xg::CogComponent>();
+                if (!cog)
+                    continue;
+
+                cog->m_Transform = moveGroup.m_Transform * cog->m_Transform;
+
+                auto& cogNodes = entity.get_mut<xg::CogNodesComponent>();
+                const xg::CogPrototype* prototype = world.get<const xg::CogMap>().Get(cog->m_CogId);
+                int i = 0;
+                for (const glm::ivec2& node : prototype->GetWireNodes())
+                {
+                    cogNodes.m_Nodes[i] = cog->m_Transform.Apply(node);
+                    ++i;
                 }
             }
         });

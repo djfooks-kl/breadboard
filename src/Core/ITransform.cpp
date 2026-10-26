@@ -2,6 +2,12 @@
 
 #include <ostream>
 
+xc::ITransform xc::ITransform::Inverse() const
+{
+    xc::Rotation90 newRotation(-m_Rotation.GetRotationIndex());
+    return { .m_Translation = -newRotation.Apply(m_Translation), .m_Rotation = newRotation };
+}
+
 glm::ivec2 xc::ITransform::Apply(const glm::ivec2& v) const
 {
     return m_Translation + m_Rotation.Apply(v);

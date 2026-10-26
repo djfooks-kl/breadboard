@@ -2,8 +2,8 @@
 #include <flecs/flecs.h>
 
 #include "UIWirePathComponent.h"
-#include "UIWireSegmentsComponent.h"
 #include "UIWireSegmentsChangedComponent.h"
+#include "UIWireSegmentsComponent.h"
 #include "UIWireSegmentsSystem.h"
 
 #define SYSTEM_TEST_CASE(description) TEST_CASE("xg::UIWireSegmentsSystem - " description, "[xg::UIWireSegmentsSystem]")

@@ -4,6 +4,8 @@
 
 #include "CogComponent.h"
 #include "Cogs/CogMap.h"
+#include "Command/CommandExecuteComponent.h"
+#include "Command/CommandMoveGroupComponent.h"
 #include "Core/IAABB.h"
 #include "Core/Range.h"
 #include "EntityHash.h"
@@ -16,6 +18,52 @@
 
 namespace
 {
+    void AddCog(
+        flecs::entity entity,
+        const xg::CogMap& cogMap,
+        const xg::CogComponent& cog,
+        xg::GridAttachmentsMap& inout_map)
+    {
+        const auto* cogPrototype = cogMap.Get(cog.m_CogId);
+        for (int x = 0; x <= cogPrototype->GetSize().x - 1; ++x)
+        {
+            for (int y = 0; y <= cogPrototype->GetSize().y - 1; ++y)
+            {
+                const glm::ivec2 local = glm::ivec2(x, y);
+                auto& attachments = inout_map[cog.m_Transform.Apply(local)];
+                attachments.m_Entities.push_back(entity);
+                attachments.m_HasNode = cogPrototype->GetWireNodes().contains(local);
+            }
+        }
+    }
+
+    void DeleteCog(
+        flecs::entity entity,
+        const xg::CogMap& cogMap,
+        const xg::CogComponent& cog,
+        const xc::ITransform& transform,
+        xg::GridAttachmentsMap& inout_map)
+    {
+        const auto* cogPrototype = cogMap.Get(cog.m_CogId);
+        for (int x = 0; x <= cogPrototype->GetSize().x - 1; ++x)
+        {
+            for (int y = 0; y <= cogPrototype->GetSize().y - 1; ++y)
+            {
+                const glm::ivec2 p = transform.Apply(glm::ivec2(x, y));
+                auto& attachments = inout_map[p];
+                std::erase(attachments.m_Entities, entity);
+                if (attachments.m_Entities.empty())
+                {
+                    inout_map.erase(p);
+                }
+                else
+                {
+                    attachments.m_HasNode = false;
+                }
+            }
+        }
+    }
+
     void AddWire(flecs::entity entity, const xg::WireComponent& wire, xg::GridAttachmentsMap& inout_map)
     {
         glm::ivec2 prev = wire.m_Checkpoints[0];
@@ -56,37 +104,26 @@ void xg::GridAttachmentSystem::Update(flecs::world& world)
 
     world.each([&](flecs::entity entity, xg::OnStageAddedComponent, const xg::CogComponent& cog)
         {
-            const auto* cogPrototype = cogMap.Get(cog.m_CogId);
-            for (int x = 0; x <= cogPrototype->GetSize().x - 1; ++x)
-            {
-                for (int y = 0; y <= cogPrototype->GetSize().y - 1; ++y)
-                {
-                    const glm::ivec2 local = glm::ivec2(x, y);
-                    auto& attachments = map[cog.m_Transform.Apply(local)];
-                    attachments.m_Entities.push_back(entity);
-                    attachments.m_HasNode = cogPrototype->GetWireNodes().contains(local);
-                }
-            }
+            AddCog(entity, cogMap, cog, map);
         });
 
     world.each([&](flecs::entity entity, xg::OnStageRemovedComponent, const xg::CogComponent& cog)
         {
-            const auto* cogPrototype = cogMap.Get(cog.m_CogId);
-            for (int x = 0; x <= cogPrototype->GetSize().x - 1; ++x)
+            DeleteCog(entity, cogMap, cog, cog.m_Transform, map);
+        });
+
+    world.each([&](
+        const xg::command::MoveGroupComponent& moveGroup,
+        const xg::command::ExecuteComponent&)
+        {
+            for (const flecs::entity& entity : moveGroup.m_Entities)
             {
-                for (int y = 0; y <= cogPrototype->GetSize().y - 1; ++y)
+                // todo test wires!!!
+                if (!entity.has<xg::OnStageAddedComponent>())
                 {
-                    const glm::ivec2 p = cog.m_Transform.Apply(glm::ivec2(x, y));
-                    auto& attachments = map[p];
-                    std::erase(attachments.m_Entities, entity);
-                    if (attachments.m_Entities.empty())
-                    {
-                        map.erase(p);
-                    }
-                    else
-                    {
-                        attachments.m_HasNode = false;
-                    }
+                    const auto& cog = entity.get<const xg::CogComponent>();
+                    DeleteCog(entity, cogMap, cog, moveGroup.m_Transform.Inverse() * cog.m_Transform, map);
+                    AddCog(entity, cogMap, cog, map);
                 }
             }
         });

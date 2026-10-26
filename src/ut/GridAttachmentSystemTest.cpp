@@ -3,6 +3,8 @@
 
 #include "CogComponent.h"
 #include "Cogs/CogMap.h"
+#include "Command/CommandExecuteComponent.h"
+#include "Command/CommandMoveGroupComponent.h"
 #include "Core/Range.h"
 #include "GridAttachmentsComponent.h"
 #include "GridAttachmentSystem.h"
@@ -115,6 +117,10 @@ namespace
             m_World.each([](flecs::entity entity, xg::OnStageRemovedComponent)
                 {
                     entity.remove<xg::OnStageRemovedComponent>();
+                });
+            m_World.each([](flecs::entity entity, xg::command::ExecuteComponent)
+                {
+                    entity.remove<xg::command::ExecuteComponent>();
                 });
             m_World.defer_end();
         }
@@ -310,6 +316,101 @@ SYSTEM_TEST_CASE("Removing on stage on a rotated long cog -> Deattach it from th
 
     const auto& map = world.get<xg::GridAttachmentsComponent>().m_Map;
     CHECK(map.size() == 0);
+}
+
+SYSTEM_TEST_CASE("Moving an on stage cog -> Dettach from old position attach it to new")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity entity = world.entity();
+    {
+        entity.add<xg::OnStageAddedComponent>();
+        auto& cog = entity.ensure<xg::CogComponent>();
+        // box from 2,2 to 4,1 with nodes at [3,2], [3,1], [5,2]
+        cog.m_CogId = s_LongCog;
+        cog.m_Transform = xc::ITransform{ glm::ivec2(2, 2), xc::Rotation90(1) };
+    }
+
+    env.Update();
+
+    entity.get_mut<xg::CogComponent>().m_Transform = xc::ITransform{ glm::ivec2(3, 2), xc::Rotation90(1) };
+    flecs::entity moveCommand = world.entity();
+    {
+        auto& moveGroup = moveCommand.ensure<xg::command::MoveGroupComponent>();
+        moveGroup.m_Entities.push_back(entity);
+        moveGroup.m_Transform = xc::ITransform{ glm::ivec2(1, 0) };
+    }
+    moveCommand.add<xg::command::ExecuteComponent>();
+
+    env.Update();
+
+    const auto& map = world.get<xg::GridAttachmentsComponent>().m_Map;
+    CHECK(map.size() == 6);
+
+    CHECK(CellOnlyHas(map, glm::ivec2(3, 2), entity));
+    CHECK(CellOnlyHas(map, glm::ivec2(4, 2), entity));
+    CHECK(CellOnlyHas(map, glm::ivec2(5, 2), entity));
+
+    CHECK(CellOnlyHas(map, glm::ivec2(3, 1), entity));
+    CHECK(CellOnlyHas(map, glm::ivec2(4, 1), entity));
+    CHECK(CellOnlyHas(map, glm::ivec2(5, 1), entity));
+
+    CHECK(CellHasFlags(map, glm::ivec2(3, 2), { .m_HasNode = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(4, 2), {}));
+    CHECK(CellHasFlags(map, glm::ivec2(5, 2), { .m_HasNode = true }));
+
+    CHECK(CellHasFlags(map, glm::ivec2(3, 1), { .m_HasNode = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(4, 1), {}));
+    CHECK(CellHasFlags(map, glm::ivec2(5, 1), {}));
+}
+
+SYSTEM_TEST_CASE("Moving an off stage cog -> Dettach from old position attach it to new")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity entity = world.entity();
+    {
+        auto& cog = entity.ensure<xg::CogComponent>();
+        // box from 2,2 to 4,1 with nodes at [3,2], [3,1], [5,2]
+        cog.m_CogId = s_LongCog;
+        cog.m_Transform = xc::ITransform{ glm::ivec2(2, 2), xc::Rotation90(1) };
+    }
+
+    env.Update();
+
+    entity.get_mut<xg::CogComponent>().m_Transform = xc::ITransform{ glm::ivec2(3, 2), xc::Rotation90(1) };
+    flecs::entity moveCommand = world.entity();
+    {
+        auto& moveGroup = moveCommand.ensure<xg::command::MoveGroupComponent>();
+        moveGroup.m_Entities.push_back(entity);
+        moveGroup.m_Transform = xc::ITransform{ glm::ivec2(1, 0) };
+    }
+    moveCommand.add<xg::command::ExecuteComponent>();
+
+    entity.add<xg::OnStageAddedComponent>();
+
+    env.Update();
+
+    const auto& map = world.get<xg::GridAttachmentsComponent>().m_Map;
+    CHECK(map.size() == 6);
+
+    CHECK(CellOnlyHas(map, glm::ivec2(3, 2), entity));
+    CHECK(CellOnlyHas(map, glm::ivec2(4, 2), entity));
+    CHECK(CellOnlyHas(map, glm::ivec2(5, 2), entity));
+
+    CHECK(CellOnlyHas(map, glm::ivec2(3, 1), entity));
+    CHECK(CellOnlyHas(map, glm::ivec2(4, 1), entity));
+    CHECK(CellOnlyHas(map, glm::ivec2(5, 1), entity));
+
+    CHECK(CellHasFlags(map, glm::ivec2(3, 2), { .m_HasNode = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(4, 2), {}));
+    CHECK(CellHasFlags(map, glm::ivec2(5, 2), { .m_HasNode = true }));
+
+    CHECK(CellHasFlags(map, glm::ivec2(3, 1), { .m_HasNode = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(4, 1), {}));
+    CHECK(CellHasFlags(map, glm::ivec2(5, 1), {}));
 }
 
 SYSTEM_TEST_CASE("Adding on stage to a wire -> Attach it to the grid and set the node and wire direction flags")

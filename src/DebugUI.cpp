@@ -16,6 +16,7 @@
 #include "Command/CommandDeleteWireComponent.h"
 #include "Command/CommandEntityComponent.h"
 #include "Command/CommandListComponent.h"
+#include "Command/CommandMoveGroupComponent.h"
 #include "Command/CommandUndoComponent.h"
 #include "Core/GLFWLib.h"
 #include "EntityHash.h"
@@ -89,6 +90,10 @@ namespace
         if (const auto* command = entity.try_get<xg::command::DeleteWireComponent>())
         {
             return std::format("Delete {}", GetEntityHandleDetails(command->m_Wire));
+        }
+        if (const auto* command = entity.try_get<xg::command::MoveGroupComponent>())
+        {
+            return std::format("Move {} entities", command->m_Entities.size());
         }
 
         std::stringstream ss;

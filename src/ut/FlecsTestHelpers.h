@@ -9,6 +9,6 @@ namespace xc::ut
         query.each([&](flecs::entity e, Components&...) {
             results.push_back(e);
         });
-        return std::move(results);
+        return results;
     }
 }

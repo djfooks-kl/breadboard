@@ -7,6 +7,7 @@
 #include "Command/CommandDeleteWireComponent.h"
 #include "Command/CommandEntityComponent.h"
 #include "Command/CommandExecuteComponent.h"
+#include "Command/CommandMoveGroupComponent.h"
 #include "OnStageAddedComponent.h"
 #include "OnStageComponent.h"
 #include "OnStageRemovedComponent.h"
@@ -28,7 +29,6 @@ namespace
                 {
                     entity.remove<xg::command::ExecuteComponent>();
                 });
-
             m_World.defer_end();
         }
 
@@ -185,3 +185,106 @@ SYSTEM_TEST_CASE("During drag to move an entity -> "
     CHECK(addedEntity.has<xg::OnStageComponent>() == false);
     CHECK(addedEntity.has<xg::OnStageRemovedComponent>());
 }
+
+SYSTEM_TEST_CASE("Drag to move ends -> "
+    "Add the OnStageComponent and add OnStageAddedComponent for moved entities")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity addedEntity = world.entity();
+    flecs::entity commandAdd = world.entity();
+    commandAdd.ensure<xg::command::AddWireComponent>();
+    commandAdd.ensure<xg::command::EntityComponent>().m_Entity = addedEntity;
+
+    flecs::entity addedEntity2 = world.entity();
+    flecs::entity commandAdd2 = world.entity();
+    commandAdd2.ensure<xg::command::AddWireComponent>();
+    commandAdd2.ensure<xg::command::EntityComponent>().m_Entity = addedEntity2;
+
+    flecs::entity addedEntity3 = world.entity();
+    flecs::entity commandAdd3 = world.entity();
+    commandAdd3.ensure<xg::command::AddWireComponent>();
+    commandAdd3.ensure<xg::command::EntityComponent>().m_Entity = addedEntity3;
+
+    flecs::entity commandMoveGroup = world.entity();
+    {
+        auto& moveGroup = commandMoveGroup.ensure<xg::command::MoveGroupComponent>();
+        moveGroup.m_Entities.push_back(addedEntity);
+        moveGroup.m_Entities.push_back(addedEntity2);
+    }
+
+    commandAdd.add<xg::command::ExecuteComponent>();
+    env.Update();
+
+    commandAdd2.add<xg::command::ExecuteComponent>();
+    env.Update();
+
+    commandAdd3.add<xg::command::ExecuteComponent>();
+    env.Update();
+
+    addedEntity.add<xg::UIDragPreviewComponent>();
+    addedEntity2.add<xg::UIDragPreviewComponent>();
+    env.Update();
+
+    commandMoveGroup.add<xg::command::ExecuteComponent>();
+    env.Update();
+
+    CHECK(addedEntity.has<xg::OnStageComponent>());
+    CHECK(addedEntity2.has<xg::OnStageComponent>());
+    CHECK(addedEntity3.has<xg::OnStageComponent>());
+
+    CHECK(addedEntity.has<xg::OnStageAddedComponent>());
+    CHECK(addedEntity2.has<xg::OnStageAddedComponent>());
+    CHECK(addedEntity3.has<xg::OnStageAddedComponent>() == false);
+}
+
+SYSTEM_TEST_CASE("Move without drag -> "
+    "Do not add OnStageAddedComponent for moved entities")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity addedEntity = world.entity();
+    flecs::entity commandAdd = world.entity();
+    commandAdd.ensure<xg::command::AddWireComponent>();
+    commandAdd.ensure<xg::command::EntityComponent>().m_Entity = addedEntity;
+
+    flecs::entity addedEntity2 = world.entity();
+    flecs::entity commandAdd2 = world.entity();
+    commandAdd2.ensure<xg::command::AddWireComponent>();
+    commandAdd2.ensure<xg::command::EntityComponent>().m_Entity = addedEntity2;
+
+    flecs::entity addedEntity3 = world.entity();
+    flecs::entity commandAdd3 = world.entity();
+    commandAdd3.ensure<xg::command::AddWireComponent>();
+    commandAdd3.ensure<xg::command::EntityComponent>().m_Entity = addedEntity3;
+
+    flecs::entity commandMoveGroup = world.entity();
+    {
+        auto& moveGroup = commandMoveGroup.ensure<xg::command::MoveGroupComponent>();
+        moveGroup.m_Entities.push_back(addedEntity);
+        moveGroup.m_Entities.push_back(addedEntity2);
+    }
+
+    commandAdd.add<xg::command::ExecuteComponent>();
+    env.Update();
+
+    commandAdd2.add<xg::command::ExecuteComponent>();
+    env.Update();
+
+    commandAdd3.add<xg::command::ExecuteComponent>();
+    env.Update();
+
+    commandMoveGroup.add<xg::command::ExecuteComponent>();
+    env.Update();
+
+    CHECK(addedEntity.has<xg::OnStageComponent>());
+    CHECK(addedEntity2.has<xg::OnStageComponent>());
+    CHECK(addedEntity3.has<xg::OnStageComponent>());
+
+    CHECK(addedEntity.has<xg::OnStageAddedComponent>() == false);
+    CHECK(addedEntity2.has<xg::OnStageAddedComponent>() == false);
+    CHECK(addedEntity3.has<xg::OnStageAddedComponent>() == false);
+}
+

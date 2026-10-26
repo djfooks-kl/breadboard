@@ -9,6 +9,8 @@
 #include "CogComponent.h"
 #include "CogNodeRenderer.h"
 #include "Cogs/CogMap.h"
+#include "Command/CommandExecuteComponent.h"
+#include "Command/CommandMoveGroupComponent.h"
 #include "Core/Font.h"
 #include "Core/GLFWLib.h"
 #include "Core/ShaderProgram.h"
@@ -168,14 +170,23 @@ void xg::BreadRenderer::Update(const flecs::world& world)
     }
 
     const auto& cogMap = world.get<xg::CogMap>();
-    const bool anyOnStageChanges =
+    bool anyOnStageChanges =
         world.count<const xg::OnStageAddedComponent>() != 0 ||
         world.count<const xg::OnStageRemovedComponent>() != 0;
 
-    if (anyOnStageChanges)
+    bool anyMoves = false;
+    world.each([&](
+        const xg::command::MoveGroupComponent& moveGroup,
+        const xg::command::ExecuteComponent&)
+        {
+            anyMoves |= moveGroup.m_Entities.size() > 0;
+        });
+
+    if (anyOnStageChanges || anyMoves)
     {
         if (world.query<xg::OnStageAddedComponent, xg::CogComponent>().is_true() ||
-            world.query<xg::OnStageRemovedComponent, xg::CogComponent>().is_true())
+            world.query<xg::OnStageRemovedComponent, xg::CogComponent>().is_true() ||
+            anyMoves)
         {
             m_CogBoxRenderer->RemoveAll();
             for (xg::IRenderer* renderer : m_CogRendererMap.GetOrder())
@@ -197,7 +208,8 @@ void xg::BreadRenderer::Update(const flecs::world& world)
         }
 
         if (world.query<xg::OnStageAddedComponent, xg::WireComponent>().is_true() ||
-            world.query<xg::OnStageRemovedComponent, xg::WireComponent>().is_true())
+            world.query<xg::OnStageRemovedComponent, xg::WireComponent>().is_true() ||
+            anyMoves)
         {
             for (xg::IWireRenderer* renderer : m_WireRendererMap.GetOrder())
             {

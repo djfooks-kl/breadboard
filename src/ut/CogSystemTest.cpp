@@ -9,6 +9,7 @@
 #include "Command/CommandAddCogComponent.h"
 #include "Command/CommandEntityComponent.h"
 #include "Command/CommandExecuteComponent.h"
+#include "Command/CommandMoveGroupComponent.h"
 
 #define SYSTEM_TEST_CASE(description) TEST_CASE("xg::CogSystem - " description, "[xg::CogSystem]")
 
@@ -43,7 +44,6 @@ namespace
                 {
                     entity.remove<xg::command::ExecuteComponent>();
                 });
-
             m_World.defer_end();
         }
 
@@ -103,4 +103,49 @@ SYSTEM_TEST_CASE("Executing an add command a 2nd time -> Do not add a CogCreated
     env.Update();
 
     CHECK(addedEntity.has<xg::CogCreatedComponent>() == false);
+}
+
+SYSTEM_TEST_CASE("Moving a cog -> Update transform and nodes")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+
+    xc::ITransform transformA{ .m_Translation = glm::ivec2(1, 1), .m_Rotation = xc::Rotation90(1) };
+    xc::ITransform transformB{ .m_Translation = glm::ivec2(10, 10), .m_Rotation = xc::Rotation90(2) };
+
+    flecs::entity otherMovedEntity = world.entity();
+
+    flecs::entity addedEntity = world.entity();
+    flecs::entity commandAdd = world.entity();
+    {
+        auto& addCog = commandAdd.ensure<xg::command::AddCogComponent>();
+        addCog.m_CogId = s_TestCog1;
+        addCog.m_Transform = xc::ITransform{ .m_Translation = glm::ivec2(1, 1), .m_Rotation = xc::Rotation90(1) };
+    }
+    commandAdd.ensure<xg::command::EntityComponent>().m_Entity = addedEntity;
+    commandAdd.add<xg::command::ExecuteComponent>();
+
+    env.Update();
+
+    flecs::entity commandMove = world.entity();
+    {
+        auto& moveGroup = commandMove.ensure<xg::command::MoveGroupComponent>();
+        moveGroup.m_Entities.push_back(otherMovedEntity);
+        moveGroup.m_Entities.push_back(addedEntity);
+        moveGroup.m_Transform = xc::ITransform{ .m_Translation = glm::ivec2(10, 10), .m_Rotation = xc::Rotation90(2) };
+    }
+    commandMove.add<xg::command::ExecuteComponent>();
+    
+    env.Update();
+
+    CHECK(addedEntity.has<xg::CogCreatedComponent>() == false);
+    REQUIRE(addedEntity.has<xg::CogComponent>());
+    CHECK(addedEntity.get<xg::CogComponent>().m_CogId == s_TestCog1);
+    CHECK(addedEntity.get<xg::CogComponent>().m_Transform == xc::ITransform{ glm::ivec2(9, 9), xc::Rotation90(3) });
+
+    REQUIRE(addedEntity.has<xg::CogNodesComponent>());
+    REQUIRE(addedEntity.get<xg::CogNodesComponent>().m_Nodes.size() == 2);
+    CHECK(addedEntity.get<xg::CogNodesComponent>().m_Nodes[0] == glm::ivec2(9, 9));
+    CHECK(addedEntity.get<xg::CogNodesComponent>().m_Nodes[1] == glm::ivec2(9, 11));
 }
