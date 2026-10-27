@@ -123,7 +123,7 @@ void xg::UI::DrawCogMenu(flecs::world& world)
     ImGuiIO& io = ImGui::GetIO();
     bool openning = false;
     if (!ImGui::IsPopupOpen("BuildPopup") &&
-        input.m_KeyDown.contains(xg::EMappedInput::Build) &&
+        input.m_KeyPress.contains(xg::EMappedInput::Build) &&
         !ImGui::IsWindowHovered())
     {
         ImGui::OpenPopup("BuildPopup");
