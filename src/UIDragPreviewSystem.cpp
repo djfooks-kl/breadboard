@@ -9,7 +9,6 @@
 #include "UIDragPreviewCogComponent.h"
 #include "UIDragPreviewComponent.h"
 #include "UIDragPreviewMovement.h"
-#include "UIHoverComponent.h"
 #include "UIPreviewAddingCogComponent.h"
 #include "UIPreviewMovingComponent.h"
 #include "UIRotateComponent.h"
@@ -29,25 +28,21 @@ void xg::UIDragPreviewSystem::Update(flecs::world& world)
     {
         if (world.count<const xg::UIDragPreviewComponent>() == 0)
         {
-            const flecs::entity& hovered = world.get<const xg::UIHoverComponent>().m_Entity;
-            if (hovered.is_alive())
+            if (previewMoving.m_Dragging.has<xg::SelectedComponent>())
             {
-                if (hovered.has<xg::SelectedComponent>())
-                {
-                    world.defer_begin();
-                    auto addQuery = world.query_builder<const xg::SelectedComponent>().without<const xg::UIDragPreviewComponent>();
-                    addQuery.build().each([&](flecs::entity selectedEntity, const xg::SelectedComponent&)
-                        {
-                            selectedEntity.add<xg::UIDragPreviewComponent>();
-                            world.add<xg::UIDragPreviewChanged>();
-                        });
-                    world.defer_end();
-                }
-                else
-                {
-                    hovered.add<xg::UIDragPreviewComponent>();
-                    world.add<xg::UIDragPreviewChanged>();
-                }
+                world.defer_begin();
+                auto addQuery = world.query_builder<const xg::SelectedComponent>().without<const xg::UIDragPreviewComponent>();
+                addQuery.build().each([&](flecs::entity selectedEntity, const xg::SelectedComponent&)
+                    {
+                        selectedEntity.add<xg::UIDragPreviewComponent>();
+                        world.add<xg::UIDragPreviewChanged>();
+                    });
+                world.defer_end();
+            }
+            else
+            {
+                previewMoving.m_Dragging.add<xg::UIDragPreviewComponent>();
+                world.add<xg::UIDragPreviewChanged>();
             }
         }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <flecs/flecs.h>
 #include <glm/ext/vector_float2.hpp>
 #include <ImGui/imgui.h>
 #include <memory>
@@ -43,6 +44,7 @@ namespace xg
         std::unique_ptr<xg::DebugUI> m_DebugUI;
 
         bool m_CogPopupOpen = false;
+        flecs::entity m_DraggingEntity;
         std::optional<glm::vec2> m_DragMoveStart;
     };
 }

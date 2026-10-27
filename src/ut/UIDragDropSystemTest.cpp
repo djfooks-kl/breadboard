@@ -157,7 +157,7 @@ SYSTEM_TEST_CASE("When dropping a valid moved group -> add a new entity requesti
     world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(1, 2);
     world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Rotation = xc::Rotation90(3);
 
-    world.get_mut<xg::UIPreviewMovingComponent>().m_Dragging = false;
+    world.get_mut<xg::UIPreviewMovingComponent>().m_Dragging = flecs::entity::null();
     world.get_mut<xg::UIDragValidComponent>().m_Valid = true;
     env.Update();
 
@@ -197,7 +197,7 @@ SYSTEM_TEST_CASE("When dropping an invalid moved group -> add a new entity reque
     world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Translation = glm::ivec2(1, 2);
     world.get_mut<xg::UIDragPreviewMovement>().m_Transform.m_Rotation = xc::Rotation90(3);
 
-    world.get_mut<xg::UIPreviewMovingComponent>().m_Dragging = false;
+    world.get_mut<xg::UIPreviewMovingComponent>().m_Dragging = flecs::entity::null();
     world.get_mut<xg::UIDragValidComponent>().m_Valid = false;
     env.Update();
 

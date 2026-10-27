@@ -9,7 +9,6 @@
 #include "UIDragPreviewComponent.h"
 #include "UIDragPreviewMovement.h"
 #include "UIDragPreviewSystem.h"
-#include "UIHoverComponent.h"
 #include "UIPreviewAddingCogComponent.h"
 #include "UIPreviewMovingComponent.h"
 #include "UIRotateComponent.h"
@@ -41,7 +40,6 @@ namespace
         TestEnv()
         {
             m_World.ensure<xg::UIDragPreviewMovement>();
-            m_World.ensure<xg::UIHoverComponent>();
             m_World.ensure<xg::UIPreviewAddingCogComponent>();
             m_World.ensure<xg::UIPreviewMovingComponent>();
             m_World.ensure<xg::UIRotateComponent>();
@@ -295,21 +293,19 @@ SYSTEM_TEST_CASE("Rotation changes while previewing then stop -> Movement should
     CHECK(world.get<xg::UIDragPreviewMovement>().m_Transform.m_Rotation == xc::Rotation90(0));
 }
 
-SYSTEM_TEST_CASE("While moving, hovered entity is in selected list -> move all selected entities")
+SYSTEM_TEST_CASE("While moving, dragged entity is in selected list -> move all selected entities")
 {
     TestEnv env;
     flecs::world world = env.m_World;
-
-    world.get_mut<xg::UIPreviewMovingComponent>().m_Dragging = true;
-    world.get_mut<xg::UIPreviewMovingComponent>().m_GrabbedPosition = glm::vec2(1.75f, 2.f);
-    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 5.75f);
 
     flecs::entity cog1 = world.entity();
     cog1.add<xg::SelectedComponent>();
     flecs::entity cog2 = world.entity();
     cog2.add<xg::SelectedComponent>();
 
-    world.get_mut<xg::UIHoverComponent>().m_Entity = cog2;
+    world.get_mut<xg::UIPreviewMovingComponent>().m_Dragging = cog2;
+    world.get_mut<xg::UIPreviewMovingComponent>().m_GrabbedPosition = glm::vec2(1.75f, 2.f);
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 5.75f);
 
     env.Update();
 
@@ -324,14 +320,10 @@ SYSTEM_TEST_CASE("While moving, hovered entity is in selected list -> move all s
     CHECK(world.has<xg::UIDragPreviewChanged>() == false);
 }
 
-SYSTEM_TEST_CASE("While moving, hovered entity is not in selected list -> move only the hovered entity")
+SYSTEM_TEST_CASE("While moving, dragged entity is not in selected list -> move only the dragged entity")
 {
     TestEnv env;
     flecs::world world = env.m_World;
-
-    world.get_mut<xg::UIPreviewMovingComponent>().m_Dragging = true;
-    world.get_mut<xg::UIPreviewMovingComponent>().m_GrabbedPosition = glm::vec2(1.75f, 2.f);
-    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 5.75f);
 
     flecs::entity cog1 = world.entity();
     cog1.add<xg::SelectedComponent>();
@@ -339,7 +331,9 @@ SYSTEM_TEST_CASE("While moving, hovered entity is not in selected list -> move o
     cog2.add<xg::SelectedComponent>();
     flecs::entity cog3 = world.entity();
 
-    world.get_mut<xg::UIHoverComponent>().m_Entity = cog3;
+    world.get_mut<xg::UIPreviewMovingComponent>().m_Dragging = cog3;
+    world.get_mut<xg::UIPreviewMovingComponent>().m_GrabbedPosition = glm::vec2(1.75f, 2.f);
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 5.75f);
 
     env.Update();
 
@@ -355,19 +349,17 @@ SYSTEM_TEST_CASE("While moving, hovered entity is not in selected list -> move o
     CHECK(world.has<xg::UIDragPreviewChanged>() == false);
 }
 
-SYSTEM_TEST_CASE("While moving, hovered entity starts as null -> do nothing")
+SYSTEM_TEST_CASE("While moving, dragged entity starts as null -> do nothing")
 {
     TestEnv env;
     flecs::world world = env.m_World;
 
-    world.get_mut<xg::UIPreviewMovingComponent>().m_Dragging = true;
-    world.get_mut<xg::UIPreviewMovingComponent>().m_GrabbedPosition = glm::vec2(1.75f, 2.f);
-    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 5.75f);
-
     flecs::entity cog1 = world.entity();
     cog1.add<xg::SelectedComponent>();
 
-    world.get_mut<xg::UIHoverComponent>().m_Entity = flecs::entity::null();
+    world.get_mut<xg::UIPreviewMovingComponent>().m_Dragging = flecs::entity::null();
+    world.get_mut<xg::UIPreviewMovingComponent>().m_GrabbedPosition = glm::vec2(1.75f, 2.f);
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 5.75f);
 
     env.Update();
 
@@ -381,57 +373,19 @@ SYSTEM_TEST_CASE("While moving, hovered entity starts as null -> do nothing")
     CHECK(world.has<xg::UIDragPreviewChanged>() == false);
 }
 
-SYSTEM_TEST_CASE("While moving, hovered entity switches to null/other entity -> continue moving the same entities")
-{
-    TestEnv env;
-    flecs::world world = env.m_World;
-
-    world.get_mut<xg::UIPreviewMovingComponent>().m_Dragging = true;
-    world.get_mut<xg::UIPreviewMovingComponent>().m_GrabbedPosition = glm::vec2(1.75f, 2.f);
-    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(1.f, 5.75f);
-
-    flecs::entity cog1 = world.entity();
-    cog1.add<xg::SelectedComponent>();
-    flecs::entity cog2 = world.entity();
-    cog2.add<xg::SelectedComponent>();
-
-    flecs::entity cog3 = world.entity();
-
-    world.get_mut<xg::UIHoverComponent>().m_Entity = cog2;
-    env.Update();
-
-    world.get_mut<xg::UIHoverComponent>().m_Entity = flecs::entity::null();
-    env.Update();
-
-    CHECK(cog1.has<xg::UIDragPreviewComponent>());
-    CHECK(cog2.has<xg::UIDragPreviewComponent>());
-    CHECK(cog3.has<xg::UIDragPreviewComponent>() == false);
-    CHECK(world.has<xg::UIDragPreviewChanged>() == false);
-
-    world.get_mut<xg::UIHoverComponent>().m_Entity = cog3;
-    env.Update();
-
-    CHECK(cog1.has<xg::UIDragPreviewComponent>());
-    CHECK(cog2.has<xg::UIDragPreviewComponent>());
-    CHECK(cog3.has<xg::UIDragPreviewComponent>() == false);
-    CHECK(world.has<xg::UIDragPreviewChanged>() == false);
-}
-
 SYSTEM_TEST_CASE("While moving, translation/rotation changes -> move all selected entities")
 {
     TestEnv env;
     flecs::world world = env.m_World;
 
-    world.get_mut<xg::UIPreviewMovingComponent>().m_Dragging = true;
-    world.get_mut<xg::UIPreviewMovingComponent>().m_GrabbedPosition = glm::vec2(1.75f, 2.f);
-    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(3.f, 5.f);
-
     flecs::entity cog1 = world.entity();
     cog1.add<xg::SelectedComponent>();
     flecs::entity cog2 = world.entity();
     cog2.add<xg::SelectedComponent>();
 
-    world.get_mut<xg::UIHoverComponent>().m_Entity = cog1;
+    world.get_mut<xg::UIPreviewMovingComponent>().m_Dragging = cog1;
+    world.get_mut<xg::UIPreviewMovingComponent>().m_GrabbedPosition = glm::vec2(1.75f, 2.f);
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(3.f, 5.f);
 
     env.Update();
 
@@ -463,22 +417,20 @@ SYSTEM_TEST_CASE("Moving stops -> remove the UIDragPreviewComponent")
     TestEnv env;
     flecs::world world = env.m_World;
 
-    world.get_mut<xg::UIPreviewMovingComponent>().m_Dragging = true;
-    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(3.f, 5.f);
-
     flecs::entity cog1 = world.entity();
     cog1.add<xg::SelectedComponent>();
     flecs::entity cog2 = world.entity();
     cog2.add<xg::SelectedComponent>();
 
-    world.get_mut<xg::UIHoverComponent>().m_Entity = cog2;
+    world.get_mut<xg::UIPreviewMovingComponent>().m_Dragging = cog2;
+    world.get_mut<xg::WorldMouseComponent>().m_Position = glm::vec2(3.f, 5.f);
 
     env.Update();
 
     world.get_mut<xg::UIRotateComponent>().m_RotationDirection = 1;
     env.Update();
 
-    world.get_mut<xg::UIPreviewMovingComponent>().m_Dragging = false;
+    world.get_mut<xg::UIPreviewMovingComponent>().m_Dragging = flecs::entity::null();
     env.Update();
 
     CHECK(cog1.has<xg::UIDragPreviewComponent>() == false);

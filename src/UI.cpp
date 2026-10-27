@@ -265,7 +265,7 @@ bool xg::UI::GameConsumeMouseClick(flecs::world& world)
     auto& moving = world.get_mut<xg::UIPreviewMovingComponent>();
     if (moving.m_Dragging)
     {
-        moving.m_Dragging = false;
+        moving.m_Dragging = flecs::entity::null();
         return true;
     }
 
@@ -278,6 +278,7 @@ bool xg::UI::GameConsumeMouseClick(flecs::world& world)
 
     if (hover.m_Entity && hover.m_Entity == hover.m_Cog)
     {
+        m_DraggingEntity = hover.m_Entity;
         m_DragMoveStart = world.get<xg::WorldMouseComponent>().m_Position;
         return true;
     }
@@ -309,8 +310,9 @@ void xg::UI::Draw(flecs::world& world)
         if (m_DragMoveStart.value() != world.get<xg::WorldMouseComponent>().m_Position)
         {
             auto& moving = world.get_mut<xg::UIPreviewMovingComponent>();
-            moving.m_Dragging = true;
+            moving.m_Dragging = m_DraggingEntity;
             moving.m_GrabbedPosition = m_DragMoveStart.value();
+            m_DraggingEntity = flecs::entity::null();
             m_DragMoveStart.reset();
         }
     }

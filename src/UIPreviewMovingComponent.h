@@ -6,7 +6,7 @@ namespace xg
 {
     struct UIPreviewMovingComponent
     {
-        bool m_Dragging = false;
+        flecs::entity m_Dragging;
         glm::vec2 m_GrabbedPosition = glm::vec2(0.f);
     };
 }
