@@ -3,7 +3,8 @@
 
 #include "Core/GLFWLib.h"
 #include "MappedInputComponent.h"
-#include "OnStageRemovedComponent.h"
+#include "OnStageComponent.h"
+#include "OnStageTestHelpers.h"
 #include "SelectedComponent.h"
 #include "SelectionBoxComponent.h"
 #include "SelectionChangedComponent.h"
@@ -43,7 +44,7 @@ SYSTEM_TEST_CASE("UISelectComponent has entity set -> Add a SelectedComponent to
     TestEnv env;
     flecs::world world = env.m_World;
 
-    flecs::entity entity = world.entity();
+    flecs::entity entity = xg::ut::CreateOnStageEntity(world);
     world.get_mut<xg::UISelectComponent>().m_SelectEntity = entity;
 
     env.Update();
@@ -68,7 +69,7 @@ SYSTEM_TEST_CASE("UISelectComponent has entity set, next frame no entity set -> 
     TestEnv env;
     flecs::world world = env.m_World;
 
-    flecs::entity entity = world.entity();
+    flecs::entity entity = xg::ut::CreateOnStageEntity(world);
     world.get_mut<xg::UISelectComponent>().m_SelectEntity = entity;
 
     env.Update();
@@ -83,7 +84,7 @@ SYSTEM_TEST_CASE("UISelectComponent has entity set, next frame same entity set -
     TestEnv env;
     flecs::world world = env.m_World;
 
-    flecs::entity entity = world.entity();
+    flecs::entity entity = xg::ut::CreateOnStageEntity(world);
     world.get_mut<xg::UISelectComponent>().m_SelectEntity = entity;
 
     env.Update();
@@ -99,8 +100,8 @@ SYSTEM_TEST_CASE("Select entityA, then select entityB -> Clear SelectedComponent
     TestEnv env;
     flecs::world world = env.m_World;
 
-    flecs::entity entityA = world.entity();
-    flecs::entity entityB = world.entity();
+    flecs::entity entityA = xg::ut::CreateOnStageEntity(world);
+    flecs::entity entityB = xg::ut::CreateOnStageEntity(world);
     world.get_mut<xg::UISelectComponent>().m_SelectEntity = entityA;
 
     env.Update();
@@ -118,8 +119,8 @@ SYSTEM_TEST_CASE("Select entityA, then select entityB, while holding Multiselect
     TestEnv env;
     flecs::world world = env.m_World;
 
-    flecs::entity entityA = world.entity();
-    flecs::entity entityB = world.entity();
+    flecs::entity entityA = xg::ut::CreateOnStageEntity(world);
+    flecs::entity entityB = xg::ut::CreateOnStageEntity(world);
     world.get_mut<xg::UISelectComponent>().m_SelectEntity = entityA;
 
     env.Update();
@@ -138,8 +139,8 @@ SYSTEM_TEST_CASE("Multiselect selection toggles selection -> "
     TestEnv env;
     flecs::world world = env.m_World;
 
-    flecs::entity entityA = world.entity();
-    flecs::entity entityB = world.entity();
+    flecs::entity entityA = xg::ut::CreateOnStageEntity(world);
+    flecs::entity entityB = xg::ut::CreateOnStageEntity(world);
     world.get_mut<xg::UISelectComponent>().m_SelectEntity = entityA;
 
     env.Update();
@@ -162,8 +163,8 @@ SYSTEM_TEST_CASE("Select multiple entities, then set m_SelectBox=true with an em
     TestEnv env;
     flecs::world world = env.m_World;
 
-    flecs::entity entityA = world.entity();
-    flecs::entity entityB = world.entity();
+    flecs::entity entityA = xg::ut::CreateOnStageEntity(world);
+    flecs::entity entityB = xg::ut::CreateOnStageEntity(world);
     world.get_mut<xg::UISelectComponent>().m_SelectEntity = entityA;
 
     env.Update();
@@ -198,8 +199,8 @@ SYSTEM_TEST_CASE("Select nothing, then set m_SelectBox=true with multile entitie
 
     world.get_mut<xg::UISelectComponent>().m_SelectBox = true;
 
-    flecs::entity entity1 = world.entity();
-    flecs::entity entity2 = world.entity();
+    flecs::entity entity1 = xg::ut::CreateOnStageEntity(world);
+    flecs::entity entity2 = xg::ut::CreateOnStageEntity(world);
     world.get_mut<xg::SelectionBoxComponent>().m_Entities.push_back(entity1);
     world.get_mut<xg::SelectionBoxComponent>().m_Entities.push_back(entity2);
 
@@ -214,14 +215,15 @@ SYSTEM_TEST_CASE("Entity already selected, while holding Multiselect set m_Selec
     TestEnv env;
     flecs::world world = env.m_World;
 
-    flecs::entity entity1 = world.entity();
+    flecs::entity entity1 = xg::ut::CreateOnStageEntity(world);
+    flecs::entity entity2 = xg::ut::CreateOnStageEntity(world);
+    flecs::entity entity3 = xg::ut::CreateOnStageEntity(world);
+
     world.get_mut<xg::UISelectComponent>().m_SelectEntity = entity1;
     env.Update();
 
     world.get_mut<xg::MappedInputComponent>().m_KeyDown.insert(xg::EMappedInput::Multiselect);
     world.get_mut<xg::UISelectComponent>().m_SelectBox = true;
-    flecs::entity entity2 = world.entity();
-    flecs::entity entity3 = world.entity();
     world.get_mut<xg::SelectionBoxComponent>().m_Entities.push_back(entity2);
     world.get_mut<xg::SelectionBoxComponent>().m_Entities.push_back(entity3);
 
@@ -237,7 +239,8 @@ SYSTEM_TEST_CASE("Select something and set m_SelectBox=true with empty box same 
     TestEnv env;
     flecs::world world = env.m_World;
 
-    flecs::entity entityA = world.entity();
+    flecs::entity entityA = xg::ut::CreateOnStageEntity(world);
+
     world.get_mut<xg::UISelectComponent>().m_SelectEntity = entityA;
     world.get_mut<xg::UISelectComponent>().m_SelectBox = true;
 
@@ -246,18 +249,32 @@ SYSTEM_TEST_CASE("Select something and set m_SelectBox=true with empty box same 
     CHECK(world.has<xg::SelectionChangedComponent>() == false);
 }
 
-SYSTEM_TEST_CASE("Select something then remove it from stage -> Remove it from selection")
+SYSTEM_TEST_CASE("When selection changes offstage entities are unselected")
 {
     TestEnv env;
     flecs::world world = env.m_World;
 
-    flecs::entity entityA = world.entity();
+    flecs::entity entityA = xg::ut::CreateOnStageEntity(world);
+    flecs::entity entityB = xg::ut::CreateOnStageEntity(world);
+    flecs::entity entityC = xg::ut::CreateOnStageEntity(world);
+
     world.get_mut<xg::UISelectComponent>().m_SelectEntity = entityA;
 
     env.Update();
-    entityA.add<xg::OnStageRemovedComponent>();
+
+    world.get_mut<xg::MappedInputComponent>().m_KeyDown.insert(xg::EMappedInput::Multiselect);
+    world.get_mut<xg::UISelectComponent>().m_SelectEntity = entityB;
 
     env.Update();
+
+    entityA.remove<xg::OnStageComponent>();
+    world.get_mut<xg::MappedInputComponent>().m_KeyDown.insert(xg::EMappedInput::Multiselect);
+    world.get_mut<xg::UISelectComponent>().m_SelectEntity = entityC;
+
+    env.Update();
+
     CHECK(entityA.has<xg::SelectedComponent>() == false);
+    CHECK(entityB.has<xg::SelectedComponent>() == true);
+    CHECK(entityC.has<xg::SelectedComponent>() == true);
     CHECK(world.has<xg::SelectionChangedComponent>() == true);
 }

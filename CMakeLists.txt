@@ -363,6 +363,8 @@ if (NOT EMSCRIPTEN)
         src/ut/KeybindingHelpersTest.cpp
         src/ut/MappedInputSystemTest.cpp
         src/ut/OnStageSystemTest.cpp
+        src/ut/OnStageTestHelpers.cpp
+        src/ut/OnStageTestHelpers.h
         src/ut/RendererMapTest.cpp
         src/ut/ResourceIdTest.cpp
         src/ut/ResultTest.cpp

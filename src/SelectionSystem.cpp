@@ -5,7 +5,7 @@
 
 #include "Core/GLFWLib.h"
 #include "MappedInputComponent.h"
-#include "OnStageRemovedComponent.h"
+#include "OnStageComponent.h"
 #include "SelectedComponent.h"
 #include "SelectionBoxComponent.h"
 #include "SelectionChangedComponent.h"
@@ -33,17 +33,6 @@ void xg::SelectionSystem::Update(flecs::world& world)
     const flecs::entity& selectEntity = uiSelect.m_SelectEntity;
 
     bool anyChanges = false;
-    world.defer_begin();
-    world.each([&](
-        flecs::entity entity,
-        const xg::OnStageRemovedComponent,
-        const xg::SelectedComponent)
-        {
-            entity.remove<xg::SelectedComponent>();
-            anyChanges = true;
-        });
-    world.defer_end();
-
     if (uiSelect.m_SelectBox)
     {
         if (!world.get<xg::MappedInputComponent>().m_KeyDown.contains(xg::EMappedInput::Multiselect))
@@ -89,5 +78,14 @@ void xg::SelectionSystem::Update(flecs::world& world)
     if (anyChanges)
     {
         world.add<xg::SelectionChangedComponent>();
+
+        world.defer_begin();
+
+        auto removeOffStage = world.query_builder<const xg::SelectedComponent>().without<const xg::OnStageComponent>();
+        removeOffStage.build().each([&](flecs::entity entity, const xg::SelectedComponent&)
+        {
+            entity.remove<xg::SelectedComponent>();
+        });
+        world.defer_end();
     }
 }

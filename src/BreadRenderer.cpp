@@ -252,7 +252,7 @@ void xg::BreadRenderer::Update(const flecs::world& world)
         }
     }
 
-    if (world.has<xg::SelectionChangedComponent>())
+    if (world.has<xg::SelectionChangedComponent>() || anyOnStageChanges || anyMoves)
     {
         m_CogBoxSelectedRenderer->RemoveAll();
         for (xg::IWireRenderer* renderer : m_WireSelectedRendererMap.GetOrder())
@@ -260,14 +260,14 @@ void xg::BreadRenderer::Update(const flecs::world& world)
             renderer->RemoveAll();
         }
 
-        world.each([&](const xg::SelectedComponent, const xg::CogComponent& cogComponent)
+        world.each([&](const xg::SelectedComponent, const xg::OnStageComponent, const xg::CogComponent& cogComponent)
         {
             const xg::CogPrototype* cog = cogMap.Get(cogComponent.m_CogId);
             glm::ivec2 cogExtents = cog->GetSize() - glm::ivec2(1, 1);
             m_CogBoxSelectedRenderer->AddBox(cogComponent.m_Transform.m_Translation, cogComponent.m_Transform.Apply(cogExtents));
         });
 
-        world.each([&](const xg::SelectedComponent, const xg::WireComponent& wireComponent)
+        world.each([&](const xg::SelectedComponent, const xg::OnStageComponent, const xg::WireComponent& wireComponent)
         {
             for (xg::IWireRenderer* renderer : m_WireSelectedRendererMap.GetOrder())
             {
