@@ -237,10 +237,12 @@ set(cog_files
 set(command_files
 
     src/Command/CommandAddCogComponent.h
+    src/Command/CommandAddGroupComponent.h
     src/Command/CommandAddWireComponent.h
     src/Command/CommandCreateSystem.cpp
     src/Command/CommandCreateSystem.h
     src/Command/CommandDeleteCogComponent.h
+    src/Command/CommandDeleteGroupComponent.h
     src/Command/CommandDeleteWireComponent.h
     src/Command/CommandEntityComponent.h
     src/Command/CommandExecuteComponent.h

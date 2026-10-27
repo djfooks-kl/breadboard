@@ -2,9 +2,11 @@
 #include <flecs/flecs.h>
 
 #include "Command/CommandAddCogComponent.h"
+#include "Command/CommandAddGroupComponent.h"
 #include "Command/CommandAddWireComponent.h"
 #include "Command/CommandCreateSystem.h"
 #include "Command/CommandDeleteCogComponent.h"
+#include "Command/CommandDeleteGroupComponent.h"
 #include "Command/CommandDeleteWireComponent.h"
 #include "Command/CommandEntityComponent.h"
 #include "Command/CommandExpiredFromHistoryComponent.h"
@@ -16,6 +18,7 @@
 #include "UIAddWireComponent.h"
 #include "UIDeleteCogComponent.h"
 #include "UIDeleteWireComponent.h"
+#include "UIDragDeleteGroupComponent.h"
 #include "UIMoveGroupComponent.h"
 
 #define SYSTEM_TEST_CASE(description) TEST_CASE("xg::command::CreateSystem - " description, "[xg::command::CreateSystem]")
@@ -60,9 +63,9 @@ namespace
                     entity.destruct();
                 });
 
-            m_World.each([](flecs::entity entity, xg::command::ExpiredFromHistoryComponent)
+            m_World.each([](flecs::entity entity, xg::UIDragDeleteGroupComponent)
                 {
-                    entity.remove<xg::command::ExpiredFromHistoryComponent>();
+                    entity.destruct();
                 });
 
             m_World.defer_end();
@@ -383,5 +386,60 @@ TEST_CASE("When a move group command is severed from history destroy the command
     command.add<xg::command::SeveredFromHistoryComponent>();
     env.Update();
 
+    CHECK(world.is_alive(command) == false);
+}
+
+TEST_CASE("Delete a group (drag) -> Queue for execution and add an add group undo command")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity uiCommand = world.entity();
+    flecs::entity entity1 = world.entity();
+    flecs::entity entity2 = world.entity();
+    auto& deleteGroup = uiCommand.ensure<xg::UIDragDeleteGroupComponent>();
+    deleteGroup.m_Entities.push_back(entity1);
+    deleteGroup.m_Entities.push_back(entity2);
+    env.Update();
+
+    std::vector<flecs::entity> entities = xc::ut::CollectEntities(world.query<xg::command::ToQueueComponent>());
+    REQUIRE(entities.size() == 1);
+    flecs::entity command = entities[0];
+
+    REQUIRE(command.get<const xg::command::DeleteGroupComponent>().m_Entities.size() == 2);
+    CHECK(command.get<const xg::command::DeleteGroupComponent>().m_Entities[0] == entity1);
+    CHECK(command.get<const xg::command::DeleteGroupComponent>().m_Entities[1] == entity2);
+
+    REQUIRE(command.has<xg::command::ToQueueComponent>());
+    const flecs::entity undo = command.get<const xg::command::ToQueueComponent>().m_Undo;
+    REQUIRE(undo != flecs::entity());
+    REQUIRE(undo.has<xg::command::AddGroupComponent>());
+    REQUIRE(undo.get<const xg::command::AddGroupComponent>().m_Entities.size() == 2);
+    CHECK(undo.get<const xg::command::AddGroupComponent>().m_Entities[0] == entity1);
+    CHECK(undo.get<const xg::command::AddGroupComponent>().m_Entities[1] == entity2);
+}
+
+TEST_CASE("When a delete group command expires from history destroy the added entities")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity uiCommand = world.entity();
+    flecs::entity entity1 = world.entity();
+    flecs::entity entity2 = world.entity();
+    auto& deleteGroup = uiCommand.ensure<xg::UIDragDeleteGroupComponent>();
+    deleteGroup.m_Entities.push_back(entity1);
+    deleteGroup.m_Entities.push_back(entity2);
+    env.Update();
+
+    std::vector<flecs::entity> entities = xc::ut::CollectEntities(world.query<xg::command::DeleteGroupComponent>());
+    REQUIRE(entities.size() == 1);
+    flecs::entity command = entities[0];
+
+    command.add<xg::command::ExpiredFromHistoryComponent>();
+    env.Update();
+
+    CHECK(world.is_alive(entity1) == false);
+    CHECK(world.is_alive(entity2) == false);
     CHECK(world.is_alive(command) == false);
 }

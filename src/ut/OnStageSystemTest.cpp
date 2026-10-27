@@ -2,8 +2,10 @@
 #include <flecs/flecs.h>
 
 #include "Command/CommandAddCogComponent.h"
+#include "Command/CommandAddGroupComponent.h"
 #include "Command/CommandAddWireComponent.h"
 #include "Command/CommandDeleteCogComponent.h"
+#include "Command/CommandDeleteGroupComponent.h"
 #include "Command/CommandDeleteWireComponent.h"
 #include "Command/CommandEntityComponent.h"
 #include "Command/CommandExecuteComponent.h"
@@ -288,3 +290,108 @@ SYSTEM_TEST_CASE("Move without drag -> "
     CHECK(addedEntity3.has<xg::OnStageAddedComponent>() == false);
 }
 
+SYSTEM_TEST_CASE("Delete group -> Set each entity offstage and add OnStageRemovedComponent for each")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity addedEntity = world.entity();
+    flecs::entity commandAdd = world.entity();
+    commandAdd.ensure<xg::command::AddWireComponent>();
+    commandAdd.ensure<xg::command::EntityComponent>().m_Entity = addedEntity;
+
+    flecs::entity addedEntity2 = world.entity();
+    flecs::entity commandAdd2 = world.entity();
+    commandAdd2.ensure<xg::command::AddWireComponent>();
+    commandAdd2.ensure<xg::command::EntityComponent>().m_Entity = addedEntity2;
+
+    flecs::entity addedEntity3 = world.entity();
+    flecs::entity commandAdd3 = world.entity();
+    commandAdd3.ensure<xg::command::AddWireComponent>();
+    commandAdd3.ensure<xg::command::EntityComponent>().m_Entity = addedEntity3;
+
+    flecs::entity commandDeleteGroup = world.entity();
+    {
+        auto& deleteGroup = commandDeleteGroup.ensure<xg::command::DeleteGroupComponent>();
+        deleteGroup.m_Entities.push_back(addedEntity);
+        deleteGroup.m_Entities.push_back(addedEntity2);
+    }
+
+    commandAdd.add<xg::command::ExecuteComponent>();
+    env.Update();
+
+    commandAdd2.add<xg::command::ExecuteComponent>();
+    env.Update();
+
+    commandAdd3.add<xg::command::ExecuteComponent>();
+    env.Update();
+
+    commandDeleteGroup.add<xg::command::ExecuteComponent>();
+    env.Update();
+
+    CHECK(addedEntity.has<xg::OnStageComponent>() == false);
+    CHECK(addedEntity2.has<xg::OnStageComponent>() == false);
+    CHECK(addedEntity3.has<xg::OnStageComponent>());
+
+    CHECK(addedEntity.has<xg::OnStageRemovedComponent>());
+    CHECK(addedEntity2.has<xg::OnStageRemovedComponent>());
+    CHECK(addedEntity3.has<xg::OnStageRemovedComponent>() == false);
+}
+
+SYSTEM_TEST_CASE("Add group -> Set each entity onstage and add OnStageAddedComponent for each")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity addedEntity = world.entity();
+    flecs::entity commandAdd = world.entity();
+    commandAdd.ensure<xg::command::AddWireComponent>();
+    commandAdd.ensure<xg::command::EntityComponent>().m_Entity = addedEntity;
+
+    flecs::entity addedEntity2 = world.entity();
+    flecs::entity commandAdd2 = world.entity();
+    commandAdd2.ensure<xg::command::AddWireComponent>();
+    commandAdd2.ensure<xg::command::EntityComponent>().m_Entity = addedEntity2;
+
+    flecs::entity addedEntity3 = world.entity();
+    flecs::entity commandAdd3 = world.entity();
+    commandAdd3.ensure<xg::command::AddWireComponent>();
+    commandAdd3.ensure<xg::command::EntityComponent>().m_Entity = addedEntity3;
+
+    flecs::entity commandDeleteGroup = world.entity();
+    {
+        auto& deleteGroup = commandDeleteGroup.ensure<xg::command::DeleteGroupComponent>();
+        deleteGroup.m_Entities.push_back(addedEntity);
+        deleteGroup.m_Entities.push_back(addedEntity2);
+    }
+
+    flecs::entity commandAddGroup = world.entity();
+    {
+        auto& addGroup = commandAddGroup.ensure<xg::command::AddGroupComponent>();
+        addGroup.m_Entities.push_back(addedEntity);
+        addGroup.m_Entities.push_back(addedEntity2);
+    }
+
+    commandAdd.add<xg::command::ExecuteComponent>();
+    env.Update();
+
+    commandAdd2.add<xg::command::ExecuteComponent>();
+    env.Update();
+
+    commandAdd3.add<xg::command::ExecuteComponent>();
+    env.Update();
+
+    commandDeleteGroup.add<xg::command::ExecuteComponent>();
+    env.Update();
+
+    commandAddGroup.add<xg::command::ExecuteComponent>();
+    env.Update();
+
+    CHECK(addedEntity.has<xg::OnStageComponent>());
+    CHECK(addedEntity2.has<xg::OnStageComponent>());
+    CHECK(addedEntity3.has<xg::OnStageComponent>());
+
+    CHECK(addedEntity.has<xg::OnStageAddedComponent>());
+    CHECK(addedEntity2.has<xg::OnStageAddedComponent>());
+    CHECK(addedEntity3.has<xg::OnStageAddedComponent>() == false);
+}

@@ -1,8 +1,10 @@
 #include "Command/CommandCreateSystem.h"
 
 #include "Command/CommandAddCogComponent.h"
+#include "Command/CommandAddGroupComponent.h"
 #include "Command/CommandAddWireComponent.h"
 #include "Command/CommandDeleteCogComponent.h"
+#include "Command/CommandDeleteGroupComponent.h"
 #include "Command/CommandDeleteWireComponent.h"
 #include "Command/CommandEntityComponent.h"
 #include "Command/CommandExpiredFromHistoryComponent.h"
@@ -14,6 +16,7 @@
 #include "UIAddWireComponent.h"
 #include "UIDeleteCogComponent.h"
 #include "UIDeleteWireComponent.h"
+#include "UIDragDeleteGroupComponent.h"
 #include "UIMoveGroupComponent.h"
 #include "UIPreviewCreateWireComponent.h"
 
@@ -61,6 +64,18 @@ void xg::command::CreateSystem::Update(flecs::world& world)
         xg::command::DeleteWireComponent& deleteWire)
         {
             deleteWire.m_Wire.destruct();
+        });
+    world.defer_end();
+
+    world.defer_begin();
+    world.each([](
+        xg::command::ExpiredFromHistoryComponent,
+        xg::command::DeleteGroupComponent& deleteGroup)
+        {
+            for (const flecs::entity& entity : deleteGroup.m_Entities)
+            {
+                entity.destruct();
+            }
         });
     world.defer_end();
 
@@ -153,6 +168,19 @@ void xg::command::CreateSystem::Update(flecs::world& world)
             auto& undoCommand = undo.ensure<xg::command::MoveGroupComponent>();
             undoCommand.m_Entities = uiMoveGroup.m_Entities;
             undoCommand.m_Transform = uiMoveGroup.m_Transform.Inverse();
+
+            entity.ensure<xg::command::ToQueueComponent>().m_Undo = undo;
+        });
+
+    world.each([&](const xg::UIDragDeleteGroupComponent& uiDragDeleteGroup)
+        {
+            flecs::entity entity = xg::CreateEntity(world);
+            auto& command = entity.ensure<xg::command::DeleteGroupComponent>();
+            command.m_Entities = uiDragDeleteGroup.m_Entities;
+
+            const flecs::entity undo = xg::CreateEntity(world);
+            auto& undoCommand = undo.ensure<xg::command::AddGroupComponent>();
+            undoCommand.m_Entities = uiDragDeleteGroup.m_Entities;
 
             entity.ensure<xg::command::ToQueueComponent>().m_Undo = undo;
         });
