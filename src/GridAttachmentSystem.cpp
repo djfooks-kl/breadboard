@@ -79,10 +79,8 @@ namespace
             {
                 const glm::ivec2 p = prev + dir * i;
                 auto& attachments = inout_map[p];
-                if (!xc::RangeContains(attachments.m_Entities, entity))
-                {
-                    attachments.m_Entities.push_back(entity);
-                }
+                xc::AppendUnique(attachments.m_Entities, entity);
+
                 if (i < distance)
                 {
                     attachments.m_WireDirectionFlags |= forward;
@@ -90,6 +88,42 @@ namespace
                 if (i > 0)
                 {
                     attachments.m_WireDirectionFlags |= backward;
+                }
+            }
+            prev = next;
+        }
+    }
+
+    void DeleteWire(
+        flecs::entity entity,
+        const xg::WireComponent& wire,
+        const xc::ITransform& transform,
+        xg::GridAttachmentsMap& inout_map,
+        std::unordered_set<flecs::entity>& inout_dirtyMap)
+    {
+        glm::ivec2 prev = transform.Apply(wire.m_Checkpoints[0]);
+        for (glm::ivec2 localNext : wire.m_Checkpoints)
+        {
+            const glm::ivec2 next = transform.Apply(localNext);
+            const glm::ivec2 dir = xg::GetIDirection(prev, next);
+            const int distance = xg::ChebyshevDistance(prev, next);
+            for (int i = 0; i <= distance; ++i)
+            {
+                const glm::ivec2 p = prev + dir * i;
+                auto& attachments = inout_map[p];
+                std::erase(attachments.m_Entities, entity);
+                if (attachments.m_Entities.empty())
+                {
+                    inout_map.erase(p);
+                }
+                else
+                {
+                    for (flecs::entity otherEntity : attachments.m_Entities)
+                    {
+                        inout_dirtyMap.insert(otherEntity);
+                    }
+                    attachments.m_HasWireCheckpoint = false;
+                    attachments.m_WireDirectionFlags.ClearAll();
                 }
             }
             prev = next;
@@ -116,14 +150,29 @@ void xg::GridAttachmentSystem::Update(flecs::world& world)
         const xg::command::MoveGroupComponent& moveGroup,
         const xg::command::ExecuteComponent&)
         {
+            std::unordered_set<flecs::entity> dirty;
             for (const flecs::entity& entity : moveGroup.m_Entities)
             {
-                // todo test wires!!!
-                if (!entity.has<xg::OnStageAddedComponent>())
+                if (entity.has<xg::OnStageAddedComponent>())
+                    continue;
+
+                if (const auto* cog = entity.try_get<const xg::CogComponent>())
                 {
-                    const auto& cog = entity.get<const xg::CogComponent>();
-                    DeleteCog(entity, cogMap, cog, moveGroup.m_Transform.Inverse() * cog.m_Transform, map);
-                    AddCog(entity, cogMap, cog, map);
+                    DeleteCog(entity, cogMap, *cog, moveGroup.m_Transform.Inverse() * cog->m_Transform, map);
+                    AddCog(entity, cogMap, *cog, map);
+                }
+                else if (const auto* wire = entity.try_get<const xg::WireComponent>())
+                {
+                    DeleteWire(entity, *wire, moveGroup.m_Transform.Inverse(), map, dirty);
+                    AddWire(entity, *wire, map);
+                }
+            }
+
+            for (const flecs::entity& entityToReAdd : dirty)
+            {
+                if (const auto* reAddWireComponent = entityToReAdd.try_get<const xg::WireComponent>())
+                {
+                    AddWire(entityToReAdd, *reAddWireComponent, map);
                 }
             }
         });
@@ -137,32 +186,7 @@ void xg::GridAttachmentSystem::Update(flecs::world& world)
         {
             std::unordered_set<flecs::entity> dirty;
 
-            glm::ivec2 prev = wire.m_Checkpoints[0];
-            for (glm::ivec2 next : wire.m_Checkpoints)
-            {
-                const glm::ivec2 dir = xg::GetIDirection(prev, next);
-                const int distance = xg::ChebyshevDistance(prev, next);
-                for (int i = 0; i <= distance; ++i)
-                {
-                    const glm::ivec2 p = prev + dir * i;
-                    auto& attachments = map[p];
-                    std::erase(attachments.m_Entities, entity);
-                    if (attachments.m_Entities.empty())
-                    {
-                        map.erase(p);
-                    }
-                    else
-                    {
-                        for (flecs::entity otherEntity : attachments.m_Entities)
-                        {
-                            dirty.insert(otherEntity);
-                        }
-                        attachments.m_HasWireCheckpoint = false;
-                        attachments.m_WireDirectionFlags.ClearAll();
-                    }
-                }
-                prev = next;
-            }
+            DeleteWire(entity, wire, xc::ITransform::s_Identy, map, dirty);
 
             for (const flecs::entity& entityToReAdd : dirty)
             {

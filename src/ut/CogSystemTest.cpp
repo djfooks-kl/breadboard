@@ -110,10 +110,6 @@ SYSTEM_TEST_CASE("Moving a cog -> Update transform and nodes")
     TestEnv env;
     flecs::world world = env.m_World;
 
-
-    xc::ITransform transformA{ .m_Translation = glm::ivec2(1, 1), .m_Rotation = xc::Rotation90(1) };
-    xc::ITransform transformB{ .m_Translation = glm::ivec2(10, 10), .m_Rotation = xc::Rotation90(2) };
-
     flecs::entity otherMovedEntity = world.entity();
 
     flecs::entity addedEntity = world.entity();

@@ -704,3 +704,112 @@ SYSTEM_TEST_CASE("Add wire A,B,C and a cog overlapping, then remove B from stage
     CHECK(GetCellWireDirection(map, glm::ivec2(5, 1)) == (TFlags{} | EWireDir::N));
     CHECK(GetCellWireDirection(map, glm::ivec2(5, 3)) == (TFlags{} | EWireDir::S));
 }
+
+SYSTEM_TEST_CASE("Moving an on stage wire -> Dettach from old position attach it to new")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity wireEntity = world.entity();
+    {
+        wireEntity.add<xg::OnStageAddedComponent>();
+        auto& wire = wireEntity.ensure<xg::WireComponent>();
+        wire.m_Checkpoints.push_back(glm::ivec2(3, 1));
+        wire.m_Checkpoints.push_back(glm::ivec2(3, 4));
+    }
+
+    env.Update();
+
+    flecs::entity moveCommand = world.entity();
+    {
+        auto& moveGroup = moveCommand.ensure<xg::command::MoveGroupComponent>();
+        moveGroup.m_Entities.push_back(wireEntity);
+        moveGroup.m_Transform = xc::ITransform{ glm::ivec2(0, 1) };
+
+        auto& wire = wireEntity.get_mut<xg::WireComponent>();
+        wire.m_Checkpoints[0] = glm::ivec2(3, 2);
+        wire.m_Checkpoints[1] = glm::ivec2(3, 5);
+    }
+    moveCommand.add<xg::command::ExecuteComponent>();
+
+    env.Update();
+
+    const auto& map = world.get<xg::GridAttachmentsComponent>().m_Map;
+    CHECK(map.size() == 4);
+    CHECK(CellOnlyHas(map, glm::ivec2(3, 2), wireEntity));
+    CHECK(CellOnlyHas(map, glm::ivec2(3, 3), wireEntity));
+    CHECK(CellOnlyHas(map, glm::ivec2(3, 4), wireEntity));
+    CHECK(CellOnlyHas(map, glm::ivec2(3, 5), wireEntity));
+
+    CHECK(CellHasFlags(map, glm::ivec2(3, 2), { .m_HasNode = false, .m_HasWireCheckpoint = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(3, 3), { .m_HasNode = false, .m_HasWireCheckpoint = false }));
+    CHECK(CellHasFlags(map, glm::ivec2(3, 4), { .m_HasNode = false, .m_HasWireCheckpoint = false }));
+    CHECK(CellHasFlags(map, glm::ivec2(3, 5), { .m_HasNode = false, .m_HasWireCheckpoint = true }));
+
+    using TFlags = xg::TWireDirectionFlags;
+    using EWireDir = xg::EWireDirection;
+
+    CHECK(GetCellWireDirection(map, glm::ivec2(3, 2)) == (TFlags{} | EWireDir::N));
+    CHECK(GetCellWireDirection(map, glm::ivec2(3, 3)) == (TFlags{} | EWireDir::N | EWireDir::S));
+    CHECK(GetCellWireDirection(map, glm::ivec2(3, 4)) == (TFlags{} | EWireDir::N | EWireDir::S));
+    CHECK(GetCellWireDirection(map, glm::ivec2(3, 5)) == (TFlags{} | EWireDir::S));
+}
+
+SYSTEM_TEST_CASE("Moving an on stage wire that was overlapping -> Dettach from old position attach it to new (but leave other wire attached)")
+{
+    TestEnv env;
+    flecs::world world = env.m_World;
+
+    flecs::entity wireEntity = world.entity();
+    {
+        wireEntity.add<xg::OnStageAddedComponent>();
+        auto& wire = wireEntity.ensure<xg::WireComponent>();
+        wire.m_Checkpoints.push_back(glm::ivec2(3, 1));
+        wire.m_Checkpoints.push_back(glm::ivec2(3, 4));
+    }
+
+    flecs::entity otherWireEntity = world.entity();
+    {
+        otherWireEntity.add<xg::OnStageAddedComponent>();
+        auto& wire = otherWireEntity.ensure<xg::WireComponent>();
+        wire.m_Checkpoints.push_back(glm::ivec2(3, 1));
+        wire.m_Checkpoints.push_back(glm::ivec2(3, 2));
+    }
+
+    env.Update();
+
+    flecs::entity moveCommand = world.entity();
+    {
+        auto& moveGroup = moveCommand.ensure<xg::command::MoveGroupComponent>();
+        moveGroup.m_Entities.push_back(wireEntity);
+        moveGroup.m_Transform = xc::ITransform{ glm::ivec2(0, 1) };
+
+        auto& wire = wireEntity.get_mut<xg::WireComponent>();
+        wire.m_Checkpoints[0] = glm::ivec2(3, 2);
+        wire.m_Checkpoints[1] = glm::ivec2(3, 5);
+    }
+    moveCommand.add<xg::command::ExecuteComponent>();
+
+    env.Update();
+
+    const auto& map = world.get<xg::GridAttachmentsComponent>().m_Map;
+    CHECK(map.size() == 5);
+    CHECK(CellOnlyHas(map, glm::ivec2(3, 1), otherWireEntity));
+    CHECK(CellContains(map, glm::ivec2(3, 2), wireEntity));
+    CHECK(CellContains(map, glm::ivec2(3, 2), otherWireEntity));
+
+    CHECK(CellHasFlags(map, glm::ivec2(3, 1), { .m_HasNode = false, .m_HasWireCheckpoint = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(3, 2), { .m_HasNode = false, .m_HasWireCheckpoint = true }));
+    CHECK(CellHasFlags(map, glm::ivec2(3, 3), { .m_HasNode = false, .m_HasWireCheckpoint = false }));
+    CHECK(CellHasFlags(map, glm::ivec2(3, 4), { .m_HasNode = false, .m_HasWireCheckpoint = false }));
+    CHECK(CellHasFlags(map, glm::ivec2(3, 5), { .m_HasNode = false, .m_HasWireCheckpoint = true }));
+
+    using TFlags = xg::TWireDirectionFlags;
+    using EWireDir = xg::EWireDirection;
+
+    CHECK(GetCellWireDirection(map, glm::ivec2(3, 1)) == (TFlags{} | EWireDir::N));
+    CHECK(GetCellWireDirection(map, glm::ivec2(3, 2)) == (TFlags{} | EWireDir::N | EWireDir::S));
+    CHECK(GetCellWireDirection(map, glm::ivec2(3, 3)) == (TFlags{} | EWireDir::N | EWireDir::S));
+    CHECK(GetCellWireDirection(map, glm::ivec2(3, 4)) == (TFlags{} | EWireDir::N | EWireDir::S));
+    CHECK(GetCellWireDirection(map, glm::ivec2(3, 5)) == (TFlags{} | EWireDir::S));
+}
